@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:uesb_forms/Telas/Meus_Formularios.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
-
+// novo
 void main() {
+  int variavelInutil; // apaga
   runApp(const MyApp());
 }
 
