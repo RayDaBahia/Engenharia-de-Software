@@ -1,33 +1,51 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:uesb_forms/Modelo/auth_list.dart';
+
 import 'package:uesb_forms/Telas/Meus_Formularios.dart';
+import 'package:uesb_forms/Telas/Login.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
-// novo
-void main() {
-  int variavelInutil; // apaga
+import 'package:provider/provider.dart';
+import 'package:uesb_forms/firebase_options.dart';
+
+
+void main() async {
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+
+
   runApp(const MyApp());
+
+
+
+
 }
+
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-   
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_)=>AuthList(),)
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        routes: {
+          Rotas.HOME: (ctx) => Login(),
+          Rotas.MEUS_FORMULARIOS: (ctx) => const MeusFormularios(),
+        },
       ),
-
-
-
-    routes: {
-
-      Rotas.HOME: (ctx)=> const MeusFormularios(),
-    },
     );
   }
 }
-
