@@ -2,12 +2,35 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
+import 'package:uesb_forms/Utils/rotas.dart';
 
 class MenuLateral extends StatelessWidget {
  
 
+
   @override
   Widget build(BuildContext context) {
+
+    final _authUser=Provider.of<AuthList>(context, listen: false);
+
+    Future<void> _signoutGoogle() async {
+        try {
+          await _authUser.handleSignOut();
+
+
+          
+          Navigator.pushReplacementNamed(context, Rotas.HOME);
+        
+
+        } catch (error) {
+          //  tratar com _showErrorDialog
+        
+        }
+      }
+
+
     return Drawer(
       child: Column(
         children: [
@@ -68,7 +91,9 @@ class MenuLateral extends StatelessWidget {
               
             ),
             title: Text('Sair'),
-              onTap: (){},
+              onTap: (){
+                _signoutGoogle();
+                ;},
           ),
 
 
