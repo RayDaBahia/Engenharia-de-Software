@@ -10,25 +10,17 @@ import 'package:provider/provider.dart';
 
 
 
-class Login extends StatefulWidget {
+class Login extends StatelessWidget {
 
-  @override
-  State<Login> createState() => _LoginState();
-}
-
-class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
 
-    bool isLoading=false;
+    
 
     final authUser=Provider.of<AuthList>(context, listen: false);
 
     Future<void> _loginWithGoogle(AuthList authList) async {
         try {
-          setState(() {
-            isLoading=true;
-          });
           await authList.handleGoogleSignIn();
 
         
@@ -37,12 +29,6 @@ class _LoginState extends State<Login> {
         } catch (error) {
           //  tratar com _showErrorDialog
         
-        
-        }finally{
-          
-          setState(() {
-            isLoading=false;
-          });
         }
       }
 
@@ -52,6 +38,7 @@ class _LoginState extends State<Login> {
         title: Text('Google Login'),
       ),
       body:  Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Center(
           child: SizedBox(
@@ -64,13 +51,16 @@ class _LoginState extends State<Login> {
           ),
               ),
               
-          if(isLoading)
-              CircularProgressIndicator()
+          
         ],
       ),
   
     );
   }
+
+
+
+
 }
 
   
