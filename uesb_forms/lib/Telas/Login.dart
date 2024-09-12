@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_button/sign_in_button.dart';
-import 'package:uesb_forms/Modelo/auth_list.dart';
-import 'package:uesb_forms/Telas/Meus_Formularios.dart';
+import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
+import 'package:uesb_forms/Telas/BancoDeQuestoes/Meus_Formularios.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 import 'package:provider/provider.dart';
 

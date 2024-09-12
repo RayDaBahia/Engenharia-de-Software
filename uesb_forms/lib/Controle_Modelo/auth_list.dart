@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_button/sign_in_button.dart';
 import 'package:uesb_forms/Modelo/Usuario.dart';
-import 'package:uesb_forms/Telas/Meus_Formularios.dart';
+import 'package:uesb_forms/Telas/BancoDeQuestoes/Meus_Formularios.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 
 class AuthList with ChangeNotifier {

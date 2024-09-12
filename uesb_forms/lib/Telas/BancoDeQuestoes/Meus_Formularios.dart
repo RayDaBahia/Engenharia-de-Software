@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
-import 'package:uesb_forms/Modelo/auth_list.dart';
+import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 
 class MeusFormularios  extends StatelessWidget {
   const MeusFormularios ({super.key});
