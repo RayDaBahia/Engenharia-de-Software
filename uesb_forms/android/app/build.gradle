@@ -27,10 +27,10 @@ android {
         applicationId = "com.example.uesb_forms"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdkVersion flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        minSdkVersion 23
+        targetSdk = 23
+        versionCode = 1
+        versionName = "1.0"
     }
 
     buildTypes {
@@ -45,4 +45,3 @@ android {
 flutter {
     source = "../.."
 }
-apply plugin 'com.google.gms.google-service'
