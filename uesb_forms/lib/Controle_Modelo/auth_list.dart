@@ -9,6 +9,7 @@ class AuthList with ChangeNotifier {
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     clientId: '92855436550-2unp3fm8mo04k6125a3ojnv6212nubgt.apps.googleusercontent.com',
+    hostedDomain: 'uesb.edu.br'
   );
 
   User? _user;
@@ -32,6 +33,7 @@ class AuthList with ChangeNotifier {
     final GoogleUser = await _googleSignIn.signIn();
     if (GoogleUser == null) return;
 
+  
     final GoogleAuth = await GoogleUser.authentication;
 
     final credential = GoogleAuthProvider.credential(
