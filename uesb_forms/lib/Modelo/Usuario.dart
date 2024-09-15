@@ -1,13 +1,22 @@
 class Usuario {
-  final String? nome;
-  final String? email;
-  final String? fotoPerfilUrl;
-  final String? id;
+  final String? _nome;
+  final String? _email;
+  final String? _fotoPerfilUrl;
+  final String? _id;
 
   Usuario({
-    required this.id,
-    required this.nome,
-    required this.email,
-    required this.fotoPerfilUrl,
-  });
+    required String id,
+    required String nome,
+    required String email,
+    required String fotoPerfilUrl,
+  })  : _id = id,
+        _nome = nome,
+        _email = email,
+        _fotoPerfilUrl = fotoPerfilUrl;
+
+  // Getters para acessar os campos privados
+  String? get nome => _nome;
+  String? get email => _email;
+  String? get fotoPerfilUrl => _fotoPerfilUrl;
+  String? get id => _id;
 }

@@ -2,25 +2,57 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
+import 'package:uesb_forms/Excecoes/erro_login.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/Meus_Formularios.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
-import 'package:provider/provider.dart';
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
+  bool _isLoading = false;
+
+  
+    void _showErrorDialog(BuildContext context, String errorMessage) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('Erro'),
+          content: Text(errorMessage),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+             setState(() {
+                
+              });
+                Navigator.of(ctx).pop();
+          
+              },
+            )
+          ],
+        ),
+      );
+    }
+
+
   @override
   Widget build(BuildContext context) {
     final authUser = Provider.of<AuthList>(context, listen: false);
 
     Future<void> _loginWithGoogle(AuthList authList) async {
+   
       try {
         await authList.handleGoogleSignIn();
-
         Navigator.pushReplacementNamed(context, Rotas.MEUS_FORMULARIOS);
-      } catch (error) {
-        //  tratar com _showErrorDialog
-      }
+      } on erroLogin catch (e) {
+        String errorMessage = e.toString();
+        _showErrorDialog(context, errorMessage);
+        print(errorMessage);
+      } 
     }
 
     return Scaffold(
@@ -74,33 +106,38 @@ class Login extends StatelessWidget {
             ),
             Center(
               child: ElevatedButton(
-                  onPressed: () => _loginWithGoogle(authUser),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    side: const BorderSide(
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        width: 2), // Borda preta
-                    elevation: 0, // Remove a sombra
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset(
-                        "images/google.png",
-                        height: 25,
+                onPressed: _isLoading
+                    ? null 
+                    : () => _loginWithGoogle(authUser)
+                    
+                    ,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  side: const BorderSide(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      width: 2), // Borda preta
+                  elevation: 0, // Remove a sombra
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      "images/google.png",
+                      height: 25,
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(10, 20, 0, 20),
+                    ),
+                    const Text(
+                      "Google",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
                       ),
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(10, 20, 0, 20),
-                      ),
-                      const Text(
-                        "Google",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                        ),
-                      ),
-                    ],
-                  )),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -108,18 +145,3 @@ class Login extends StatelessWidget {
     );
   }
 }
-
-/*
-
-SizedBox(
-              height: 30,
-              child: SignInButton(
-                Buttons.google,
-                onPressed: () => _loginWithGoogle(authUser),
-                text: 'Google',
-              ),
-            ),
-
-
-
- */

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:uesb_forms/Excecoes/erro_login.dart';
 import 'package:uesb_forms/Modelo/Usuario.dart';
 
 class AuthList with ChangeNotifier {
@@ -30,6 +31,7 @@ class AuthList with ChangeNotifier {
 
   // Método para autenticar com Google
   Future<void> handleGoogleSignIn() async {
+    
     final GoogleUser = await _googleSignIn.signIn();
     if (GoogleUser == null) return;
 
@@ -41,7 +43,14 @@ class AuthList with ChangeNotifier {
       idToken: GoogleAuth.idToken,
     );
 
-    // Realiza o login no Firebase com as credenciais do Google
+   
+  if (!verificarEmailUesb(GoogleUser.email ?? '')) {
+    handleSignOut();
+      throw erroLogin( 'dominio_nao_autorizado');
+    }
+
+// so vai para o firebase se o dominio tiver ok
+ // Realiza o login no Firebase com as credenciais do Google
     UserCredential userCredential = await _auth.signInWithCredential(credential);
 
     _user = userCredential.user; // Atualiza o _user com o usuário autenticado
@@ -49,14 +58,22 @@ class AuthList with ChangeNotifier {
     // Após autenticar, cria o objeto Usuario
     _usuario = Usuario(
       id: _user!.uid,
-      nome: GoogleUser.displayName,
+      nome: GoogleUser.displayName.toString(),
       email: GoogleUser.email,
-      fotoPerfilUrl: GoogleUser.photoUrl,
+      fotoPerfilUrl: GoogleUser.photoUrl.toString(),
     );
+    notifyListeners();
 
-    notifyListeners(); // Notifica ouvintes sobre mudanças
-  }
 
+}
+
+bool verificarEmailUesb(String email) {
+  // Extrair o domínio do e-mail
+  final dominio = email.split('@').last.trim();
+
+  // Verificar se o domínio é igual a "uesb.edu.br"
+  return dominio == 'uesb.edu.br';
+}
   // Método para obter o usuário logado
   Usuario? get usuario {
     return _usuario;
