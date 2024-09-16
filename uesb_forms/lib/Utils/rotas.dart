@@ -4,6 +4,8 @@ class Rotas {
   
   static const MEUS_FORMULARIOS = '/Meus-Formularios';
 
+  static const MEUS_BANCOS = '/Meus-Bancos';
+
 
 
 }

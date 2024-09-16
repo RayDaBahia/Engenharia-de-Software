@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
+import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_multipla_escolha.dart';
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 
@@ -23,9 +24,9 @@ class MeusFormularios extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: const Color.fromARGB(255, 27, 7, 80),
       ),
-      body: Column(
+     body: Column(
         children: [
           const Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -42,11 +43,16 @@ class MeusFormularios extends StatelessWidget {
             child: Image.asset(
               "images/form_roxo.png",
               fit: BoxFit.fill,
-            ),
-          )
-        ],
+    
+         
       ),
-      drawer: MenuLateral(),
+          ),
+        ],
+       
+     ),
+      drawer: MenuLateral()
     );
+   
+    
   }
 }

@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/Meus_Formularios.dart';
+import 'package:uesb_forms/Telas/BancoDeQuestoes/criar_Banco_Questoes.dart';
 import 'package:uesb_forms/Telas/Login.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 import 'package:provider/provider.dart';
@@ -36,11 +37,13 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
+          
         ),
         //home: MeusFormularios(),
         routes: {
           Rotas.HOME: (ctx) => Login(),
           Rotas.MEUS_FORMULARIOS: (ctx) => const MeusFormularios(),
+          Rotas.MEUS_BANCOS: (ctx)=> CriarBancoQuestoes()
         },
         
       ),

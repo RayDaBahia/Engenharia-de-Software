@@ -22,6 +22,7 @@ class MenuLateral extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          
           AppBar(
             title: const Text(
               'UESB Formulários',
@@ -29,17 +30,21 @@ class MenuLateral extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            backgroundColor: Colors.deepPurple,
+            backgroundColor: const Color.fromARGB(255, 27, 7, 80),
           ),
           ListTile(
             leading: Icon(Icons.description),
             title: Text('Meus Formulários'),
-            onTap: () {},
+            onTap: () {
+               Navigator.of(context).pushNamed(Rotas.MEUS_FORMULARIOS);
+            },
           ),
           Divider(),
           ListTile(
             leading: Icon(Icons.storage),
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).pushNamed(Rotas.MEUS_BANCOS);
+            },
             title: Text('Meus Bancos'),
           ),
           Divider(),
