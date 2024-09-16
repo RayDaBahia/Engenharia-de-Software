@@ -1,40 +1,48 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import 'package:uesb_forms/Controle_Modelo/QuestionarioProvider%20.dart';
+import 'package:uesb_forms/Modelo/questao.dart';
 
 class WidgetMultiplaEscolha extends StatefulWidget {
+  final Questao questao;
 
-
-  const WidgetMultiplaEscolha({Key? key}) : super(key: key);
+  const WidgetMultiplaEscolha({Key? key, required this.questao}) : super(key: key);
 
   @override
   State<WidgetMultiplaEscolha> createState() => _WidgetMultiplaEscolhaState();
 }
 
 class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
-  List<int> _indices = [];
-  List<TextEditingController> _controllers = [];
-  TextEditingController _perguntaController = TextEditingController();
+  late TextEditingController _perguntaController;
+  final List<TextEditingController> _optionControllers = [];
 
- 
-
-  void _adicionarOpcao() {
-    setState(() {
-      int index = _indices.length;
-      _indices.add(index);
-      _controllers.add(TextEditingController());
-    });
+  @override
+  void initState() {
+    super.initState();
+    _perguntaController = TextEditingController(text: widget.questao.titulo);
+    _initializeOptionControllers();
   }
 
-  void _removerOpcao(int index) {
-    setState(() {
-      int controllerIndex = _indices.indexOf(index);
-      _indices.remove(index);
-      _controllers.removeAt(controllerIndex);
-    });
+  void _initializeOptionControllers() {
+    _optionControllers.clear();
+    for (var resposta in widget.questao.respostas) {
+      _optionControllers.add(TextEditingController(text: resposta));
+    }
+  }
+
+  @override
+  void dispose() {
+    _perguntaController.dispose();
+    for (var controller in _optionControllers) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final questionarioProvider = Provider.of<QuestionarioProvider>(context, listen: false);
+
     return Container(
       width: 300,
       child: Card(
@@ -43,71 +51,71 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _perguntaController,
-                      maxLines: null,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        labelText: 'Digite sua pergunta aqui',
-                      ),
-                    ),
+              TextField(
+                controller: _perguntaController,
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.image),
-                    onPressed: () {
-                      // Implementar funcionalidade para adicionar imagem
-                    },
-                  ),
-                ],
+                  labelText: 'Digite sua pergunta aqui',
+                ),
+                onChanged: (value) {
+                  widget.questao.titulo = value;
+                  questionarioProvider.adicionarOuAtualizarQuestao(widget.questao);
+                },
               ),
               const SizedBox(height: 20),
               Column(
-                children: _indices.map((index) {
-                  return Row(
-                    key: ValueKey<int>(index),
+                children: List.generate(
+                  _optionControllers.length,
+                  (index) => Row(
                     children: [
-                      Icon(Icons.check_box),
                       Expanded(
                         child: TextField(
-                          controller: _controllers[_indices.indexOf(index)],
-                          maxLines: null,
-                          keyboardType: TextInputType.multiline,
+                          controller: _optionControllers[index],
                           decoration: InputDecoration(
-                            labelText: 'Digite sua opção aqui',
+                            labelText: 'Opção ${index + 1}',
+                            border: OutlineInputBorder(),
                           ),
+                          onChanged: (value) {
+                            widget.questao.respostas[index] = value;
+                            questionarioProvider.adicionarOuAtualizarQuestao(widget.questao);
+                          },
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.close),
                         onPressed: () {
-                          _removerOpcao(index);
+                          setState(() {
+                            _optionControllers.removeAt(index);
+                            widget.questao.respostas.removeAt(index);
+                            questionarioProvider.adicionarOuAtualizarQuestao(widget.questao);
+                          });
                         },
+                        icon: Icon(Icons.close),
                       ),
                     ],
-                  );
-                }).toList(),
+                  ),
+                ),
               ),
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton(
-                    onPressed: _adicionarOpcao,
+                    onPressed: () {
+                      setState(() {
+                        _optionControllers.add(TextEditingController(text: ''));
+                        widget.questao.respostas.add('');
+                      });
+                    },
                     child: Text("Adicionar outra opção"),
                   ),
                   IconButton(
                     icon: Icon(Icons.delete),
                     onPressed: () {
-                      setState(() {
-                        _indices.clear();
-                        _controllers.clear();
-                      });
+                      questionarioProvider.removerQuestao(widget.questao.id);
                     },
                   ),
                 ],

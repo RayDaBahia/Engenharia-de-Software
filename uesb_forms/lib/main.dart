@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:uesb_forms/Controle_Modelo/QuestionarioProvider%20.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/Meus_Formularios.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/criar_Banco_Questoes.dart';
@@ -29,7 +30,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_)=>AuthList(),)
+        ChangeNotifierProvider(create: (_)=>AuthList(),),
+        ChangeNotifierProvider(create: (_)=> QuestionarioProvider ())
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

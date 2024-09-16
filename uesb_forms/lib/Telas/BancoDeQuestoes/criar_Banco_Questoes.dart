@@ -1,7 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_multipla_escolha.dart';
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
-import 'package:uesb_forms/Utils/rotas.dart';
+import 'package:uesb_forms/Controle_Modelo/QuestionarioProvider%20.dart';
+import 'package:uesb_forms/Modelo/questao.dart';
 
 class CriarBancoQuestoes extends StatelessWidget {
   const CriarBancoQuestoes({super.key});
@@ -38,7 +42,22 @@ class CriarBancoQuestoes extends StatelessWidget {
                 ),
               ),
             ),
-            Spacer(),
+            Expanded(
+              child: Consumer<QuestionarioProvider>(
+                builder: (context, questionario, child) {
+                  return ListView.builder(
+                    itemCount: questionario.questoes.length,
+                    itemBuilder: (context, index) {
+                      final questao = questionario.questoes[index];
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: WidgetMultiplaEscolha(questao: questao),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -56,7 +75,9 @@ class CriarBancoQuestoes extends StatelessWidget {
                 ),
                 SizedBox(width: 20),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    // Adicione a lógica de salvar aqui
+                  },
                   child: Text('Salvar'),
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
@@ -75,7 +96,9 @@ class CriarBancoQuestoes extends StatelessWidget {
     );
   }
 
-  void _showOptions(BuildContext context) {
+  
+
+ void _showOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -95,10 +118,17 @@ class CriarBancoQuestoes extends StatelessWidget {
               ListTile(
                 leading: Icon(Icons.text_fields),
                 title: Text('Múltiplas Linhas'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Navegar ou mostrar o widget de múltiplas linhas
-                },
+                 onTap: () {
+                Provider.of<QuestionarioProvider>(context, listen: false)
+                    .adicionarOuAtualizarQuestao(
+                      Questao(
+                        titulo: '',
+                        id: Random().nextInt(1000000).toString(),
+                        respostas: [],
+                      ),
+                    );
+                Navigator.pop(context);
+                 }
               ),
               ListTile(
                 leading: Icon(Icons.format_list_numbered),
