@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_linha_unica.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_multipla_escolha.dart';
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
 import 'package:uesb_forms/Controle_Modelo/QuestionarioProvider%20.dart';
@@ -51,7 +52,7 @@ class CriarBancoQuestoes extends StatelessWidget {
                       final questao = questionario.questoes[index];
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: WidgetMultiplaEscolha(questao: questao),
+                        child: WidgetLinhaUnica(questao: questao),
                       );
                     },
                   );
@@ -111,6 +112,14 @@ class CriarBancoQuestoes extends StatelessWidget {
                 leading: Icon(Icons.text_fields),
                 title: Text('Linha Única'),
                 onTap: () {
+                       Provider.of<QuestionarioProvider>(context, listen: false)
+                    .adicionarOuAtualizarQuestao(
+                      Questao(
+                        titulo: '',
+                        id: Random().nextInt(1000000).toString(),
+                        respostas: [],
+                      ),
+                    );
                   Navigator.pop(context);
                   // Navegar ou mostrar o widget de linha única
                 },

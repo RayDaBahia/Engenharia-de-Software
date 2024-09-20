@@ -9,10 +9,10 @@ class AuthList with ChangeNotifier {
   Usuario? _usuario;
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: '92855436550-2unp3fm8mo04k6125a3ojnv6212nubgt.apps.googleusercontent.com',
+    clientId: '92855436550-kp0q3014mf6vnqe087rtfno3q1e42s6f.apps.googleusercontent.com',
     hostedDomain: 'uesb.edu.br'
   );
-  
+  // instancia que representa o usuario autenticado
   User? _user;
 
   // Construtor da classe
