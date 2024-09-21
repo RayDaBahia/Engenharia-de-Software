@@ -114,7 +114,9 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                   ),
                   IconButton(
                     icon: Icon(Icons.delete),
-                    onPressed: () {
+                    onPressed:
+                    
+                   () {
                       questionarioProvider.removerQuestao(widget.questao.id);
                     },
                   ),
