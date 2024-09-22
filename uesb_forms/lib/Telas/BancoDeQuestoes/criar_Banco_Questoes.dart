@@ -6,13 +6,34 @@ import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_linha_unica.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_multipla_escolha.dart';
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
 import 'package:uesb_forms/Controle_Modelo/QuestionarioProvider%20.dart';
+import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 
-class CriarBancoQuestoes extends StatelessWidget {
-  const CriarBancoQuestoes({super.key});
+class CriarBancoQuestoes extends StatefulWidget {
+  CriarBancoQuestoes({super.key});
+
+  @override
+  State<CriarBancoQuestoes> createState() => _CriarBancoQuestoesState();
+}
+
+class _CriarBancoQuestoesState extends State<CriarBancoQuestoes> {
+  late TextEditingController _descricaoBancoController;
+
+  late TextEditingController _nomeBancoController;
+
+  @override
+  void initState() {
+    super.initState();
+    _descricaoBancoController = TextEditingController();
+    _nomeBancoController = TextEditingController();
+    // Chama o método para obter bancos
+    Provider.of<BancoList>(context, listen: false).getBancos();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final bancos = Provider.of<BancoList>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 27, 7, 80),
@@ -24,6 +45,7 @@ class CriarBancoQuestoes extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             TextField(
+              controller: _nomeBancoController,
               maxLines: 1,
               decoration: InputDecoration(
                 labelText: 'Banco Sem Título',
@@ -35,6 +57,7 @@ class CriarBancoQuestoes extends StatelessWidget {
               ),
             ),
             TextField(
+              controller: _descricaoBancoController,
               maxLines: 1,
               decoration: InputDecoration(
                 labelText: 'Adicione uma descrição ao banco',
@@ -76,8 +99,21 @@ class CriarBancoQuestoes extends StatelessWidget {
                 ),
                 SizedBox(width: 20),
                 TextButton(
-                  onPressed: () {
-                    // Adicione a lógica de salvar aqui
+                  onPressed: () async {
+                    try {
+                      await bancos.criarBanco(_nomeBancoController.text,
+                          _descricaoBancoController.text);
+
+                      // Exibe uma mensagem de sucesso
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("Banco criado com sucesso!"),
+                      ));
+                    } catch (e) {
+                      // Lida com qualquer erro que possa acontecer ao criar o banco
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("Erro ao criar banco: $e"),
+                      ));
+                    }
                   },
                   child: Text('Salvar'),
                   style: TextButton.styleFrom(
@@ -86,9 +122,9 @@ class CriarBancoQuestoes extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                    ),
+                    )
                   ),
-                ),
+                )
               ],
             ),
           ],
@@ -97,48 +133,46 @@ class CriarBancoQuestoes extends StatelessWidget {
     );
   }
 
-  
-
- void _showOptions(BuildContext context) {
+  void _showOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return Container(
           padding: EdgeInsets.all(16.0),
           child: ListView(
-            shrinkWrap: true, // Permite que a ListView ocupe apenas o espaço necessário
+            shrinkWrap:
+                true, // Permite que a ListView ocupe apenas o espaço necessário
             children: [
               ListTile(
                 leading: Icon(Icons.text_fields),
                 title: Text('Linha Única'),
                 onTap: () {
-                       Provider.of<QuestionarioProvider>(context, listen: false)
-                    .adicionarOuAtualizarQuestao(
-                      Questao(
-                        titulo: '',
-                        id: Random().nextInt(1000000).toString(),
-                        respostas: [],
-                      ),
-                    );
+                  Provider.of<QuestionarioProvider>(context, listen: false)
+                      .adicionarOuAtualizarQuestao(
+                    Questao(
+                      titulo: '',
+                      id: Random().nextInt(1000000).toString(),
+                      respostas: [],
+                    ),
+                  );
                   Navigator.pop(context);
                   // Navegar ou mostrar o widget de linha única
                 },
               ),
               ListTile(
-                leading: Icon(Icons.text_fields),
-                title: Text('Múltiplas Linhas'),
-                 onTap: () {
-                Provider.of<QuestionarioProvider>(context, listen: false)
-                    .adicionarOuAtualizarQuestao(
+                  leading: Icon(Icons.text_fields),
+                  title: Text('Múltiplas Linhas'),
+                  onTap: () {
+                    Provider.of<QuestionarioProvider>(context, listen: false)
+                        .adicionarOuAtualizarQuestao(
                       Questao(
                         titulo: '',
                         id: Random().nextInt(1000000).toString(),
                         respostas: [],
                       ),
                     );
-                Navigator.pop(context);
-                 }
-              ),
+                    Navigator.pop(context);
+                  }),
               ListTile(
                 leading: Icon(Icons.format_list_numbered),
                 title: Text('Número'),

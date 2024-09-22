@@ -4,7 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Excecoes/erro_login.dart';
-import 'package:uesb_forms/Telas/BancoDeQuestoes/Meus_Formularios.dart';
+import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Formularios.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 
 class Login extends StatefulWidget {

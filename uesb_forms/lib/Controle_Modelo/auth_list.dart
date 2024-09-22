@@ -1,10 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:uesb_forms/Excecoes/erro_login.dart';
-import 'package:uesb_forms/Modelo/Usuario.dart';
+import 'package:uesb_forms/Modelo/usuario.dart';
 
 class AuthList with ChangeNotifier {
+
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   Usuario? _usuario;
 
@@ -62,6 +66,8 @@ class AuthList with ChangeNotifier {
       email: GoogleUser.email,
       fotoPerfilUrl: GoogleUser.photoUrl.toString(),
     );
+
+    persistirNoBanco(_usuario!);
     notifyListeners();
 
 
@@ -93,5 +99,28 @@ bool verificarEmailUesb(String email) {
   // Verifica se o usuário está autenticado
   bool isAutenticado() {
     return _auth.currentUser != null;
+  }
+  
+  void persistirNoBanco (Usuario  usuario) async {
+
+    final docRef= _firestore.collection('usuarios').doc(usuario.id);
+
+    final docSnapshot= await docRef.get();
+
+    if(!docSnapshot.exists){
+
+         await _firestore
+          .collection('usuarios') // Coleção dos usuários
+          .doc(usuario.id).set({
+            'nome': usuario.nome,
+           'email': usuario.email,
+        });
+          
+
+    }
+
+
+
+
   }
 }

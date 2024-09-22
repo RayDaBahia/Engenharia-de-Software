@@ -2,9 +2,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:uesb_forms/Controle_Modelo/QuestionarioProvider%20.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
-import 'package:uesb_forms/Telas/BancoDeQuestoes/Meus_Formularios.dart';
+import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
+import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Formularios.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/criar_Banco_Questoes.dart';
-import 'package:uesb_forms/Telas/Login.dart';
+import 'package:uesb_forms/Telas/login.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Utils/firebase_options.dart';
@@ -12,10 +13,12 @@ import 'package:uesb_forms/Utils/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp();
-  }
+
+  // Inicialize o Firebase com as opções específicas
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
 
   runApp(MyApp());
 }
@@ -31,7 +34,16 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_)=>AuthList(),),
-        ChangeNotifierProvider(create: (_)=> QuestionarioProvider ())
+        ChangeNotifierProvider(create: (_)=> QuestionarioProvider ()),
+        //O ProductService sempre terá acesso à instância mais atualizada do AuthService,
+       ChangeNotifierProxyProvider<AuthList, BancoList >(
+        create: (_)=>BancoList(),
+        
+        update: (context, authList, previousBancoList)
+        => BancoList(authList)
+        ,)
+
+    
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
