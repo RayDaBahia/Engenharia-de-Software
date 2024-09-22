@@ -1,25 +1,26 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'auth_list.dart'; 
-import 'Modelo/Banco.dart';
+import 'package:uesb_forms/Controle_Modelo/modBanco.dart';
+import 'auth_list.dart';
+import 'Controle_Modelo/modBanco.dart'; // importa o modelo
 
 class BancoList with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
- 
-  // pega o usuário logado 
+
+  // Pega o usuário logado
   final AuthList _authList;
 
   BancoList(this._authList);
 
-  // Método para adicionar um banco já existente
+  // Método para adicionar um banco existente
   Future<void> addBanco(Banco banco) async {
-    final user = _authList.usuario; // Obtém o usuário logado através do provider
+    final user = _authList.usuario; // Obtém o usuário logado
     if (user == null) {
       throw Exception('Usuário não autenticado');
     }
 
     try {
-      // Adiciona o banco à coleção de bancos do usuário no Firestore
+      // Adiciona o banco à coleção 'bancos' do usuário no Firestore
       await _firestore
           .collection('usuarios') // Coleção dos usuários
           .doc(user.id) // ID do usuário
@@ -27,7 +28,6 @@ class BancoList with ChangeNotifier {
           .add({
         'nome': banco.nome,
         'descricao': banco.descricao,
-        'questoes': banco.questoes?.map((q) => q.toMap()).toList() ?? [],
       });
 
       notifyListeners();
@@ -36,7 +36,7 @@ class BancoList with ChangeNotifier {
     }
   }
 
-  // Método para criar um banco, passa parâmetro de nome e descrição (espero que o ID gere automático kkkkkk)
+  // Método para criar um banco, passando nome e descrição
   Future<void> criarBanco(String nome, String descricao) async {
     final user = _authList.usuario; // Obtém o usuário logado
     if (user == null) {
@@ -45,7 +45,7 @@ class BancoList with ChangeNotifier {
 
     // Cria um novo objeto Banco
     final novoBanco = Banco(
-      id: '', // espero que o firestore gere o ID kkkkkkkkk
+      id: '', // O Firestore gerará o ID automaticamente
       nome: nome,
       descricao: descricao,
     );
@@ -54,9 +54,9 @@ class BancoList with ChangeNotifier {
     await addBanco(novoBanco);
   }
 
-  // Método para retornar os bancos do usuário l
+  // Método para retornar os bancos do usuário
   Future<List<Banco>> getBancos() async {
-    final user = _authList.usuario; // Obtém o usuário através do provider
+    final user = _authList.usuario; //Obtém o usuário logado
     if (user == null) {
       throw Exception('Usuário não autenticado');
     }
@@ -75,9 +75,6 @@ class BancoList with ChangeNotifier {
           id: doc.id,
           nome: doc['nome'],
           descricao: doc['descricao'],
-          questoes: (doc['questoes'] as List?)
-              ?.map((q) => Questao.fromMap(q))
-              .toList(),
         );
       }).toList();
     } catch (error) {
@@ -85,4 +82,3 @@ class BancoList with ChangeNotifier {
     }
   }
 }
-
