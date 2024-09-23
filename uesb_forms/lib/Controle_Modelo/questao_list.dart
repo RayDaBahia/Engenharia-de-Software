@@ -10,7 +10,7 @@ class QuestaoList with ChangeNotifier {
   QuestaoList([this._authList]);
 
   // Método para adicionar uma questão a um banco 
-  Future<void> addQuestao(String bancoId, Questao questao) async {
+  Future<void> addQuestao(String bancoId, questao questao) async {
     final user = _authList?.usuario; // Obtém o usuário logado
     if (user != null) {
        // Adiciona a questão 

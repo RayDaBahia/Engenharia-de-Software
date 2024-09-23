@@ -1,10 +1,10 @@
 class Banco {
-  final String id;
+  final String? id;
   final String nome;
   final String descricao;
 
   Banco({
-    required this.id,
+    this.id,
     required this.nome,
     required this.descricao,
   });

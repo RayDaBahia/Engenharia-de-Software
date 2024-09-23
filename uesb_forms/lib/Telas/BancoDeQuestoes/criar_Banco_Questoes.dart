@@ -101,7 +101,7 @@ class _CriarBancoQuestoesState extends State<CriarBancoQuestoes> {
                 TextButton(
                   onPressed: () async {
                     try {
-                      await bancos.criarBanco(_nomeBancoController.text,
+                      await bancos.SalvarBanco(_nomeBancoController.text,
                           _descricaoBancoController.text);
 
                       // Exibe uma mensagem de sucesso

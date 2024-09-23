@@ -12,46 +12,65 @@ class BancoList with ChangeNotifier {
   BancoList([this._authList]);
 
   // Método para adicionar um banco existente
-  Future<void> addBanco(Banco banco) async {
+  Future<void> addBancoOuAtualizar(Banco banco) async {
+
+
     final user = _authList?.usuario; // Obtém o usuário logado
     if (user == null) {
       throw Exception('Usuário não autenticado');
     }
 
    
-      // Adiciona o banco à coleção 'bancos' do usuário no Firestore
-      await _firestore
-          .collection('usuarios') // Coleção dos usuários
-          .doc(user.id) // ID do usuário
-          .collection('bancos') // Subcoleção 'bancos' do usuário
-          .add({
-        'nome': banco.nome,
-        'descricao': banco.descricao,
-      });
+      // Se o id não está vazio, usa o set com o ID fornecido, senão usa add
+  if (banco.id.isNotEmpty) {
+    await _firestore
+        .collection('usuarios')
+        .doc(user.id)
+        .collection('bancos')
+        .doc(banco.id) // Usando o ID fornecido
+        .set({
+      'nome': banco.nome,
+      'descricao': banco.descricao,
+    });
+  } else {
+    await _firestore
+        .collection('usuarios')
+        .doc(user.id)
+        .collection('bancos')
+        .add({
+      'nome': banco.nome,
+      'descricao': banco.descricao,
+    });
+  }
 
-      notifyListeners();
-    
+  notifyListeners();
   }
 
   // Método para criar um banco, passando nome e descrição
-  Future< void > criarBanco(String nome, String descricao) async {
-    final user = _authList?.usuario; // Obtém o usuário logado
-    if (user == null) {
-      throw Exception('Usuário não autenticado');
-    }
-
-    // Cria um novo objeto Banco
-    final novoBanco = Banco(
-      id: '', // O Firestore gerará o ID automaticamente
-      nome: nome,
-      descricao: descricao,
-    );
-
-    // Chama o método addBanco para adicionar o banco criado
-    await addBanco(novoBanco);
-
-    notifyListeners();
+ Future<void> SalvarBanco(String nome, String descricao, [String? id]) async {
+  final user = _authList?.usuario; // Obtém o usuário logado
+  if (user == null) {
+    throw Exception('Usuário não autenticado');
   }
+
+  // Cria um novo objeto Banco
+  final novoBanco = Banco(
+    id: id ?? '', // Se id for null, usa uma string vazia
+    nome: nome,
+    descricao: descricao,
+  );
+
+  // Chama o método addBanco para adicionar o banco criado
+
+
+
+  await addBancoOuAtualizar(novoBanco);
+
+  
+
+  notifyListeners();
+}
+
 
   // Método para retornar os bancos do usuário
   Future<List<Banco>> getBancos() async {
