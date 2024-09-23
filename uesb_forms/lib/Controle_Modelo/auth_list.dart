@@ -47,7 +47,6 @@ class AuthList with ChangeNotifier {
       idToken: GoogleAuth.idToken,
     );
 
-   
   if (!verificarEmailUesb(GoogleUser.email ?? '')) {
     handleSignOut();
       throw erroLogin( 'dominio_nao_autorizado');
@@ -69,8 +68,6 @@ class AuthList with ChangeNotifier {
 
     persistirNoBanco(_usuario!);
     notifyListeners();
-
-
 }
 
 bool verificarEmailUesb(String email) {
@@ -115,12 +112,6 @@ bool verificarEmailUesb(String email) {
             'nome': usuario.nome,
            'email': usuario.email,
         });
-          
-
     }
-
-
-
-
   }
 }

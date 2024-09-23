@@ -1,3 +1,7 @@
+//////////////// ARQUIVO NÃO ESTÁ SENDO USADO POR ENQUANTO ////////////////////////
+
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
@@ -10,16 +14,16 @@ class QuestaoList with ChangeNotifier {
   QuestaoList([this._authList]);
 
   // Método para adicionar uma questão a um banco 
-  Future<void> addQuestao(String bancoId, questao questao) async {
-    final user = _authList?.usuario; // Obtém o usuário logado
+  Future<void> adicionarQuestao(String bancoId, Questao questao) async {
+    final user = _authList?.usuario; 
     if (user != null) {
-       // Adiciona a questão 
+        
       await _firestore
-          .collection('usuarios') // Coleção dos usuários
-          .doc(user.id) // ID do usuário logado
-          .collection('bancos') // Subcoleção 'bancos'
-          .doc(bancoId) // ID do banco específico
-          .collection('questoes') // Subcoleção 'questoes' 
+          .collection('usuarios') 
+          .doc(user.id) 
+          .collection('bancos') 
+          .doc(bancoId) 
+          .collection('questoes')  
           .add(questao.toMap());
 
       notifyListeners(); 

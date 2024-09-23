@@ -1,16 +1,16 @@
-class questao {
+class Questao {
   String id;
-  String textoquestao;
-  String tipoquestao; // "Linha Única", "Múltiplas Linhas", "Número", "Data", "Imagem", "Múltipla Escolha", etc.
+  String textoQuestao;
+  String tipoQuestao; // "Linha Única", "Múltiplas Linhas", "Número", "Data", "Imagem", "Múltipla Escolha", etc.
   
   // Campos para "Linha Única" e "Múltiplas Linhas"
   String? resposta; // Para armazenar resposta de texto
 
   // Campos para "Número"
-  int? respostaNumerica; // Para questaos numéricas
+  int? respostaNumerica; // Para Questaos numéricas
 
   // Campos para "Data"
-  DateTime? respostaData; // Para questaos de data
+  DateTime? respostaData; // Para Questaos de data
 
   // Campos para "Upload de Imagem"
   int? maxArquivos; // Número máximo de arquivos
@@ -31,10 +31,10 @@ class questao {
   // Campos para "E-mail"
   String? respostaEmail; // E-mail com validação
 
-  questao({
+  Questao({
     required this.id,
-    required this.textoquestao,
-    required this.tipoquestao,
+    required this.textoQuestao,
+    required this.tipoQuestao,
     this.resposta,
     this.respostaNumerica,
     this.respostaData,
@@ -53,8 +53,8 @@ class questao {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'textoquestao': textoquestao,
-      'tipoquestao': tipoquestao,
+      'textoQuestao': textoQuestao,
+      'tipoQuestao': tipoQuestao,
       'resposta': resposta,
       'respostaNumerica': respostaNumerica,
       'respostaData': respostaData?.toIso8601String(),
@@ -71,11 +71,11 @@ class questao {
   }
 
   // Criar instância a partir de um Map
-  factory questao.fromMap(Map<String, dynamic> map) {
-    return questao(
+  factory Questao.fromMap(Map<String, dynamic> map) {
+    return Questao(
       id: map['id'],
-      textoquestao: map['textoquestao'],
-      tipoquestao: map['tipoquestao'],
+      textoQuestao: map['textoQuestao'],
+      tipoQuestao: map['tipoQuestao'],
       resposta: map['resposta'],
       respostaNumerica: map['respostaNumerica'],
       respostaData: map['respostaData'] != null ? DateTime.parse(map['respostaData']) : null,
