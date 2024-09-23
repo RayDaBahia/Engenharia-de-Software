@@ -77,7 +77,10 @@ class Questao {
     return Questao(
       id: map['id'],
       textoQuestao: map['textoQuestao'],
-      tipoQuestao: map['tipoQuestao'],
+          tipoQuestao: QuestaoTipo.values.firstWhere(
+      (tipo) => tipo.name == map['tipoQuestao'],
+     
+    ),
       resposta: map['resposta'],
       respostaNumerica: map['respostaNumerica'],
       respostaData: map['respostaData'] != null ? DateTime.parse(map['respostaData']) : null,

@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
         routes: {
           Rotas.HOME: (ctx) => Login(),
           Rotas.MEUS_FORMULARIOS: (ctx) => const MeusFormularios(),
-          Rotas.MEUS_BANCOS: (ctx)=> CrudBancoQuestoes()
+          Rotas.MEUS_BANCOS: (ctx)=> CrudBancoQuestoes( bancoId: '1ADTGNzEn5GgNVDNA6rO')
         },
         
       ),

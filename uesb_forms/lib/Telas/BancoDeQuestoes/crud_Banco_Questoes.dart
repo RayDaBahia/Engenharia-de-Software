@@ -12,8 +12,10 @@ import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
 class CrudBancoQuestoes extends StatefulWidget {
-  
-  CrudBancoQuestoes({super.key, }); // Adicionando o ID no construtor
+
+  final String? bancoId; // Defina bancoId como opcional
+
+  CrudBancoQuestoes({super.key, this.bancoId}); // Adicionando o ID no construtor
 
   @override
   State<CrudBancoQuestoes> createState() => _CrudBancoQuestoesState();
@@ -31,6 +33,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
     _descricaoBancoController = TextEditingController();
     _nomeBancoController = TextEditingController();
     // Chama o método para obter bancos
+    if(widget.bancoId!=null) Provider.of<BancoList>(context, listen: false).buscarQuestoesBancoNoBd(widget.bancoId);
    
   }
   late final  listaquestao;

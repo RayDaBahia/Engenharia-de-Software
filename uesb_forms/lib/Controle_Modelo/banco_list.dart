@@ -121,7 +121,7 @@ class BancoList with ChangeNotifier {
     }).toList();
   }
 
-Future<List<Questao>> buscarQuestoesBancoNoBd(String? bancoId) async {
+Future<void> buscarQuestoesBancoNoBd(String? bancoId) async {
   final user = _authList?.usuario; 
    if (user == null) {
       throw Exception('Usuário não autenticado');
@@ -138,11 +138,17 @@ Future<List<Questao>> buscarQuestoesBancoNoBd(String? bancoId) async {
       .get();
 
   // Convertendo os documentos em uma lista de Questao
-  return snapshot.docs.map((doc) {
-    return Questao.fromMap(doc.data()); // Supondo que você tenha um método `fromMap` na classe `Questao`
-  }).toList(); // Convertendo o Iterable em uma lista
+      questoesLista.addAll(snapshot.docs.map((doc) {
+      // Certificando-se de que os dados estão no formato correto
+      final data = doc.data();
+      if (data is Map<String, dynamic>) {
+        return Questao.fromMap(data); // Assumindo que você tem um método fromMap
+      } else {
+        throw Exception('Formato de dados inválido');
+      }
+    }).toList()); // Convertendo o Iterable em uma lista
 
-
+  notifyListeners();
 }
 
 
