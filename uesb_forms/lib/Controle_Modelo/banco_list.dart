@@ -9,19 +9,31 @@ class BancoList with ChangeNotifier {
 
   // Pega o usuário logado
   final AuthList? _authList;
+  List<Questao> questoesLista = []; // Lista para armazenar questões 
 
   BancoList([this._authList]);
 
-  // método para adicionar banco e coleção de questões
+  // metodo para adicionar a questao na lisya 
+  void adicionarQuestaoNaLista(Questao questao) {
+   questoesLista.add(questao);
+    notifyListeners();
+  }
+
+  // metodo para limpar lista de questões 
+  void limparListaQuestoes() {
+   questoesLista.clear();
+  }
+
+  // Método para adicionar banco e coleção de questões
   Future<void> addBanco(Banco banco, List<Questao> questoes) async {
-    final user = _authList?.usuario; // pega o resgistro do usuário 
+    final user = _authList?.usuario; // pega o registro do usuário 
     if (user != null) {
       // Adiciona o banco 
       final bancoRef = await _firestore
-        .collection('usuarios') // Coleção dos usuários
-        .doc(user.id) // ID do usuário
-        .collection('bancos') // Subcoleção 'bancos' do usuário
-        .add({
+          .collection('usuarios') // Coleção dos usuários
+          .doc(user.id) // ID do usuário
+          .collection('bancos') // Subcoleção 'bancos' do usuário
+          .add({
         'nome': banco.nome,
         'descricao': banco.descricao,
       });
@@ -35,38 +47,41 @@ class BancoList with ChangeNotifier {
   }
 
   // Método para criar um banco com questões obrigatórias
-  Future<void> criarBanco(String nome, String descricao, List<Questao> questoes) async {
+  Future<void> criarBanco(String nome, String descricao) async { // copy
     final user = _authList?.usuario; // Obtém o usuário logado
     if (user != null) {
-       // Cria objeto banco
+
+      // Cria objeto banco
       final novoBanco = Banco(
         id: '', // espero que o firebase crie o id
         nome: nome,
         descricao: descricao,
       );
 
-      // adiciona banco e questões
-      await addBanco(novoBanco, questoes);
+      // Adiciona banco e questões
+      await addBanco(novoBanco, questoesLista);
+
+      // Limpa a lista de questões após salvar o banco
+      limparListaQuestoes();
 
       notifyListeners();
-      
     }
   }
 
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // ESTE MÉTODO NÃO ESTÁ SENDO USADO, EU TROUXE PRA CÁ PARA PODER IMPLEMENTAR DEPOIS, SERVE PARA ADIOCAR QUESTÕES EM UM BANCO SEPARADO
-  
+  // ESTE MÉTODO NÃO ESTÁ SENDO USADO, EU TROUXE PRA CÁ PARA PODER IMPLEMENTAR DEPOIS, SERVE PARA ADICIONAR QUESTÕES EM UM BANCO SEPARADO
+
   Future<void> adicionarQuestao(String bancoId, Questao questao) async {
-    final user = _authList?.usuario; 
+    final user = _authList?.usuario;
     if (user != null) {
-      // Adiciona a questão à subcoleção questoes do banco
+      // adiciona questão a subcoleção de questões de um banco em expecífico 
       await _firestore
-        .collection('usuarios') 
-        .doc(user.id) 
-        .collection('bancos') 
-        .doc(bancoId) 
-        .collection('questoes') 
-        .add(questao.toMap());
+          .collection('usuarios')
+          .doc(user.id)
+          .collection('bancos')
+          .doc(bancoId)
+          .collection('questoes')
+          .add(questao.toMap());
 
       notifyListeners();
     }
