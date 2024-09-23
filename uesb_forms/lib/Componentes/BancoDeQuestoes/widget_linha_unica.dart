@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/QuestionarioProvider%20.dart';
+import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 
 class WidgetLinhaUnica extends StatefulWidget {
@@ -26,7 +27,7 @@ class _WidgetLinhaUnicaState extends State<WidgetLinhaUnica> {
 @override
   void initState() {
     
-    controlePergunta= TextEditingController(text: widget.questao.titulo);
+    controlePergunta= TextEditingController(text: widget.questao.textoQuestao);
     controleResposta= TextEditingController(text: '');
     
     super.initState();
@@ -38,7 +39,7 @@ class _WidgetLinhaUnicaState extends State<WidgetLinhaUnica> {
 
   Widget build(BuildContext context) {
 
-    final questionarioProvider = Provider.of<QuestionarioProvider>(context, listen: false);
+    final  bancoList = Provider.of<BancoList>(context, listen: false);
     return Card(
       child:Padding(
         padding: const EdgeInsets.all(16.0),
@@ -53,8 +54,8 @@ class _WidgetLinhaUnicaState extends State<WidgetLinhaUnica> {
                 labelText: 'Digite a pergunta'
               ),
               onChanged: (value){
-                widget.questao.titulo=value;
-                questionarioProvider.adicionarOuAtualizarQuestao(widget.questao);
+                widget.questao.textoQuestao=value;
+                bancoList.adicionarQuestaoNaLista(widget.questao);
                 
               },
             ),
@@ -69,11 +70,7 @@ class _WidgetLinhaUnicaState extends State<WidgetLinhaUnica> {
                 ),
                 labelText: 'Resposta'
               ),
-              onChanged: (value){
-                widget.questao.respostas[0]=value;
-                questionarioProvider.adicionarOuAtualizarQuestao(widget.questao);
-                
-              },
+             
               enabled: false,
             ),
           
@@ -81,7 +78,7 @@ class _WidgetLinhaUnicaState extends State<WidgetLinhaUnica> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(onPressed: ()=> questionarioProvider.removerQuestao(widget.questao.id)
+                IconButton(onPressed: ()=> {}
                 , icon: Icon(Icons.delete)),
               ],
             )

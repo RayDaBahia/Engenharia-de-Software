@@ -1,0 +1,3 @@
+enum QuestaoTipo {
+  LinhaUnica, MultiPlaEscolha, 
+}

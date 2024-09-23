@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/QuestionarioProvider%20.dart';
+import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
+import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 
 class WidgetMultiplaEscolha extends StatefulWidget {
@@ -19,13 +21,13 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
   @override
   void initState() {
     super.initState();
-    _perguntaController = TextEditingController(text: widget.questao.titulo);
+    _perguntaController = TextEditingController(text: widget.questao.textoQuestao);
     _initializeOptionControllers();
   }
 
   void _initializeOptionControllers() {
     _optionControllers.clear();
-    for (var resposta in widget.questao.respostas) {
+    for (var resposta in widget.questao.opcoes!) {
       _optionControllers.add(TextEditingController(text: resposta));
     }
   }
@@ -41,7 +43,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
 
   @override
   Widget build(BuildContext context) {
-    final questionarioProvider = Provider.of<QuestionarioProvider>(context, listen: false);
+    final bancoList = Provider.of<BancoList>(context, listen: false);
 
     return Container(
       width: 300,
@@ -62,8 +64,8 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                   labelText: 'Digite sua pergunta aqui',
                 ),
                 onChanged: (value) {
-                  widget.questao.titulo = value;
-                  questionarioProvider.adicionarOuAtualizarQuestao(widget.questao);
+                  widget.questao.textoQuestao = value;
+                  bancoList.adicionarQuestaoNaLista(widget.questao);
                 },
               ),
               const SizedBox(height: 20),
@@ -80,8 +82,8 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                             border: OutlineInputBorder(),
                           ),
                           onChanged: (value) {
-                            widget.questao.respostas[index] = value;
-                            questionarioProvider.adicionarOuAtualizarQuestao(widget.questao);
+                            widget.questao.opcoes![index] = value;
+                            bancoList.adicionarQuestaoNaLista(widget.questao);
                           },
                         ),
                       ),
@@ -89,8 +91,10 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                         onPressed: () {
                           setState(() {
                             _optionControllers.removeAt(index);
-                            widget.questao.respostas.removeAt(index);
-                            questionarioProvider.adicionarOuAtualizarQuestao(widget.questao);
+                            
+                            widget.questao.opcoes!.removeAt(index);
+
+                            bancoList.adicionarQuestaoNaLista(widget.questao);
                           });
                         },
                         icon: Icon(Icons.close),
@@ -107,7 +111,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                     onPressed: () {
                       setState(() {
                         _optionControllers.add(TextEditingController(text: ''));
-                        widget.questao.respostas.add('');
+                        widget.questao.opcoes!.add('');
                       });
                     },
                     child: Text("Adicionar outra opção"),
@@ -117,7 +121,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                     onPressed:
                     
                    () {
-                      questionarioProvider.removerQuestao(widget.questao.id);
+                     // questionarioProvider.removerQuestao(widget.questao.id);
                     },
                   ),
                 ],

@@ -2,37 +2,45 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uesb_forms/Componentes/BancoDeQuestoes/questaoWidget.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_linha_unica.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_multipla_escolha.dart';
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
 import 'package:uesb_forms/Controle_Modelo/QuestionarioProvider%20.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
+import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
-class CriarBancoQuestoes extends StatefulWidget {
-  CriarBancoQuestoes({super.key});
+class CrudBancoQuestoes extends StatefulWidget {
+  
+  CrudBancoQuestoes({super.key, }); // Adicionando o ID no construtor
 
   @override
-  State<CriarBancoQuestoes> createState() => _CriarBancoQuestoesState();
+  State<CrudBancoQuestoes> createState() => _CrudBancoQuestoesState();
 }
 
-class _CriarBancoQuestoesState extends State<CriarBancoQuestoes> {
-  late TextEditingController _descricaoBancoController;
 
+class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
+  late TextEditingController _descricaoBancoController;
   late TextEditingController _nomeBancoController;
 
   @override
+   @override
   void initState() {
     super.initState();
     _descricaoBancoController = TextEditingController();
     _nomeBancoController = TextEditingController();
     // Chama o método para obter bancos
-    Provider.of<BancoList>(context, listen: false).getBancos();
+   
   }
+  late final  listaquestao;
+
 
   @override
   Widget build(BuildContext context) {
-    final bancos = Provider.of<BancoList>(context);
+    final banco_list = Provider.of<BancoList>(context);
+
+   
 
     return Scaffold(
       appBar: AppBar(
@@ -67,21 +75,15 @@ class _CriarBancoQuestoesState extends State<CriarBancoQuestoes> {
               ),
             ),
             Expanded(
-              child: Consumer<QuestionarioProvider>(
-                builder: (context, questionario, child) {
-                  return ListView.builder(
-                    itemCount: questionario.questoes.length,
-                    itemBuilder: (context, index) {
-                      final questao = questionario.questoes[index];
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: WidgetLinhaUnica(questao: questao),
-                      );
-                    },
-                  );
+              child: ListView.builder(
+                itemCount: banco_list.questoesLista.length,
+                itemBuilder: (context, index) {
+                  final questao = banco_list.questoesLista[index];
+                  return QuestaoWidget(questao: questao); // Aqui instanciamos o widget correto para cada questão
                 },
               ),
             ),
+            Spacer(),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -101,8 +103,10 @@ class _CriarBancoQuestoesState extends State<CriarBancoQuestoes> {
                 TextButton(
                   onPressed: () async {
                     try {
-                      await bancos.SalvarBanco(_nomeBancoController.text,
-                          _descricaoBancoController.text);
+                      await banco_list.SalvarBanco(
+                        _nomeBancoController.text,
+                        _descricaoBancoController.text,
+                      );
 
                       // Exibe uma mensagem de sucesso
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -119,12 +123,13 @@ class _CriarBancoQuestoesState extends State<CriarBancoQuestoes> {
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: const Color.fromARGB(255, 37, 7, 88),
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12.0),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 12.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                    )
+                    ),
                   ),
-                )
+                ),
               ],
             ),
           ],
@@ -132,6 +137,7 @@ class _CriarBancoQuestoesState extends State<CriarBancoQuestoes> {
       ),
     );
   }
+
 
   void _showOptions(BuildContext context) {
     showModalBottomSheet(
@@ -147,12 +153,13 @@ class _CriarBancoQuestoesState extends State<CriarBancoQuestoes> {
                 leading: Icon(Icons.text_fields),
                 title: Text('Linha Única'),
                 onTap: () {
-                  Provider.of<QuestionarioProvider>(context, listen: false)
-                      .adicionarOuAtualizarQuestao(
+                  Provider.of<BancoList>(context, listen: false)
+                      .adicionarQuestaoNaLista(
                     Questao(
-                      titulo: '',
                       id: Random().nextInt(1000000).toString(),
-                      respostas: [],
+                      textoQuestao: '',
+                      tipoQuestao: QuestaoTipo.LinhaUnica,
+                      resposta: '',
                     ),
                   );
                   Navigator.pop(context);
@@ -163,12 +170,13 @@ class _CriarBancoQuestoesState extends State<CriarBancoQuestoes> {
                   leading: Icon(Icons.text_fields),
                   title: Text('Múltiplas Linhas'),
                   onTap: () {
-                    Provider.of<QuestionarioProvider>(context, listen: false)
-                        .adicionarOuAtualizarQuestao(
+                    Provider.of<BancoList>(context, listen: false)
+                        .adicionarQuestaoNaLista(
                       Questao(
-                        titulo: '',
-                        id: Random().nextInt(1000000).toString(),
-                        respostas: [],
+                         id: Random().nextInt(1000000).toString(),
+                         textoQuestao: '',
+                         tipoQuestao: QuestaoTipo.MultiPlaEscolha,
+                         opcoes: [],
                       ),
                     );
                     Navigator.pop(context);

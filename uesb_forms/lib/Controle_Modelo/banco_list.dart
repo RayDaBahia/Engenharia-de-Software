@@ -15,7 +15,17 @@ class BancoList with ChangeNotifier {
 
   // metodo para adicionar a questao na lisya 
   void adicionarQuestaoNaLista(Questao questao) {
-   questoesLista.add(questao);
+
+
+
+    final index = questoesLista.indexWhere((q)=> q.id==questao.id);
+
+    if(index>=0){
+      questoesLista[index]= questao;
+    }else{
+      questoesLista.add(questao);
+    }
+   
     notifyListeners();
   }
 
@@ -47,7 +57,7 @@ class BancoList with ChangeNotifier {
   }
 
   // Método para criar um banco com questões obrigatórias
-  Future<void> criarBanco(String nome, String descricao) async { // copy
+  Future<void> SalvarBanco(String nome, String descricao) async { // copy
     final user = _authList?.usuario; // Obtém o usuário logado
     if (user != null) {
 
@@ -110,4 +120,30 @@ class BancoList with ChangeNotifier {
       );
     }).toList();
   }
+
+Future<List<Questao>> buscarQuestoesBancoNoBd(String? bancoId) async {
+  final user = _authList?.usuario; 
+   if (user == null) {
+      throw Exception('Usuário não autenticado');
+    }
+
+
+  // Obtendo as questões do banco específico
+  QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
+      .collection('usuarios')
+      .doc(user.id)
+      .collection('bancos')
+      .doc(bancoId)
+      .collection('questoes') // Adicione a subcoleção onde as questões estão armazenadas
+      .get();
+
+  // Convertendo os documentos em uma lista de Questao
+  return snapshot.docs.map((doc) {
+    return Questao.fromMap(doc.data()); // Supondo que você tenha um método `fromMap` na classe `Questao`
+  }).toList(); // Convertendo o Iterable em uma lista
+
+
+}
+
+
 }
