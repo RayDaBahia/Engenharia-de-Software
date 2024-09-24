@@ -17,7 +17,7 @@ class QuestaoWidget extends StatelessWidget {
         return WidgetMultiplaEscolha(questao: questao, bancoId: bancoId,);
 
       case QuestaoTipo.LinhaUnica:
-        return WidgetLinhaUnica(questao: questao);
+        return WidgetLinhaUnica(questao: questao, idBanco:  bancoId,);
 
       default:
         return Text('Tipo de questão não suportado');

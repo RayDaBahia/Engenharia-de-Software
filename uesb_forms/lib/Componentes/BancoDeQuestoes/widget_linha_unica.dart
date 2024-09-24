@@ -10,9 +10,10 @@ class WidgetLinhaUnica extends StatefulWidget {
 
 
 
+  final String?  idBanco;
   final Questao questao;
 
-    const WidgetLinhaUnica ({super.key, required this.questao});
+    const WidgetLinhaUnica ({super.key, required this.questao, this.idBanco});
 
   @override
   State<WidgetLinhaUnica> createState() => _WidgetLinhaUnicaState();
@@ -78,7 +79,9 @@ class _WidgetLinhaUnicaState extends State<WidgetLinhaUnica> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(onPressed: ()=> {}
+                IconButton(onPressed: () {
+                  bancoList.removerQuestao(widget.idBanco, widget.questao);
+                }
                 , icon: Icon(Icons.delete)),
               ],
             )

@@ -157,45 +157,34 @@ Future<void> buscarQuestoesBancoNoBd(String? bancoId) async {
 
 Future<void> removerQuestao(String? bancoId, Questao questao) async {
   final user = _authList?.usuario;
-  if (user != null && bancoId != null) {
-    // Obtém a referência para a subcoleção de questões do banco específico
-    final questoesRef = _firestore
-        .collection('usuarios')
-        .doc(user.id)
-        .collection('bancos')
-        .doc(bancoId)
-        .collection('questoes');
+  if (user != null) {
 
-    // Adicione um print para verificar o ID da questão
-    print('Tentando remover a questão com ID: ${questao.id}');
 
-    // Verifica se a questão existe usando o ID do documento
-    final existingQuestaoSnapshot = await questoesRef
-        .where(FieldPath.documentId, isEqualTo: questao.id) // Usando FieldPath.documentId
-        .get();
+    // Verifica se o bancoId não é nulo 
+    if (bancoId != null) {
+      // Obtém a referência do documento da questão diretamente
+      final questaoRef = _firestore
+          .collection('usuarios')
+          .doc(user.id)
+          .collection('bancos')
+          .doc(bancoId)
+          .collection('questoes')
+          .doc(questao.id); // Usando o ID da questão
 
-    if (existingQuestaoSnapshot.docs.isNotEmpty) {
-      // Se a questão já existe, remove-a do Firestore
-      final existingQuestaoDoc = existingQuestaoSnapshot.docs.first;
-      await existingQuestaoDoc.reference.delete();
-      print('Questão removida com sucesso: ${questao.id}');
-    } else {
-      print('Questão não encontrada no banco com ID: ${questao.id}');
+      // Tenta remover a questão do Firestore
+    
+        await questaoRef.delete(); // Remove o documento diretamente
+      
+      }
     }
 
     // Remove a questão da lista local
     questoesLista.removeWhere((q) => q.id == questao.id);
+    
     notifyListeners();
-  } else {
-    if (bancoId == null) {
-      print('bancoId é nulo');
-    }
-    if (user == null) {
-      print('Usuário não autenticado');
-    }
   }
 }
 
 
 
-}
+
