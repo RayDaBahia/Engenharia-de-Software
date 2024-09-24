@@ -188,6 +188,15 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 leading: Icon(Icons.format_list_numbered),
                 title: Text('Número'),
                 onTap: () {
+                        Provider.of<BancoList>(context, listen: false)
+                        .adicionarQuestaoNaLista(
+                      Questao(
+                         id: Random().nextInt(1000000).toString(),
+                         textoQuestao: '',
+                         tipoQuestao: QuestaoTipo.Numerica,
+                         opcoes: [],
+                      ),
+                    );
                   Navigator.pop(context);
                   // Navegar ou mostrar o widget de número
                 },
@@ -196,6 +205,16 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 leading: Icon(Icons.calendar_today),
                 title: Text('Data'),
                 onTap: () {
+                      Provider.of<BancoList>(context, listen: false)
+                        .adicionarQuestaoNaLista(
+                      Questao(
+                         id: Random().nextInt(1000000).toString(),
+                         textoQuestao: '',
+                         tipoQuestao: QuestaoTipo.data,
+                        
+                      ),
+                    );
+              
                   Navigator.pop(context);
                   // Navegar ou mostrar o widget de data
                 },

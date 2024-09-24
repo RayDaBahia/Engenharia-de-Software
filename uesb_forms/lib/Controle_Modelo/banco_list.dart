@@ -38,6 +38,17 @@ class BancoList with ChangeNotifier {
   Future<void> addBanco(Banco banco, List<Questao> questoes) async {
     final user = _authList?.usuario; // pega o registro do usuário 
     if (user != null) {
+
+
+        
+      bool verificaPgt = questoes.any((q) => q.textoQuestao.isEmpty);
+
+      if(verificaPgt) {
+        throw Exception('Campo pergunta é obrigatório');
+      }
+
+
+
       // Adiciona o banco 
       final bancoRef = await _firestore
           .collection('usuarios') // Coleção dos usuários
@@ -49,7 +60,10 @@ class BancoList with ChangeNotifier {
       });
 
       // Cria a subcoleção 'questoes' e adiciona as questões
+
+
       for (var questao in questoes) {
+        
         await bancoRef.collection('questoes').add(questao.toMap());
       }
       notifyListeners();

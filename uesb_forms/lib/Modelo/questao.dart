@@ -1,6 +1,8 @@
 import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
 class Questao {
+
+  
   String id;
   String textoQuestao;
   QuestaoTipo tipoQuestao; // "Linha Única", "Múltiplas Linhas", "Número", "Data", "Imagem", "Múltipla Escolha", etc.
