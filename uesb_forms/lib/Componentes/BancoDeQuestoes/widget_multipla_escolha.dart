@@ -7,8 +7,9 @@ import 'package:uesb_forms/Modelo/questao.dart';
 
 class WidgetMultiplaEscolha extends StatefulWidget {
   final Questao questao;
+  final String? bancoId;
 
-  const WidgetMultiplaEscolha({Key? key, required this.questao}) : super(key: key);
+  const WidgetMultiplaEscolha({Key? key, required this.questao, this.bancoId}) : super(key: key);
 
   @override
   State<WidgetMultiplaEscolha> createState() => _WidgetMultiplaEscolhaState();
@@ -121,7 +122,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                     onPressed:
                     
                    () {
-                     // questionarioProvider.removerQuestao(widget.questao.id);
+                   bancoList.removerQuestao(widget.bancoId, widget.questao);
                     },
                   ),
                 ],

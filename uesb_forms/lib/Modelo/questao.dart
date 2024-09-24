@@ -54,7 +54,6 @@ class Questao {
   // Converter para Map para salvar no Firestore
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'textoQuestao': textoQuestao,
       'tipoQuestao': tipoQuestao.name,
       'resposta': resposta,

@@ -82,7 +82,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 itemCount: banco_list.questoesLista.length,
                 itemBuilder: (context, index) {
                   final questao = banco_list.questoesLista[index];
-                  return QuestaoWidget(questao: questao); // Aqui instanciamos o widget correto para cada questão
+                  return QuestaoWidget(questao: questao, bancoId: widget.bancoId,); // Aqui instanciamos o widget correto para cada questão
                 },
               ),
             ),
