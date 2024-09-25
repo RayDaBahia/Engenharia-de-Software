@@ -13,6 +13,7 @@ class BancoList with ChangeNotifier {
   // Pega o usuário logado
   final AuthList? _authList;
   List<Questao> questoesLista = []; // Lista para armazenar questões
+  List<Banco>  bancosLista =[];
 
   BancoList([this._authList]);
 
@@ -52,6 +53,8 @@ class BancoList with ChangeNotifier {
         'nome': banco.nome,
         'descricao': banco.descricao,
       });
+
+     bancosLista.add(banco);
 
       // Cria a subcoleção 'questoes' e adiciona as questões
 
@@ -104,7 +107,7 @@ class BancoList with ChangeNotifier {
   }
 
   // Método para retornar os bancos do usuário
-  Future<List<Banco>> getBancos() async {
+  Future<void>  getBancos() async {
     final user = _authList?.usuario; //Obtém o usuário logado
     if (user == null) {
       throw Exception('Usuário não autenticado');
@@ -118,13 +121,15 @@ class BancoList with ChangeNotifier {
         .get();
 
     // Converte os documentos retornados em uma lista de objetos Banco
-    return snapshot.docs.map((doc) {
+     bancosLista.addAll(snapshot.docs.map((doc) {
       return Banco(
         id: doc.id,
         nome: doc['nome'],
         descricao: doc['descricao'],
       );
-    }).toList();
+    }).toList());
+
+    notifyListeners();
   }
 
   Future<void> buscarQuestoesBancoNoBd(String? bancoId) async {
