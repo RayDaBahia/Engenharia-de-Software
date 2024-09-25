@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:uesb_forms/Modelo/banco.dart';
@@ -21,6 +23,8 @@ class BancoList with ChangeNotifier {
     if (index >= 0) {
       questoesLista[index] = questao;
     } else {
+
+       questao.id= Random().nextInt(1000000).toString();
       questoesLista.add(questao);
     }
 

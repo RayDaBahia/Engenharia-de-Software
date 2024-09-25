@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:uesb_forms/Controle_Modelo/QuestionarioProvider%20.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Formularios.dart';
@@ -34,7 +33,6 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_)=>AuthList(),),
-        ChangeNotifierProvider(create: (_)=> QuestionarioProvider ()),
         //O ProductService sempre terá acesso à instância mais atualizada do AuthService,
        ChangeNotifierProxyProvider<AuthList, BancoList >(
         create: (_)=>BancoList(),

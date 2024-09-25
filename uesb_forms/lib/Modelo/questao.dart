@@ -1,14 +1,13 @@
 import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
 class Questao {
-
-  
-  String id;
+  String? id;
   String textoQuestao;
-  QuestaoTipo tipoQuestao; // "Linha Única", "Múltiplas Linhas", "Número", "Data", "Imagem", "Múltipla Escolha", etc.
-  
+  QuestaoTipo
+      tipoQuestao; // "Linha Única", "Múltiplas Linhas", "Número", "Data", "Imagem", "Múltipla Escolha", etc.
+
   // Campos para "Linha Única" e "Múltiplas Linhas"
-  String? resposta=''; // Para armazenar resposta de texto
+  String? resposta = ''; // Para armazenar resposta de texto
 
   // Campos para "Número"
   int? respostaNumerica; // Para Questaos numéricas
@@ -22,7 +21,8 @@ class Questao {
 
   // Campos para "Múltipla Escolha" e "Objetiva"
   List<String>? opcoes; // Opções de múltipla escolha ou objetiva
-  List<String>? opcoesSelecionadas; // Respostas selecionadas em múltipla escolha
+  List<String>?
+      opcoesSelecionadas; // Respostas selecionadas em múltipla escolha
   String? opcaoSelecionada; // Resposta selecionada em objetiva
 
   // Campos para "Ranking"
@@ -31,14 +31,14 @@ class Questao {
 
   // Campos para "Resposta Única" (Lista suspensa)
   String? respostaDropdown; // Resposta selecionada da lista suspensa
-  
+
   // Campos para "E-mail"
   String? respostaEmail; // E-mail com validação
 
   Questao({
-    required this.id,
     required this.textoQuestao,
     required this.tipoQuestao,
+    this.id,
     this.resposta,
     this.respostaNumerica,
     this.respostaData,
@@ -78,13 +78,14 @@ class Questao {
     return Questao(
       id: map['id'],
       textoQuestao: map['textoQuestao'],
-          tipoQuestao: QuestaoTipo.values.firstWhere(
-      (tipo) => tipo.name == map['tipoQuestao'],
-     
-    ),
+      tipoQuestao: QuestaoTipo.values.firstWhere(
+        (tipo) => tipo.name == map['tipoQuestao'],
+      ),
       resposta: map['resposta'],
       respostaNumerica: map['respostaNumerica'],
-      respostaData: map['respostaData'] != null ? DateTime.parse(map['respostaData']) : null,
+      respostaData: map['respostaData'] != null
+          ? DateTime.parse(map['respostaData'])
+          : null,
       maxArquivos: map['maxArquivos'],
       tamanhoMaximoArquivo: map['tamanhoMaximoArquivo'],
       opcoes: List<String>.from(map['opcoes'] ?? []),

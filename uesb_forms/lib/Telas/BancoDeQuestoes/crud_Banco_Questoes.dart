@@ -6,7 +6,6 @@ import 'package:uesb_forms/Componentes/BancoDeQuestoes/questaoWidget.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_linha_unica.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_mE_obj.dart';
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
-import 'package:uesb_forms/Controle_Modelo/QuestionarioProvider%20.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Modelo/questao_tipo.dart';
@@ -159,7 +158,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                   Provider.of<BancoList>(context, listen: false)
                       .adicionarQuestaoNaLista(
                     Questao(
-                      id: Random().nextInt(1000000).toString(),
+                     
                       textoQuestao: '',
                       tipoQuestao: QuestaoTipo.LinhaUnica,
                       resposta: '',
@@ -182,7 +181,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                         Provider.of<BancoList>(context, listen: false)
                         .adicionarQuestaoNaLista(
                       Questao(
-                         id: Random().nextInt(1000000).toString(),
+                       
                          textoQuestao: '',
                          tipoQuestao: QuestaoTipo.Numerica,
                          opcoes: [],
@@ -199,7 +198,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                       Provider.of<BancoList>(context, listen: false)
                         .adicionarQuestaoNaLista(
                       Questao(
-                         id: Random().nextInt(1000000).toString(),
+                       
                          textoQuestao: '',
                          tipoQuestao: QuestaoTipo.Data,
                         
@@ -225,7 +224,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                   Provider.of<BancoList>(context, listen: false)
                         .adicionarQuestaoNaLista(
                       Questao(
-                         id: Random().nextInt(1000000).toString(),
+                        
                          textoQuestao: '',
                          tipoQuestao: QuestaoTipo.MultiPlaEscolha,
                          opcoes: [],
