@@ -36,7 +36,7 @@ class BancoList with ChangeNotifier {
   Future<void> addBanco(Banco banco, List<Questao> questoes) async {
     final user = _authList?.usuario; // pega o registro do usuário
     if (user != null) {
-      verificaPreenchimento(questoes);
+      verificaPreenchimento(questoes, banco);
 
       // Adiciona o banco
       final bancoRef = await _firestore
@@ -181,14 +181,15 @@ class BancoList with ChangeNotifier {
     notifyListeners();
   }
 
-  void verificaPreenchimento(List<Questao> questoes) {
+  void verificaPreenchimento(List<Questao> questoes, Banco banco) {
     bool verificaPgt = questoes.any((q) => q.textoQuestao.isEmpty);
     bool verificaCampos = questoes.any((q) {
-   
         return q.opcoes?.isEmpty ?? false ;
-      
-      
     });
+
+    if(banco.nome.isEmpty){
+      throw Exception('O Banco deve ter um nome');
+    }
 
     if (verificaPgt) {
       throw Exception('Campo pergunta é obrigatório');
