@@ -9,7 +9,8 @@ class WidgetMultiplaEscolha extends StatefulWidget {
   final Questao questao;
   final String? bancoId;
 
-  const WidgetMultiplaEscolha({Key? key, required this.questao, this.bancoId}) : super(key: key);
+  const WidgetMultiplaEscolha({Key? key, required this.questao, this.bancoId})
+      : super(key: key);
 
   @override
   State<WidgetMultiplaEscolha> createState() => _WidgetMultiplaEscolhaState();
@@ -22,7 +23,8 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
   @override
   void initState() {
     super.initState();
-    _perguntaController = TextEditingController(text: widget.questao.textoQuestao);
+    _perguntaController =
+        TextEditingController(text: widget.questao.textoQuestao);
     _initializeOptionControllers();
   }
 
@@ -75,11 +77,15 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                   _optionControllers.length,
                   (index) => Row(
                     children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(Icons.check_box),
+                      ),
                       Expanded(
                         child: TextField(
                           controller: _optionControllers[index],
                           decoration: InputDecoration(
-                            labelText: 'Opção ${index + 1}',
+                             labelText: 'Opção ${index + 1}',
                             border: OutlineInputBorder(),
                           ),
                           onChanged: (value) {
@@ -92,7 +98,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                         onPressed: () {
                           setState(() {
                             _optionControllers.removeAt(index);
-                            
+
                             widget.questao.opcoes!.removeAt(index);
 
                             bancoList.adicionarQuestaoNaLista(widget.questao);
@@ -102,9 +108,9 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                       ),
                     ],
                   ),
-                ),
+                ), 
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 18),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -112,17 +118,15 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                     onPressed: () {
                       setState(() {
                         _optionControllers.add(TextEditingController(text: ''));
-                        widget.questao.opcoes!.add('');
+                        widget.questao.opcoes!.add("");
                       });
                     },
                     child: Text("Adicionar outra opção"),
                   ),
                   IconButton(
                     icon: Icon(Icons.delete),
-                    onPressed:
-                    
-                   () {
-                   bancoList.removerQuestao(widget.bancoId, widget.questao);
+                    onPressed: () {
+                      bancoList.removerQuestao(widget.bancoId, widget.questao);
                     },
                   ),
                 ],
