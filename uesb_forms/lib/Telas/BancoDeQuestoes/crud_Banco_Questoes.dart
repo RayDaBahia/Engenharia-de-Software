@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/questaoWidget.dart';
-import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_linha_unica.dart';
+
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_mE_obj.dart';
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
@@ -260,9 +260,17 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
               ListTile(
                 leading: Icon(Icons.arrow_drop_down),
                 title: Text('Resposta Única (Lista Suspensa)'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Navegar ou mostrar o widget de resposta única
+                onTap : () {
+                  Provider.of<BancoList>(context, listen: false)
+                        .adicionarQuestaoNaLista(
+                      Questao(
+                        
+                         textoQuestao: '',
+                         tipoQuestao: QuestaoTipo.ListaSuspensa,
+                         opcoes: [],
+                      ),
+                    );
+                    Navigator.pop(context);
                 },
               ),
               ListTile(
