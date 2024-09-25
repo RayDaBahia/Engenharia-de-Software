@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
+import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
-class WidgetLinhaUnica extends StatefulWidget {
+class WidgetLinhaUnicaOremail extends StatefulWidget {
   final String? idBanco;
   final Questao questao;
 
-  const WidgetLinhaUnica({super.key, required this.questao, this.idBanco});
+  const WidgetLinhaUnicaOremail ({super.key, required this.questao, this.idBanco});
 
   @override
-  State<WidgetLinhaUnica> createState() => _WidgetLinhaUnicaState();
+  State<WidgetLinhaUnicaOremail > createState() => _WidgetLinhaUnicaState();
 }
 
-class _WidgetLinhaUnicaState extends State<WidgetLinhaUnica> {
+class _WidgetLinhaUnicaState extends State<WidgetLinhaUnicaOremail > {
   late TextEditingController controlePergunta;
 
   late TextEditingController controleResposta;
@@ -64,7 +65,7 @@ class _WidgetLinhaUnicaState extends State<WidgetLinhaUnica> {
               decoration: InputDecoration(
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10)),
-                  labelText: 'Resposta'),
+                  labelText: widget.questao.tipoQuestao==QuestaoTipo.LinhaUnica? 'Resposta' : 'Digite seu e-mail'),
               enabled: false,
             ),
           ],

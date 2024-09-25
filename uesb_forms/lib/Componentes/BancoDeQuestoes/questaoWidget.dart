@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_data.dart';
-import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_linha_unica.dart';
+import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_linha_unica_orEmail.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_mE_obj.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_resposta_numerica.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
@@ -18,8 +18,8 @@ class QuestaoWidget extends StatelessWidget {
       case QuestaoTipo.MultiPlaEscolha || QuestaoTipo.Objetiva:
         return WidgetMultiplaEscolha(questao: questao, bancoId: bancoId,);
 
-      case QuestaoTipo.LinhaUnica:
-        return WidgetLinhaUnica(questao: questao, idBanco:  bancoId,);
+      case QuestaoTipo.LinhaUnica || QuestaoTipo.Email:
+        return WidgetLinhaUnicaOremail (questao: questao, idBanco:  bancoId,);
 
 
       case QuestaoTipo.Numerica:

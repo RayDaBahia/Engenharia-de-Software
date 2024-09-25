@@ -269,8 +269,19 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 leading: Icon(Icons.email),
                 title: Text('E-mail (Com Validação)'),
                 onTap: () {
+               
+                  Provider.of<BancoList>(context, listen: false)
+                      .adicionarQuestaoNaLista(
+                    Questao(
+                     
+                      textoQuestao: '',
+                      tipoQuestao: QuestaoTipo.Email,
+                      resposta: '',
+                    ),
+                  );
                   Navigator.pop(context);
-                  // Navegar ou mostrar o widget de e-mail
+                  // Navegar ou mostrar o widget de linha única
+                
                 },
               ),
             ],
