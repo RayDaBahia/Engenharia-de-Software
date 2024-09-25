@@ -1,5 +1,5 @@
 enum QuestaoTipo {
-  LinhaUnica, MultiPlaEscolha,  Numerica, data
+  LinhaUnica, MultiPlaEscolha,  Numerica, Data, Objetiva
 
 
 

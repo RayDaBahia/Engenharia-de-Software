@@ -4,6 +4,7 @@ import 'package:uesb_forms/Controle_Modelo/QuestionarioProvider%20.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
+import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
 class WidgetMultiplaEscolha extends StatefulWidget {
   final Questao questao;
@@ -56,6 +57,20 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                      onPressed: () {
+                        bancoList.removerQuestao(
+                            widget.bancoId, widget.questao);
+                      },
+                      icon: Icon(Icons.delete)),
+                  IconButton(onPressed: () {
+                 
+                  }, icon: Icon(Icons.copy_sharp)),
+                ],
+              ),
               TextField(
                 controller: _perguntaController,
                 maxLines: null,
@@ -79,13 +94,14 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                     children: [
                       IconButton(
                         onPressed: () {},
-                        icon: Icon(Icons.check_box),
+                        icon: widget.questao.tipoQuestao== QuestaoTipo.MultiPlaEscolha? Icon(Icons.check_box) : Icon(Icons.check_circle)
+,
                       ),
                       Expanded(
                         child: TextField(
                           controller: _optionControllers[index],
                           decoration: InputDecoration(
-                             labelText: 'Opção ${index + 1}',
+                            labelText: 'Opção ${index + 1}',
                             border: OutlineInputBorder(),
                           ),
                           onChanged: (value) {
@@ -108,7 +124,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                       ),
                     ],
                   ),
-                ), 
+                ),
               ),
               const SizedBox(height: 18),
               Row(
@@ -122,12 +138,6 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                       });
                     },
                     child: Text("Adicionar outra opção"),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () {
-                      bancoList.removerQuestao(widget.bancoId, widget.questao);
-                    },
                   ),
                 ],
               ),

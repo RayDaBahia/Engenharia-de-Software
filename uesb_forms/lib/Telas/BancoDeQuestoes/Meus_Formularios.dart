@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
-import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_multipla_escolha.dart';
+import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_mE_obj.dart';
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 

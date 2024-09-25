@@ -41,9 +41,7 @@ class _WidgetDataState extends State<WidgetData> {
       }
 
 // estratégia quando tenho algo assincrono, algo que será chamado quando algo acontecer.
-      setState(() {
-       
-      });
+      setState(() {});
     });
   }
 
@@ -56,6 +54,22 @@ class _WidgetDataState extends State<WidgetData> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                        onPressed: () {
+                          bancoList.removerQuestao(
+                              widget.idBanco, widget.questao);
+                        },
+                        icon: Icon(Icons.delete)),
+                    IconButton(
+                        onPressed: () {
+                          
+                        },
+                        icon: Icon(Icons.copy_sharp)),
+                  ],
+                ),
                 TextField(
                   controller: controlePergunta,
                   decoration: InputDecoration(
@@ -67,25 +81,16 @@ class _WidgetDataState extends State<WidgetData> {
                     bancoList.adicionarQuestaoNaLista(widget.questao);
                   },
                 ),
-                SizedBox(height: 30,),
-                
+                SizedBox(
+                  height: 30,
+                ),
                 Row(
-                  
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton(
-                      onPressed: _selectDate,
-                      child: Icon(Icons.calendar_month)
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(10)),
+                        onPressed: null, child: Icon(Icons.calendar_month)),
+                    Padding(padding: EdgeInsets.all(10)),
                     Spacer(),
-                    IconButton(
-                        onPressed: () {
-                          bancoList.removerQuestao(
-                              widget.idBanco, widget.questao);
-                        },
-                        icon: Icon(Icons.delete)),
                   ],
                 ),
               ],

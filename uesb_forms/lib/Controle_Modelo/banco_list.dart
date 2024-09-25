@@ -27,6 +27,7 @@ class BancoList with ChangeNotifier {
     notifyListeners();
   }
 
+
   // metodo para limpar lista de questões
   void limparListaQuestoes() {
     questoesLista.clear();

@@ -10,7 +10,8 @@ class WidgetRespostaNumerica extends StatefulWidget {
   final Questao questao;
   final String? bancoId;
 
-  const WidgetRespostaNumerica({Key? key, required this.questao, this.bancoId}) : super(key: key);
+  const WidgetRespostaNumerica({Key? key, required this.questao, this.bancoId})
+      : super(key: key);
 
   @override
   State<WidgetRespostaNumerica> createState() => _WidgetMultiplaEscolhaState();
@@ -23,7 +24,8 @@ class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
   @override
   void initState() {
     super.initState();
-    _perguntaController = TextEditingController(text: widget.questao.textoQuestao);
+    _perguntaController =
+        TextEditingController(text: widget.questao.textoQuestao);
     _initializeOptionControllers();
   }
 
@@ -55,6 +57,18 @@ class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                      onPressed: () {
+                        bancoList.removerQuestao(
+                            widget.bancoId, widget.questao);
+                      },
+                      icon: Icon(Icons.delete)),
+                  IconButton(onPressed: () {}, icon: Icon(Icons.copy_sharp)),
+                ],
+              ),
               TextField(
                 controller: _perguntaController,
                 maxLines: null,
@@ -78,7 +92,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
                     children: [
                       Expanded(
                         child: TextField(
-                          inputFormatters: <TextInputFormatter> [
+                          inputFormatters: <TextInputFormatter>[
                             FilteringTextInputFormatter.digitsOnly,
                           ],
                           keyboardType: TextInputType.number,
@@ -87,20 +101,20 @@ class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
                             labelText: 'Opção ${index + 1}',
                             border: OutlineInputBorder(),
                           ),
-                          
                           onChanged: (value) {
                             widget.questao.opcoes![index] = value;
                             bancoList.adicionarQuestaoNaLista(widget.questao);
                           },
                         ),
-                        
                       ),
-                      SizedBox(height: 10,),
+                      SizedBox(
+                        height: 10,
+                      ),
                       IconButton(
                         onPressed: () {
                           setState(() {
                             _optionControllers.removeAt(index);
-                            
+
                             widget.questao.opcoes!.removeAt(index);
 
                             bancoList.adicionarQuestaoNaLista(widget.questao);
@@ -124,14 +138,6 @@ class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
                       });
                     },
                     child: Text("Adicionar outra opção"),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed:
-                    
-                   () {
-                   bancoList.removerQuestao(widget.bancoId, widget.questao);
-                    },
                   ),
                 ],
               ),

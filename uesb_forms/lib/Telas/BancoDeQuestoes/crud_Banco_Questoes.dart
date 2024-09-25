@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/questaoWidget.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_linha_unica.dart';
-import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_multipla_escolha.dart';
+import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_mE_obj.dart';
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
 import 'package:uesb_forms/Controle_Modelo/QuestionarioProvider%20.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
@@ -173,16 +173,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                   leading: Icon(Icons.text_fields),
                   title: Text('Múltiplas Linhas'),
                   onTap: () {
-                    Provider.of<BancoList>(context, listen: false)
-                        .adicionarQuestaoNaLista(
-                      Questao(
-                         id: Random().nextInt(1000000).toString(),
-                         textoQuestao: '',
-                         tipoQuestao: QuestaoTipo.MultiPlaEscolha,
-                         opcoes: [],
-                      ),
-                    );
-                    Navigator.pop(context);
+                  
                   }),
               ListTile(
                 leading: Icon(Icons.format_list_numbered),
@@ -210,7 +201,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                       Questao(
                          id: Random().nextInt(1000000).toString(),
                          textoQuestao: '',
-                         tipoQuestao: QuestaoTipo.data,
+                         tipoQuestao: QuestaoTipo.Data,
                         
                       ),
                     );
@@ -231,16 +222,32 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 leading: Icon(Icons.check_box),
                 title: Text('Múltipla Escolha'),
                 onTap: () {
-                  Navigator.pop(context);
-                  // Navegar ou mostrar o widget de múltipla escolha
+                  Provider.of<BancoList>(context, listen: false)
+                        .adicionarQuestaoNaLista(
+                      Questao(
+                         id: Random().nextInt(1000000).toString(),
+                         textoQuestao: '',
+                         tipoQuestao: QuestaoTipo.MultiPlaEscolha,
+                         opcoes: [],
+                      ),
+                    );
+                    Navigator.pop(context);
                 },
               ),
               ListTile(
                 leading: Icon(Icons.radio_button_checked),
                 title: Text('Objetiva'),
                 onTap: () {
-                  Navigator.pop(context);
-                  // Navegar ou mostrar o widget de pergunta objetiva
+                 Provider.of<BancoList>(context, listen: false)
+                        .adicionarQuestaoNaLista(
+                      Questao(
+                         id: Random().nextInt(1000000).toString(),
+                         textoQuestao: '',
+                         tipoQuestao: QuestaoTipo.Objetiva,
+                         opcoes: [],
+                      ),
+                    );
+                    Navigator.pop(context);
                 },
               ),
               ListTile(
