@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/questaoWidget.dart';
 
-import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_mE_obj.dart';
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
@@ -14,7 +13,7 @@ class CrudBancoQuestoes extends StatefulWidget {
 
   final String? bancoId; // Defina bancoId como opcional
 
-  CrudBancoQuestoes({super.key, this.bancoId}); // Adicionando o ID no construtor
+  const CrudBancoQuestoes({super.key, this.bancoId}); // Adicionando o ID no construtor
 
   @override
   State<CrudBancoQuestoes> createState() => _CrudBancoQuestoesState();
@@ -40,7 +39,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
 
   @override
   Widget build(BuildContext context) {
-    final banco_list = Provider.of<BancoList>(context);
+    final bancoList = Provider.of<BancoList>(context);
 
    
 
@@ -48,7 +47,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 27, 7, 80),
       ),
-      drawer: MenuLateral(),
+      drawer: const MenuLateral(),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -57,10 +56,10 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
             TextField(
               controller: _nomeBancoController,
               maxLines: 1,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Banco Sem Título',
                 labelStyle: TextStyle(
-                  color: const Color.fromARGB(255, 27, 7, 80),
+                  color: Color.fromARGB(255, 27, 7, 80),
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
                 ),
@@ -69,7 +68,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
             TextField(
               controller: _descricaoBancoController,
               maxLines: 1,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Adicione uma descrição ao banco',
                 labelStyle: TextStyle(
                   color: Colors.grey, // Cor clara para a descrição
@@ -78,14 +77,14 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: banco_list.questoesLista.length,
+                itemCount: bancoList.questoesLista.length,
                 itemBuilder: (context, index) {
-                  final questao = banco_list.questoesLista[index];
+                  final questao = bancoList.questoesLista[index];
                   return QuestaoWidget(questao: questao, bancoId: widget.bancoId,); // Aqui instanciamos o widget correto para cada questão
                 },
               ),
             ),
-            Spacer(),
+            const Spacer(),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -96,22 +95,22 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                   },
                   backgroundColor: const Color.fromARGB(255, 33, 12, 71),
                   foregroundColor: Colors.white,
-                  child: Icon(Icons.add),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0),
                   ),
+                  child: const Icon(Icons.add),
                 ),
-                SizedBox(width: 20),
+                const SizedBox(width: 20),
                 TextButton(
                   onPressed: () async {
                     try {
-                      await banco_list.SalvarBanco(
+                      await bancoList.SalvarBanco(
                         _nomeBancoController.text,
                         _descricaoBancoController.text,
                       );
 
                       // Exibe uma mensagem de sucesso
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text("Banco criado com sucesso!"),
                       ));
                     } catch (e) {
@@ -121,16 +120,16 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                       ));
                     }
                   },
-                  child: Text('Salvar'),
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: const Color.fromARGB(255, 37, 7, 88),
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                         horizontal: 30, vertical: 12.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
+                  child: const Text('Salvar'),
                 ),
               ],
             ),
@@ -146,14 +145,14 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
       context: context,
       builder: (BuildContext context) {
         return Container(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: ListView(
             shrinkWrap:
                 true, // Permite que a ListView ocupe apenas o espaço necessário
             children: [
               ListTile(
-                leading: Icon(Icons.text_fields),
-                title: Text('Linha Única'),
+                leading: const Icon(Icons.text_fields),
+                title: const Text('Linha Única'),
                 onTap: () {
                   Provider.of<BancoList>(context, listen: false)
                       .adicionarQuestaoNaLista(
@@ -169,14 +168,14 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 },
               ),
               ListTile(
-                  leading: Icon(Icons.text_fields),
-                  title: Text('Múltiplas Linhas'),
+                  leading: const Icon(Icons.text_fields),
+                  title: const Text('Múltiplas Linhas'),
                   onTap: () {
                   
                   }),
               ListTile(
-                leading: Icon(Icons.format_list_numbered),
-                title: Text('Número'),
+                leading: const Icon(Icons.format_list_numbered),
+                title: const Text('Número'),
                 onTap: () {
                         Provider.of<BancoList>(context, listen: false)
                         .adicionarQuestaoNaLista(
@@ -192,8 +191,8 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.calendar_today),
-                title: Text('Data'),
+                leading: const Icon(Icons.calendar_today),
+                title: const Text('Data'),
                 onTap: () {
                       Provider.of<BancoList>(context, listen: false)
                         .adicionarQuestaoNaLista(
@@ -210,16 +209,16 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.camera_alt),
-                title: Text('Imagem (Captura)'),
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Imagem (Captura)'),
                 onTap: () {
                   Navigator.pop(context);
                   // Navegar ou mostrar o widget de captura de imagem
                 },
               ),
               ListTile(
-                leading: Icon(Icons.check_box),
-                title: Text('Múltipla Escolha'),
+                leading: const Icon(Icons.check_box),
+                title: const Text('Múltipla Escolha'),
                 onTap: () {
                   Provider.of<BancoList>(context, listen: false)
                         .adicionarQuestaoNaLista(
@@ -234,8 +233,8 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.radio_button_checked),
-                title: Text('Objetiva'),
+                leading: const Icon(Icons.radio_button_checked),
+                title: const Text('Objetiva'),
                 onTap: () {
                  Provider.of<BancoList>(context, listen: false)
                         .adicionarQuestaoNaLista(
@@ -250,16 +249,16 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.star),
-                title: Text('Ranking (Classificação)'),
+                leading: const Icon(Icons.star),
+                title: const Text('Ranking (Classificação)'),
                 onTap: () {
                   Navigator.pop(context);
                   // Navegar ou mostrar o widget de ranking
                 },
               ),
               ListTile(
-                leading: Icon(Icons.arrow_drop_down),
-                title: Text('Resposta Única (Lista Suspensa)'),
+                leading: const Icon(Icons.arrow_drop_down),
+                title: const Text('Resposta Única (Lista Suspensa)'),
                 onTap : () {
                   Provider.of<BancoList>(context, listen: false)
                         .adicionarQuestaoNaLista(
@@ -274,8 +273,8 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.email),
-                title: Text('E-mail (Com Validação)'),
+                leading: const Icon(Icons.email),
+                title: const Text('E-mail (Com Validação)'),
                 onTap: () {
                
                   Provider.of<BancoList>(context, listen: false)

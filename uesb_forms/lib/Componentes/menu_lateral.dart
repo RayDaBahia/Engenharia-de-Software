@@ -4,13 +4,15 @@ import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 
 class MenuLateral extends StatelessWidget {
+  const MenuLateral({super.key});
+
   @override
   Widget build(BuildContext context) {
-    final _authUser = Provider.of<AuthList>(context, listen: false);
+    final authUser = Provider.of<AuthList>(context, listen: false);
 
-    Future<void> _signoutGoogle() async {
+    Future<void> signoutGoogle() async {
       try {
-        await _authUser.handleSignOut();
+        await authUser.handleSignOut();
 
         Navigator.pushReplacementNamed(context, Rotas.HOME);
       } catch (error) {
@@ -33,47 +35,47 @@ class MenuLateral extends StatelessWidget {
             backgroundColor: const Color.fromARGB(255, 27, 7, 80),
           ),
           ListTile(
-            leading: Icon(Icons.description),
-            title: Text('Meus Formulários'),
+            leading: const Icon(Icons.description),
+            title: const Text('Meus Formulários'),
             onTap: () {
                Navigator.of(context).pushNamed(Rotas.MEUS_FORMULARIOS);
             },
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            leading: Icon(Icons.storage),
+            leading: const Icon(Icons.storage),
             onTap: () {
               Navigator.of(context).pushNamed(Rotas.MEUS_BANCOS);
             },
-            title: Text('Meus Bancos'),
+            title: const Text('Meus Bancos'),
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            leading: Icon(
+            leading: const Icon(
               Icons.notifications,
             ),
             onTap: () {},
-            title: Text('Notificação'),
+            title: const Text('Notificação'),
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            leading: Icon(Icons.person),
-            title: Text('Conta'),
+            leading: const Icon(Icons.person),
+            title: const Text('Conta'),
             onTap: () {},
           ),
-          Divider(),
-          SizedBox(
+          const Divider(),
+          const SizedBox(
             height: 300,
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            leading: Icon(Icons.logout),
-            title: Text('Sair'),
+            leading: const Icon(Icons.logout),
+            title: const Text('Sair'),
             onTap: () {
-              _signoutGoogle();
+              signoutGoogle();
             },
           ),
-          Divider(),
+          const Divider(),
         ],
       ),
     );

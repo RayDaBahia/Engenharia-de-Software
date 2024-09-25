@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
-import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
@@ -10,8 +9,7 @@ class WidgetMultiplaEscolha extends StatefulWidget {
   final Questao questao;
   final String? bancoId;
 
-  const WidgetMultiplaEscolha({Key? key, required this.questao, this.bancoId})
-      : super(key: key);
+  const WidgetMultiplaEscolha({super.key, required this.questao, this.bancoId});
 
   @override
   State<WidgetMultiplaEscolha> createState() => _WidgetMultiplaEscolhaState();
@@ -49,7 +47,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
   Widget build(BuildContext context) {
     final bancoList = Provider.of<BancoList>(context, listen: false);
 
-    return Container(
+    return SizedBox(
       width: 300,
       child: Card(
         child: Padding(
@@ -65,10 +63,10 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                         bancoList.removerQuestao(
                             widget.bancoId, widget.questao);
                       },
-                      icon: Icon(Icons.delete)),
+                      icon: const Icon(Icons.delete)),
                   IconButton(onPressed: () {
                  
-                  }, icon: Icon(Icons.copy_sharp)),
+                  }, icon: const Icon(Icons.copy_sharp)),
                 ],
               ),
               TextField(
@@ -94,7 +92,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                     children: [
                       IconButton(
                         onPressed: () {},
-                        icon: widget.questao.tipoQuestao== QuestaoTipo.MultiPlaEscolha? Icon(Icons.check_box) : Icon(Icons.check_circle)
+                        icon: widget.questao.tipoQuestao== QuestaoTipo.MultiPlaEscolha? const Icon(Icons.check_box) : const Icon(Icons.check_circle)
 ,
                       ),
                       Expanded(
@@ -102,7 +100,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                           controller: _optionControllers[index],
                           decoration: InputDecoration(
                             labelText: 'Opção ${index + 1}',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
                           ),
                           onChanged: (value) {
                             widget.questao.opcoes![index] = value;
@@ -120,7 +118,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                             bancoList.adicionarQuestaoNaLista(widget.questao);
                           });
                         },
-                        icon: Icon(Icons.close),
+                        icon: const Icon(Icons.close),
                       ),
                     ],
                   ),
@@ -137,7 +135,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                         widget.questao.opcoes!.add("");
                       });
                     },
-                    child: Text("Adicionar outra opção"),
+                    child: const Text("Adicionar outra opção"),
                   ),
                 ],
               ),

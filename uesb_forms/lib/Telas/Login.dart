@@ -1,30 +1,29 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Excecoes/erro_login.dart';
-import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Formularios.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 
 class Login extends StatefulWidget {
+  const Login({super.key});
+
   @override
   State<Login> createState() => _LoginState();
 }
 
 class _LoginState extends State<Login> {
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   
     void _showErrorDialog(BuildContext context, String errorMessage) {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text('Erro'),
+          title: const Text('Erro'),
           content: Text(errorMessage),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
              setState(() {
                 
@@ -43,7 +42,7 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     final authUser = Provider.of<AuthList>(context, listen: false);
 
-    Future<void> _loginWithGoogle(AuthList authList) async {
+    Future<void> loginWithGoogle(AuthList authList) async {
    
       try {
         await authList.handleGoogleSignIn();
@@ -108,7 +107,7 @@ class _LoginState extends State<Login> {
               child: ElevatedButton(
                 onPressed: _isLoading
                     ? null 
-                    : () => _loginWithGoogle(authUser)
+                    : () => loginWithGoogle(authUser)
                     
                     ,
                 style: ElevatedButton.styleFrom(

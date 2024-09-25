@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
@@ -42,6 +41,7 @@ class _WidgetDataState extends State<WidgetData> {
 
 // estratégia quando tenho algo assincrono, algo que será chamado quando algo acontecer.
       setState(() {});
+      return null;
     });
   }
 
@@ -62,12 +62,12 @@ class _WidgetDataState extends State<WidgetData> {
                           bancoList.removerQuestao(
                               widget.idBanco, widget.questao);
                         },
-                        icon: Icon(Icons.delete)),
+                        icon: const Icon(Icons.delete)),
                     IconButton(
                         onPressed: () {
                           
                         },
-                        icon: Icon(Icons.copy_sharp)),
+                        icon: const Icon(Icons.copy_sharp)),
                   ],
                 ),
                 TextField(
@@ -81,10 +81,10 @@ class _WidgetDataState extends State<WidgetData> {
                     bancoList.adicionarQuestaoNaLista(widget.questao);
                   },
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 30,
                 ),
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton(

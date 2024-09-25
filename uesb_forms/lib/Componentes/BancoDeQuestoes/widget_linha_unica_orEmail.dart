@@ -42,8 +42,8 @@ class _WidgetLinhaUnicaState extends State<WidgetLinhaUnicaOremail > {
                     onPressed: () {
                       bancoList.removerQuestao(widget.idBanco, widget.questao);
                     },
-                    icon: Icon(Icons.delete)),
-                IconButton(onPressed: () {}, icon: Icon(Icons.copy_sharp)),
+                    icon: const Icon(Icons.delete)),
+                IconButton(onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
               ],
             ),
             TextField(
@@ -57,7 +57,7 @@ class _WidgetLinhaUnicaState extends State<WidgetLinhaUnicaOremail > {
                 bancoList.adicionarQuestaoNaLista(widget.questao);
               },
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             TextField(

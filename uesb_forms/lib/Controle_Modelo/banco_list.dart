@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:uesb_forms/Modelo/banco.dart';
 import 'package:uesb_forms/Modelo/questao.dart'; // importando modelo de questão
-import 'package:uesb_forms/Modelo/questao_tipo.dart';
 import 'auth_list.dart';
 
 class BancoList with ChangeNotifier {
@@ -154,13 +153,9 @@ class BancoList with ChangeNotifier {
       final data = doc.data();
       data['id'] = doc.id;
 
-      if (data is Map<String, dynamic>) {
-        return Questao.fromMap(
-            data); // Assumindo que você tem um método fromMap
-      } else {
-        throw Exception('Formato de dados inválido');
-      }
-    }).toList()); // Convertendo o Iterable em uma lista
+      return Questao.fromMap(
+          data); // Assumindo que você tem um método fromMap
+        }).toList()); // Convertendo o Iterable em uma lista
 
     notifyListeners();
   }

@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
-import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
-import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
 class WidgetListaSuspensa extends StatefulWidget {
   final Questao questao;
   final String? bancoId;
 
-  const WidgetListaSuspensa({Key? key, required this.questao, this.bancoId})
-      : super(key: key);
+  const WidgetListaSuspensa({super.key, required this.questao, this.bancoId});
 
   @override
   State<WidgetListaSuspensa> createState() => _WidgetMultiplaEscolhaState();
@@ -49,7 +46,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetListaSuspensa> {
   Widget build(BuildContext context) {
     final bancoList = Provider.of<BancoList>(context, listen: false);
 
-    return Container(
+    return SizedBox(
       width: 300,
       child: Card(
         child: Padding(
@@ -65,10 +62,10 @@ class _WidgetMultiplaEscolhaState extends State<WidgetListaSuspensa> {
                         bancoList.removerQuestao(
                             widget.bancoId, widget.questao);
                       },
-                      icon: Icon(Icons.delete)),
+                      icon: const Icon(Icons.delete)),
                   IconButton(onPressed: () {
                  
-                  }, icon: Icon(Icons.copy_sharp)),
+                  }, icon: const Icon(Icons.copy_sharp)),
                 ],
               ),
               TextField(
@@ -98,7 +95,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetListaSuspensa> {
                       Expanded(
                         child: TextField(
                           controller: _optionControllers[index],
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                           ),
                           onChanged: (value) {
@@ -117,7 +114,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetListaSuspensa> {
                             bancoList.adicionarQuestaoNaLista(widget.questao);
                           });
                         },
-                        icon: Icon(Icons.close),
+                        icon: const Icon(Icons.close),
                       ),
                     ],
                   ),
@@ -134,7 +131,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetListaSuspensa> {
                         widget.questao.opcoes!.add("");
                       });
                     },
-                    child: Text("Adicionar outra opção"),
+                    child: const Text("Adicionar outra opção"),
                   ),
                 ],
               ),
@@ -148,7 +145,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetListaSuspensa> {
 
 Widget dropDown() {
   return DropdownButton<String>(
-    hint: Text('Selecione uma opção'), // Texto exibido quando nada está selecionado
+    hint: const Text('Selecione uma opção'), // Texto exibido quando nada está selecionado
     items: widget.questao.opcoes!.map((String item) {
       return DropdownMenuItem<String>(
         value: item,

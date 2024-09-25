@@ -3,15 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
-import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 
 class WidgetRespostaNumerica extends StatefulWidget {
   final Questao questao;
   final String? bancoId;
 
-  const WidgetRespostaNumerica({Key? key, required this.questao, this.bancoId})
-      : super(key: key);
+  const WidgetRespostaNumerica({super.key, required this.questao, this.bancoId});
 
   @override
   State<WidgetRespostaNumerica> createState() => _WidgetMultiplaEscolhaState();
@@ -49,7 +47,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
   Widget build(BuildContext context) {
     final bancoList = Provider.of<BancoList>(context, listen: false);
 
-    return Container(
+    return SizedBox(
       width: 300,
       child: Card(
         child: Padding(
@@ -65,8 +63,8 @@ class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
                         bancoList.removerQuestao(
                             widget.bancoId, widget.questao);
                       },
-                      icon: Icon(Icons.delete)),
-                  IconButton(onPressed: () {}, icon: Icon(Icons.copy_sharp)),
+                      icon: const Icon(Icons.delete)),
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
                 ],
               ),
               TextField(
@@ -99,7 +97,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
                           controller: _optionControllers[index],
                           decoration: InputDecoration(
                             labelText: 'Opção ${index + 1}',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
                           ),
                           onChanged: (value) {
                             widget.questao.opcoes![index] = value;
@@ -107,7 +105,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
                           },
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
                       IconButton(
@@ -120,7 +118,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
                             bancoList.adicionarQuestaoNaLista(widget.questao);
                           });
                         },
-                        icon: Icon(Icons.close),
+                        icon: const Icon(Icons.close),
                       ),
                     ],
                   ),
@@ -137,7 +135,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
                         widget.questao.opcoes!.add('');
                       });
                     },
-                    child: Text("Adicionar outra opção"),
+                    child: const Text("Adicionar outra opção"),
                   ),
                 ],
               ),

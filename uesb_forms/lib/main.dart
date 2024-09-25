@@ -11,15 +11,15 @@ import 'package:uesb_forms/Utils/firebase_options.dart';
 
 
 void main() async {
+  
   WidgetsFlutterBinding.ensureInitialized();
 
   // Inicialize o Firebase com as opções específicas
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
-
-  runApp(MyApp());
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,   name: 'meu_app_firebase',);
+  }
+  runApp(const MyApp());
 }
 
 
@@ -53,9 +53,9 @@ class MyApp extends StatelessWidget {
         ),
         //home: MeusFormularios(),
         routes: {
-          Rotas.HOME: (ctx) => Login(),
+          Rotas.HOME: (ctx) => const Login(),
           Rotas.MEUS_FORMULARIOS: (ctx) => const MeusFormularios(),
-          Rotas.MEUS_BANCOS: (ctx)=> CrudBancoQuestoes( )
+          Rotas.MEUS_BANCOS: (ctx)=> const CrudBancoQuestoes( )
         },
         
       ),

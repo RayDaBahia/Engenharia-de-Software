@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
-import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_mE_obj.dart';
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 
@@ -37,7 +35,7 @@ class MeusFormularios extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.only(top: 150),
           ),
-          Container(
+          SizedBox(
             height: screenHeight * 0.3,
             width: screenHeight * 0.4,
             child: Image.asset(
@@ -50,7 +48,7 @@ class MeusFormularios extends StatelessWidget {
         ],
        
      ),
-      drawer: MenuLateral()
+      drawer: const MenuLateral()
     );
    
     

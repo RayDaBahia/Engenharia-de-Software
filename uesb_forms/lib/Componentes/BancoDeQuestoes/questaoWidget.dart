@@ -11,7 +11,7 @@ class QuestaoWidget extends StatelessWidget {
   final Questao questao;
   final String? bancoId;
 
-  QuestaoWidget({required this.questao, this.bancoId});
+  const QuestaoWidget({super.key, required this.questao, this.bancoId});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class QuestaoWidget extends StatelessWidget {
         return WidgetListaSuspensa(questao: questao);
 
       default:
-        return Text('Tipo de questão não suportado');
+        return const Text('Tipo de questão não suportado');
     }
   }
 }
