@@ -12,7 +12,8 @@ class BancoList with ChangeNotifier {
   // Pega o usuário logado
   final AuthList? _authList;
   List<Questao> questoesLista = []; // Lista para armazenar questões
-  List<Banco>  bancosLista =[];
+
+  List<Banco> bancosLista = [];
 
   BancoList([this._authList]);
 
@@ -23,14 +24,12 @@ class BancoList with ChangeNotifier {
     if (index >= 0) {
       questoesLista[index] = questao;
     } else {
-
-       questao.id= Random().nextInt(1000000).toString();
+      questao.id = Random().nextInt(1000000).toString();
       questoesLista.add(questao);
     }
 
     notifyListeners();
   }
-
 
   // metodo para limpar lista de questões
   void limparListaQuestoes() {
@@ -52,8 +51,6 @@ class BancoList with ChangeNotifier {
         'nome': banco.nome,
         'descricao': banco.descricao,
       });
-
-     bancosLista.add(banco);
 
       // Cria a subcoleção 'questoes' e adiciona as questões
 
@@ -86,6 +83,67 @@ class BancoList with ChangeNotifier {
     }
   }
 
+  ////////////////////////////////////////////////////////////////GET BANCO //////////////////////////////////////////////////////
+  Future<void> getBanco() async {
+    final user = _authList?.usuario;
+    if (user == null) {
+      throw Exception('não autenticado');
+    }
+
+    QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
+        .collection('usuarios')
+        .doc(user.id)
+        .collection('bancos')
+        .get();
+
+    bancosLista.clear();
+
+    bancosLista.addAll(snapshot.docs.map((doc) {
+      final data = doc.data();
+      return Banco(
+        id: doc.id,
+        nome: data['nome'] ?? '',
+        descricao: data['descricao'] ?? '',
+      );
+    }).toList());
+
+    notifyListeners();
+  }
+
+  // void getBanco() {
+  //   final user = _authList?.usuario; // Obtém o usuário logado
+  //   if (user == null) {
+  //     throw Exception('Usuário não autenticado');
+  //   }
+
+  //   // Busca todos os bancos do usuário no Firestore
+  //   _firestore
+  //       .collection('usuarios')
+  //       .doc(user.id)
+  //       .collection('bancos')
+  //       .get()
+  //       .then((snapshot) {
+  //     // Limpa a lista antes de adicionar novos bancos
+  //     bancosLista.clear();
+
+  //     // Converte os documentos retornados em uma lista de objetos Banco
+  //     bancosLista.addAll(snapshot.docs.map((doc) {
+  //       final data = doc.data();
+  //       return Banco(
+  //         id: doc.id,
+  //         nome: data['nome'] ?? '',
+  //         descricao: data['descricao'] ?? '',
+  //       );
+  //     }).toList());
+
+  //     // Notifica os listeners para atualizar a interface, se necessário
+  //     notifyListeners();
+  //   }).catchError((error) {
+  //     // Lida com erros, se houver
+  //     print('Erro ao buscar bancos: $error');
+  //   });
+  // }
+
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // ESTE MÉTODO NÃO ESTÁ SENDO USADO, EU TROUXE PRA CÁ PARA PODER IMPLEMENTAR DEPOIS, SERVE PARA ADICIONAR QUESTÕES EM UM BANCO SEPARADO
 
@@ -103,32 +161,6 @@ class BancoList with ChangeNotifier {
 
       notifyListeners();
     }
-  }
-
-  // Método para retornar os bancos do usuário
-  Future<void>  getBancos() async {
-    final user = _authList?.usuario; //Obtém o usuário logado
-    if (user == null) {
-      throw Exception('Usuário não autenticado');
-    }
-
-    // Busca todos os bancos do usuário no Firestore
-    QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
-        .collection('usuarios')
-        .doc(user.id)
-        .collection('bancos')
-        .get();
-
-    // Converte os documentos retornados em uma lista de objetos Banco
-     bancosLista.addAll(snapshot.docs.map((doc) {
-      return Banco(
-        id: doc.id,
-        nome: doc['nome'],
-        descricao: doc['descricao'],
-      );
-    }).toList());
-
-    notifyListeners();
   }
 
   Future<void> buscarQuestoesBancoNoBd(String? bancoId) async {
@@ -189,12 +221,10 @@ class BancoList with ChangeNotifier {
   void verificaPreenchimento(List<Questao> questoes, Banco banco) {
     bool verificaPgt = questoes.any((q) => q.textoQuestao.isEmpty);
     bool verificaCampos = questoes.any((q) {
-       return  q.opcoes?.every((opcao) => opcao.trim().isEmpty) ?? false;
-
-
+      return q.opcoes?.every((opcao) => opcao.trim().isEmpty) ?? false;
     });
 
-    if(banco.nome.isEmpty){
+    if (banco.nome.isEmpty) {
       throw Exception('O Banco deve ter um nome');
     }
 
