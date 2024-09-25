@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:uesb_forms/Modelo/banco.dart';
 import 'package:uesb_forms/Modelo/questao.dart'; // importando modelo de questão
+import 'package:uesb_forms/Modelo/questao_tipo.dart';
 import 'auth_list.dart';
 
 class BancoList with ChangeNotifier {
@@ -9,47 +10,35 @@ class BancoList with ChangeNotifier {
 
   // Pega o usuário logado
   final AuthList? _authList;
-  List<Questao> questoesLista = []; // Lista para armazenar questões 
+  List<Questao> questoesLista = []; // Lista para armazenar questões
 
   BancoList([this._authList]);
 
-  // metodo para adicionar a questao na lisya 
+  // metodo para adicionar a questao na lisya
   void adicionarQuestaoNaLista(Questao questao) {
+    final index = questoesLista.indexWhere((q) => q.id == questao.id);
 
-
-
-    final index = questoesLista.indexWhere((q)=> q.id==questao.id);
-
-    if(index>=0){
-      questoesLista[index]= questao;
-    }else{
+    if (index >= 0) {
+      questoesLista[index] = questao;
+    } else {
       questoesLista.add(questao);
     }
-   
+
     notifyListeners();
   }
 
-  // metodo para limpar lista de questões 
+  // metodo para limpar lista de questões
   void limparListaQuestoes() {
-   questoesLista.clear();
+    questoesLista.clear();
   }
 
   // Método para adicionar banco e coleção de questões
   Future<void> addBanco(Banco banco, List<Questao> questoes) async {
-    final user = _authList?.usuario; // pega o registro do usuário 
+    final user = _authList?.usuario; // pega o registro do usuário
     if (user != null) {
+      verificaPreenchimento(questoes);
 
-
-        
-      bool verificaPgt = questoes.any((q) => q.textoQuestao.isEmpty);
-
-      if(verificaPgt) {
-        throw Exception('Campo pergunta é obrigatório');
-      }
-
-
-
-      // Adiciona o banco 
+      // Adiciona o banco
       final bancoRef = await _firestore
           .collection('usuarios') // Coleção dos usuários
           .doc(user.id) // ID do usuário
@@ -61,9 +50,7 @@ class BancoList with ChangeNotifier {
 
       // Cria a subcoleção 'questoes' e adiciona as questões
 
-
       for (var questao in questoes) {
-        
         await bancoRef.collection('questoes').add(questao.toMap());
       }
       notifyListeners();
@@ -71,10 +58,10 @@ class BancoList with ChangeNotifier {
   }
 
   // Método para criar um banco com questões obrigatórias
-  Future<void> SalvarBanco(String nome, String descricao) async { // copy
+  Future<void> SalvarBanco(String nome, String descricao) async {
+    // copy
     final user = _authList?.usuario; // Obtém o usuário logado
     if (user != null) {
-
       // Cria objeto banco
       final novoBanco = Banco(
         id: '', // espero que o firebase crie o id
@@ -98,7 +85,7 @@ class BancoList with ChangeNotifier {
   Future<void> adicionarQuestao(String bancoId, Questao questao) async {
     final user = _authList?.usuario;
     if (user != null) {
-      // adiciona questão a subcoleção de questões de um banco em expecífico 
+      // adiciona questão a subcoleção de questões de um banco em expecífico
       await _firestore
           .collection('usuarios')
           .doc(user.id)
@@ -135,70 +122,79 @@ class BancoList with ChangeNotifier {
     }).toList();
   }
 
-Future<void> buscarQuestoesBancoNoBd(String? bancoId) async {
-  final user = _authList?.usuario; 
-   if (user == null) {
+  Future<void> buscarQuestoesBancoNoBd(String? bancoId) async {
+    final user = _authList?.usuario;
+    if (user == null) {
       throw Exception('Usuário não autenticado');
     }
 
+    // Obtendo as questões do banco específico
+    QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
+        .collection('usuarios')
+        .doc(user.id)
+        .collection('bancos')
+        .doc(bancoId)
+        .collection(
+            'questoes') // Adicione a subcoleção onde as questões estão armazenadas
+        .get();
 
-  // Obtendo as questões do banco específico
-  QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
-      .collection('usuarios')
-      .doc(user.id)
-      .collection('bancos')
-      .doc(bancoId)
-      .collection('questoes') // Adicione a subcoleção onde as questões estão armazenadas
-      .get();
-
-  // Convertendo os documentos em uma lista de Questao
-      questoesLista.addAll(snapshot.docs.map((doc) {
+    // Convertendo os documentos em uma lista de Questao
+    questoesLista.addAll(snapshot.docs.map((doc) {
       // Certificando-se de que os dados estão no formato correto
       final data = doc.data();
-      data['id']=doc.id;
-      
-      
+      data['id'] = doc.id;
+
       if (data is Map<String, dynamic>) {
-        return Questao.fromMap(data); // Assumindo que você tem um método fromMap
+        return Questao.fromMap(
+            data); // Assumindo que você tem um método fromMap
       } else {
         throw Exception('Formato de dados inválido');
       }
     }).toList()); // Convertendo o Iterable em uma lista
 
-  notifyListeners();
-}
+    notifyListeners();
+  }
 
+  Future<void> removerQuestao(String? bancoId, Questao questao) async {
+    final user = _authList?.usuario;
+    if (user != null) {
+      // Verifica se o bancoId não é nulo
+      if (bancoId != null) {
+        // Obtém a referência do documento da questão diretamente
+        final questaoRef = _firestore
+            .collection('usuarios')
+            .doc(user.id)
+            .collection('bancos')
+            .doc(bancoId)
+            .collection('questoes')
+            .doc(questao.id); // Usando o ID da questão
 
-Future<void> removerQuestao(String? bancoId, Questao questao) async {
-  final user = _authList?.usuario;
-  if (user != null) {
+        // Tenta remover a questão do Firestore
 
-
-    // Verifica se o bancoId não é nulo 
-    if (bancoId != null) {
-      // Obtém a referência do documento da questão diretamente
-      final questaoRef = _firestore
-          .collection('usuarios')
-          .doc(user.id)
-          .collection('bancos')
-          .doc(bancoId)
-          .collection('questoes')
-          .doc(questao.id); // Usando o ID da questão
-
-      // Tenta remover a questão do Firestore
-    
         await questaoRef.delete(); // Remove o documento diretamente
-      
       }
     }
 
     // Remove a questão da lista local
     questoesLista.removeWhere((q) => q.id == questao.id);
-    
+
     notifyListeners();
   }
+
+  void verificaPreenchimento(List<Questao> questoes) {
+    bool verificaPgt = questoes.any((q) => q.textoQuestao.isEmpty);
+    bool verificaCampos = questoes.any((q) {
+   
+        return q.opcoes?.isEmpty ?? false ;
+      
+      
+    });
+
+    if (verificaPgt) {
+      throw Exception('Campo pergunta é obrigatório');
+    }
+    if (verificaCampos) {
+      throw Exception('Necessário adicionar opções as questões');
+    }
+  }
 }
-
-
-
-
