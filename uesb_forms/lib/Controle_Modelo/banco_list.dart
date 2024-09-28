@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:uesb_forms/Modelo/banco.dart';
@@ -14,6 +13,7 @@ class BancoList with ChangeNotifier {
   List<Questao> questoesLista = []; // Lista para armazenar questões
 
   List<Banco> bancosLista = [];
+  List<Banco> bancosFiltro = []; // lista de bancos filtrados
 
   BancoList([this._authList]);
 
@@ -185,9 +185,8 @@ class BancoList with ChangeNotifier {
       final data = doc.data();
       data['id'] = doc.id;
 
-      return Questao.fromMap(
-          data); // Assumindo que você tem um método fromMap
-        }).toList()); // Convertendo o Iterable em uma lista
+      return Questao.fromMap(data); // Assumindo que você tem um método fromMap
+    }).toList()); // Convertendo o Iterable em uma lista
 
     notifyListeners();
   }
@@ -234,5 +233,54 @@ class BancoList with ChangeNotifier {
     if (verificaCampos) {
       throw Exception('Necessário adicionar opções as questões');
     }
+  }
+
+//////////// EXCLUIR BANCO DE QUESTÕES ////////////////////
+
+  Future<void> excluirBanco(String bancoId) async {
+    final user = _authList?.usuario;
+    if (user != null) {
+      // Referência do banco
+      final bancoRef = _firestore
+          .collection('usuarios')
+          .doc(user.id)
+          .collection('bancos')
+          .doc(bancoId);
+
+      // Busca e exclui todas as questões na subcoleção
+      final questoesSnapshot = await bancoRef.collection('questoes').get();
+      for (var doc in questoesSnapshot.docs) {
+        await doc.reference.delete(); // Exclui cada questão
+      }
+
+      // Após excluir as questões, exclui o banco
+      await bancoRef.delete();
+    }
+  }
+
+  // Método para filtrar bancos pelo nome
+  List<Banco> filtrarBancosPorNome(String nome) {
+    if (nome.isEmpty) {
+      return []; // Retorna uma lista vazia se o nome for vazio
+    }
+
+    // Filtra a lista de bancos com base na string de busca (case-insensitive)
+    return bancosLista.where((banco) {
+      return banco.nome.toLowerCase().contains(nome.toLowerCase());
+    }).toList();
+  }
+
+  // Método para filtrar bancos pelo nome e adicionar à lista bancosFiltro
+  void filtrarBanco(String nome) {
+   
+    bancosFiltro.clear();
+ 
+    if (nome.isNotEmpty) {
+      bancosFiltro.addAll(bancosLista.where((banco) {
+        return banco.nome.toLowerCase().contains(nome.toLowerCase());
+      }).toList());
+    }
+
+    notifyListeners();
   }
 }
