@@ -11,9 +11,9 @@ import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
 class CrudBancoQuestoes extends StatefulWidget {
 
-  final String? bancoId; // Defina bancoId como opcional
 
-  const CrudBancoQuestoes({super.key, this.bancoId}); // Adicionando o ID no construtor
+
+  const CrudBancoQuestoes({super.key}); // Adicionando o ID no construtor
 
   @override
   State<CrudBancoQuestoes> createState() => _CrudBancoQuestoesState();
@@ -21,6 +21,19 @@ class CrudBancoQuestoes extends StatefulWidget {
 
 
 class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
+
+  
+  String? bancoId;
+
+    void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    // O ModalRoute.of(context) deve ser usado aqui para acessar os argumentos da rota
+    bancoId = ModalRoute.of(context)!.settings.arguments as String?;
+  }
+
+
+
   late TextEditingController _descricaoBancoController;
   late TextEditingController _nomeBancoController;
 
@@ -31,7 +44,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
     _descricaoBancoController = TextEditingController();
     _nomeBancoController = TextEditingController();
     // Chama o método para obter bancos
-    if(widget.bancoId!=null) Provider.of<BancoList>(context, listen: false).buscarQuestoesBancoNoBd(widget.bancoId);
+    if(bancoId!=null) Provider.of<BancoList>(context, listen: false).buscarQuestoesBancoNoBd(bancoId);
    
   }
   late final  listaquestao;
@@ -39,7 +52,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
 
   @override
   Widget build(BuildContext context) {
-    final bancoList = Provider.of<BancoList>(context);
+    final bancoList = Provider.of<BancoList>(context, listen: true);
 
    
 
@@ -47,7 +60,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 27, 7, 80),
       ),
-      drawer: const MenuLateral(),
+     
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -80,7 +93,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 itemCount: bancoList.questoesLista.length,
                 itemBuilder: (context, index) {
                   final questao = bancoList.questoesLista[index];
-                  return QuestaoWidget(questao: questao, bancoId: widget.bancoId,); // Aqui instanciamos o widget correto para cada questão
+                  return QuestaoWidget(questao: questao, bancoId: bancoId,); // Aqui instanciamos o widget correto para cada questão
                 },
               ),
             ),

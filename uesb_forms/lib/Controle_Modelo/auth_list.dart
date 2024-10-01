@@ -15,7 +15,7 @@ class AuthList with ChangeNotifier {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
    // Android chave: 92855436550-kp0q3014mf6vnqe087rtfno3q1e42s6f.apps.googleusercontent.com
    // WEb chave : 92855436550-2unp3fm8mo04k6125a3ojnv6212nubgt.apps.googleusercontent.com
-    clientId: '92855436550-kp0q3014mf6vnqe087rtfno3q1e42s6f.apps.googleusercontent.com',
+    clientId: '92855436550-2unp3fm8mo04k6125a3ojnv6212nubgt.apps.googleusercontent.com',
     hostedDomain: 'uesb.edu.br'
   );
   // instancia que representa o usuario autenticado

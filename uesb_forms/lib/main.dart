@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
-import 'package:uesb_forms/Telas/BancoDeQuestoes/Meus_Bancos.dart';
+import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Bancos.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Formularios.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/crud_Banco_Questoes.dart';
 import 'package:uesb_forms/Telas/login.dart';
@@ -11,17 +11,12 @@ import 'package:provider/provider.dart';
 import 'package:uesb_forms/Utils/firebase_options.dart';
 
 void main() async {
-  
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Inicialize o Firebase com as opções específicas
-
-  if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,   name: 'meu_app_firebase',);
-  }
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
-
 
 
 
