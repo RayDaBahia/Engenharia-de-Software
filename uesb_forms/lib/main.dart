@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
+import 'package:uesb_forms/Telas/BancoDeQuestoes/Meus_Bancos.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Formularios.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/crud_Banco_Questoes.dart';
 import 'package:uesb_forms/Telas/login.dart';
@@ -55,7 +56,8 @@ class MyApp extends StatelessWidget {
         routes: {
           Rotas.HOME: (ctx) => const Login(),
           Rotas.MEUS_FORMULARIOS: (ctx) => const MeusFormularios(),
-          Rotas.MEUS_BANCOS: (ctx)=> const CrudBancoQuestoes( )
+          Rotas.MEUS_BANCOS: (ctx)=> const MeusBancos( ),
+          Rotas.CRUD_BANCO: (ctx)=> const CrudBancoQuestoes( )
         },
         
       ),
