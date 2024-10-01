@@ -12,47 +12,59 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final bool _isLoading = false;
+  bool _isLoading = false;
 
-  
-    void _showErrorDialog(BuildContext context, String errorMessage) {
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Erro'),
-          content: Text(errorMessage),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-             setState(() {
-                
-              });
-                Navigator.of(ctx).pop();
-          
-              },
-            )
-          ],
-        ),
-      );
-    }
-
+  void _showErrorDialog(BuildContext context, String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Erro'),
+        content: Text(errorMessage),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              setState(() {});
+              Navigator.of(ctx).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final authUser = Provider.of<AuthList>(context, listen: false);
 
     Future<void> loginWithGoogle(AuthList authList) async {
-   
-      try {
-        await authList.handleGoogleSignIn();
-        Navigator.pushReplacementNamed(context, Rotas.MEUS_FORMULARIOS);
-      } on erroLogin catch (e) {
-        String errorMessage = e.toString();
-        _showErrorDialog(context, errorMessage);
-        print(errorMessage);
-      } 
+  setState(() {
+    _isLoading = true;
+  });
+
+  try {
+    await authList.handleGoogleSignIn();
+
+    if (mounted) {
+      
+      Navigator.pushReplacementNamed(context, Rotas.MEUS_FORMULARIOS);
     }
+  } on erroLogin catch (e) {
+    String errorMessage = e.toString();
+
+    if (mounted) {
+      _showErrorDialog(context, errorMessage);
+    }
+
+    print(errorMessage);
+  } finally {
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+}
 
     return Scaffold(
       body: Container(
@@ -106,34 +118,42 @@ class _LoginState extends State<Login> {
             Center(
               child: ElevatedButton(
                 onPressed: _isLoading
-                    ? null 
-                    : () => loginWithGoogle(authUser)
-                    
-                    ,
+                    ? null
+                    : () => loginWithGoogle(authUser),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   side: const BorderSide(
-                      color: Color.fromARGB(255, 255, 255, 255),
-                      width: 2), // Borda preta
+                    color: Color.fromARGB(255, 255, 255, 255),
+                    width: 2,
+                  ), // Borda branca
                   elevation: 0, // Remove a sombra
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Image.asset(
-                      "images/google.png",
-                      height: 25,
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(10, 20, 0, 20),
-                    ),
-                    const Text(
-                      "Google",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
+                    if (_isLoading)
+                      const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      )
+                    else
+                      Row(
+                        children: [
+                          Image.asset(
+                            "images/google.png",
+                            height: 25,
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.fromLTRB(10, 20, 0, 20),
+                          ),
+                          const Text(
+                            "Google",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
                   ],
                 ),
               ),
