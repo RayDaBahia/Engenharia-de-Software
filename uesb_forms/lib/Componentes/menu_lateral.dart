@@ -24,7 +24,6 @@ class MenuLateral extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          
           AppBar(
             title: const Text(
               'UESB Formulários',
@@ -38,7 +37,7 @@ class MenuLateral extends StatelessWidget {
             leading: const Icon(Icons.description),
             title: const Text('Meus Formulários'),
             onTap: () {
-               Navigator.of(context).pushNamed(Rotas.MEUS_FORMULARIOS);
+              Navigator.of(context).pushNamed(Rotas.MEUS_FORMULARIOS);
             },
           ),
           const Divider(),
@@ -54,7 +53,9 @@ class MenuLateral extends StatelessWidget {
             leading: const Icon(
               Icons.notifications,
             ),
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).pushNamed(Rotas.CRUD_BANCO);// É SÓ PRA TESTAR POR ENQUANTO
+            },
             title: const Text('Notificação'),
           ),
           const Divider(),

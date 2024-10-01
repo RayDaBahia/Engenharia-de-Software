@@ -10,7 +10,6 @@ import 'package:uesb_forms/Utils/rotas.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Utils/firebase_options.dart';
 
-
 void main() async {
   
   WidgetsFlutterBinding.ensureInitialized();
