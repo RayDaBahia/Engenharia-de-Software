@@ -25,8 +25,12 @@ class _MeusBancosState extends State<MeusBancos> {
 
   @override
   void didChangeDependencies() {
+
+/*
+que é chamado depois que o widget é inserido na árvore e quando suas dependências mudam
+*/
     super.didChangeDependencies();
-    // Safely access Provider here after dependencies are established
+   
     Provider.of<BancoList>(context, listen: false).getBanco();
   }
 
@@ -46,7 +50,7 @@ class _MeusBancosState extends State<MeusBancos> {
           itemCount: bancoList.bancosLista.length,
           itemBuilder: (context, index) {
             final bancoQuestao = bancoList.bancosLista[index];
-            return WidgetbancoQuestao(banco: bancoQuestao);
+            return WidgetbancoQuestao(Banco: bancoQuestao);
           },
         ),
       ),

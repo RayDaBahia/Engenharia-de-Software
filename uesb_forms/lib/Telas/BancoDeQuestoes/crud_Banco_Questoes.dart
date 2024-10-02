@@ -45,6 +45,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
     _nomeBancoController = TextEditingController();
     // Chama o método para obter bancos
     if(bancoId!=null) Provider.of<BancoList>(context, listen: false).buscarQuestoesBancoNoBd(bancoId);
+    print(bancoId);
    
   }
   late final  listaquestao;
