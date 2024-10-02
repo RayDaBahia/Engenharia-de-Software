@@ -29,6 +29,7 @@ class MenuLateral extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           AppBar(
+                    iconTheme: IconThemeData(color: Colors.white),
             title: const Text(
               'UESB Formulários',
               style: TextStyle(
