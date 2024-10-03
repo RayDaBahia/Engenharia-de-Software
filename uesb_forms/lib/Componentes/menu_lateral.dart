@@ -8,6 +8,10 @@ class MenuLateral extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var screen = MediaQuery.sizeOf(context);
+    var screenHeight = screen.height;
+    var screenWidth = screen.width;
+
     final authUser = Provider.of<AuthList>(context, listen: false);
 
     Future<void> signoutGoogle() async {
@@ -25,6 +29,7 @@ class MenuLateral extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           AppBar(
+                    iconTheme: IconThemeData(color: Colors.white),
             title: const Text(
               'UESB Formulários',
               style: TextStyle(
@@ -54,7 +59,8 @@ class MenuLateral extends StatelessWidget {
               Icons.notifications,
             ),
             onTap: () {
-              Navigator.of(context).pushNamed(Rotas.CRUD_BANCO);// É SÓ PRA TESTAR POR ENQUANTO
+              Navigator.of(context)
+                  .pushNamed(Rotas.CRUD_BANCO); // É SÓ PRA TESTAR POR ENQUANTO
             },
             title: const Text('Notificação'),
           ),
@@ -65,8 +71,8 @@ class MenuLateral extends StatelessWidget {
             onTap: () {},
           ),
           const Divider(),
-          const SizedBox(
-            height: 300,
+          SizedBox(
+            height: screenHeight * 0.2,
           ),
           const Divider(),
           ListTile(

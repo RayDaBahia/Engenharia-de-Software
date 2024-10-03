@@ -17,6 +17,7 @@ class MeusFormularios extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.white),
         title: const Text(
           'Uesb Formularios',
           style: TextStyle(
@@ -49,7 +50,7 @@ class MeusFormularios extends StatelessWidget {
         ],
        
      ),
-      drawer: const MenuLateral()
+      drawer: const MenuLateral(),
     );
    
     
