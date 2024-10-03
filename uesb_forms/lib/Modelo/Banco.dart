@@ -1,9 +1,9 @@
-class banco {
+class Banco {
   String? id; // O ID é opcional
-  final String nome; // Nome do banco (obrigatório)
-  final String descricao; // Descrição do banco (obrigatório)
+   String nome; // Nome do banco (obrigatório)
+   String descricao; // Descrição do banco (obrigatório)
 
-  banco({
+  Banco({
     this.id, // Atribuição opcional
     required this.nome, // Nome obrigatório
     required this.descricao, // Descrição obrigatória
@@ -18,8 +18,8 @@ class banco {
   }
 
   // Converte um Map para um objeto Banco
-  factory banco.fromMap(Map<String, dynamic> map) {
-    return banco(
+  factory Banco.fromMap(Map<String, dynamic> map) {
+    return Banco(
       id: map['id'], // ID opcional, pode ser nulo
       nome: map['nome'] ?? '',
       descricao: map['descricao'] ?? '',

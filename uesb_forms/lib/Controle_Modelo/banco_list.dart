@@ -1,19 +1,19 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:uesb_forms/Modelo/banco.dart';
+import 'package:uesb_forms/Modelo/Banco.dart';
 import 'package:uesb_forms/Modelo/questao.dart'; // importando modelo de questão
 import 'auth_list.dart';
 
 class BancoList with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+  int tamQuestoesBanco = 0;
   // Pega o usuário logado
   final AuthList? _authList;
   List<Questao> questoesLista = []; // Lista para armazenar questões
 
-  List<banco> bancosLista = [];
-  List<banco> bancosFiltro = []; // lista de bancos filtrados
+  List<Banco> bancosLista = [];
+  List<Banco> bancosFiltro = []; // lista de bancos filtrados
 
   BancoList([this._authList]);
 
@@ -37,7 +37,7 @@ class BancoList with ChangeNotifier {
   }
 
   // Método para adicionar banco e coleção de questões
-  Future<void> addBanco(banco banco, List<Questao> questoes) async {
+  Future<void> addBanco(Banco banco, List<Questao> questoes) async {
     final user = _authList?.usuario; // pega o registro do usuário
     if (user != null) {
       verificaPreenchimento(questoes, banco);
@@ -60,7 +60,7 @@ class BancoList with ChangeNotifier {
         batch.set(questaoRef, questao.toMap());
       }
 
-      banco.id= bancoRef.id;
+      banco.id = bancoRef.id;
 
       await batch.commit(); // Executa todas as operações em um único commit
       bancosLista.add(banco);
@@ -68,12 +68,68 @@ class BancoList with ChangeNotifier {
     }
   }
 
+  Future<void> AtualizarBanco(Banco banco) async {
+    final user = _authList?.usuario;
+
+
+    verificaPreenchimento(questoesLista, banco) ;
+
+    // Atualiza as informações do banco
+    await _firestore
+        .collection('usuarios')
+        .doc(user!.id)
+        .collection('bancos')
+        .doc(banco.id)
+        .update({
+      'nome': banco.nome,
+      'descricao': banco.descricao,
+    });
+    int index = bancosLista.indexWhere((b) => b.id == banco.id);
+
+    bancosLista[index] = banco;
+
+    // Usando WriteBatch para atualizar as questões
+    WriteBatch batch = _firestore.batch(); // Inicia o batch
+
+    for (int i = 0; i < min(tamQuestoesBanco, questoesLista.length); i++) {
+      final questao = questoesLista[i];
+
+      final questaoRef = _firestore
+          .collection('usuarios')
+          .doc(user.id)
+          .collection('bancos')
+          .doc(banco.id)
+          .collection('questoes')
+          .doc(questao
+              .id); // Aqui usamos o ID da questão para garantir a atualização correta
+
+      batch.set(questaoRef,
+          questao.toMap()); // Você pode usar set() para criar ou substituir
+    }
+    for (int i = tamQuestoesBanco; i < questoesLista.length; i++) {
+      final questao = questoesLista[i];
+
+      // Adiciona a nova questão normalmente
+      await _firestore
+          .collection('usuarios')
+          .doc(user.id)
+          .collection('bancos')
+          .doc(banco.id)
+          .collection('questoes')
+          .add(questao
+              .toMap()); // Isso cria um novo documento com um ID gerado automaticamente
+    }
+
+    await batch.commit(); // Executa todas as operações em um único commit
+    notifyListeners(); // Notifica os ouvintes sobre a atualização
+  }
+
   // Método para criar um banco com questões obrigatórias
   Future<void> SalvarBanco(String nome, String descricao) async {
     final user = _authList?.usuario; // Obtém o usuário logado
     if (user != null) {
       // Cria objeto banco
-      final novoBanco = banco(
+      final novoBanco = Banco(
         id: '', // espero que o firebase crie o id
         nome: nome,
         descricao: descricao,
@@ -92,7 +148,8 @@ class BancoList with ChangeNotifier {
   ////////////////////////////////////////////////////////////////GET BANCO //////////////////////////////////////////////////////
 
   Future<void> getBanco() async {
-    if (bancosLista.isNotEmpty) return; // Se a lista já estiver carregada, não faça a leitura
+    if (bancosLista.isNotEmpty)
+      return; // Se a lista já estiver carregada, não faça a leitura
     final user = _authList?.usuario;
     if (user == null) {
       throw Exception('não autenticado');
@@ -108,7 +165,7 @@ class BancoList with ChangeNotifier {
 
     bancosLista.addAll(snapshot.docs.map((doc) {
       final data = doc.data();
-      return banco(
+      return Banco(
         id: doc.id,
         nome: data['nome'] ?? '',
         descricao: data['descricao'] ?? '',
@@ -139,6 +196,7 @@ class BancoList with ChangeNotifier {
       throw Exception('Usuário não autenticado');
     }
 
+    questoesLista.clear();
     QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
         .collection('usuarios')
         .doc(user.id)
@@ -153,6 +211,8 @@ class BancoList with ChangeNotifier {
 
       return Questao.fromMap(data);
     }).toList());
+
+    tamQuestoesBanco = questoesLista.length;
 
     notifyListeners();
   }
@@ -177,7 +237,7 @@ class BancoList with ChangeNotifier {
     notifyListeners();
   }
 
-  void verificaPreenchimento(List<Questao> questoes, banco banco) {
+  void verificaPreenchimento(List<Questao> questoes, Banco banco) {
     bool verificaPgt = questoes.any((q) => q.textoQuestao.isEmpty);
     bool verificaCampos = questoes.any((q) {
       return q.opcoes?.every((opcao) => opcao.trim().isEmpty) ?? false;
@@ -216,7 +276,7 @@ class BancoList with ChangeNotifier {
   }
 
   // Método para filtrar bancos pelo nome
-  List<banco> filtrarBancosPorNome(String nome) {
+  List<Banco> filtrarBancosPorNome(String nome) {
     if (nome.isEmpty) {
       return []; // Retorna uma lista vazia se o nome for vazio
     }

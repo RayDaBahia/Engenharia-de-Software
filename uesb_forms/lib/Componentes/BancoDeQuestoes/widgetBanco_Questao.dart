@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:uesb_forms/Modelo/banco.dart';
+import 'package:uesb_forms/Modelo/Banco.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 
 class WidgetbancoQuestao extends StatelessWidget {
 
-  final banco Banco;
-  const WidgetbancoQuestao({super.key, required this.Banco});
+   final Banco banco; // Corrigido: Remover colchetes em torno de this.banco
+  const WidgetbancoQuestao({super.key,  required this.banco}); // Corrigido aqui também
+
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class WidgetbancoQuestao extends StatelessWidget {
     return InkWell(
 
       onTap: (){
-        Navigator.of(context).pushNamed(Rotas.CRUD_BANCO, arguments: Banco.id);
+        Navigator.of(context).pushNamed(Rotas.CRUD_BANCO, arguments: banco);
       },
 
 
@@ -42,7 +43,7 @@ class WidgetbancoQuestao extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Text(
-              Banco.nome,
+              banco!.nome,
               style: const TextStyle(
                 color: Color.fromARGB(255, 27, 7, 80),
                 fontSize: 30,
@@ -52,7 +53,7 @@ class WidgetbancoQuestao extends StatelessWidget {
               color: Colors.black,
             ),
              Text(
-              Banco.descricao,
+              banco!.descricao,
               style: const TextStyle(
                 color: Colors.black,
                 fontSize: 15,

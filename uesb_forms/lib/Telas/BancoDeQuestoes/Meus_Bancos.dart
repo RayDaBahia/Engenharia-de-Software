@@ -4,7 +4,7 @@ import 'package:uesb_forms/Componentes/BancoDeQuestoes/widgetBanco_Questao.dart'
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
-import 'package:uesb_forms/Modelo/banco.dart';
+import 'package:uesb_forms/Modelo/Banco.dart';
 
 
 class MeusBancos extends StatefulWidget {
@@ -50,7 +50,7 @@ que é chamado depois que o widget é inserido na árvore e quando suas dependê
           itemCount: bancoList.bancosLista.length,
           itemBuilder: (context, index) {
             final bancoQuestao = bancoList.bancosLista[index];
-            return WidgetbancoQuestao(Banco: bancoQuestao);
+            return WidgetbancoQuestao(banco: bancoQuestao);
           },
         ),
       ),
