@@ -68,6 +68,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 27, 7, 80),
+        
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -100,11 +101,12 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
               ),
             ),
             SizedBox(
-              height: 30,
+              height: 15,
             ),
-            if(banco!=null)  WidgetPesquisaQuestao(),
+          
+            if(banco!=null)   WidgetPesquisaQuestao(),
             SizedBox(
-              height: 60,
+              height: 40,
             ),
             Expanded(
               child: ListView.builder(
@@ -129,16 +131,19 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 const SizedBox(width: 20),
                 TextButton(
                   onPressed: () async {
+                    
                     if (banco == null) {
                       try {
                         await bancoList.SalvarBanco(
                           _nomeBancoController.text,
                           _descricaoBancoController.text,
                         );
+                      
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                               content: Text("Banco criado com sucesso!")),
                         );
+                        Navigator.of(context).pop();
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("Erro ao criar banco: $e")),

@@ -240,6 +240,7 @@ class BancoList with ChangeNotifier {
   void  verificaPreenchimento(List<Questao> questoes, Banco banco) {
     bool verificaPgt = questoes.any((q) => q.textoQuestao.isEmpty);
     bool verificaCampos = questoes.any((q) {
+      
       return q.opcoes?.every((opcao) => opcao.trim().isEmpty) ?? false;
     });
 
