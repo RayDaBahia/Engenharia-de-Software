@@ -6,6 +6,8 @@ import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 
 class WidgetRespostaNumerica extends StatefulWidget {
+
+  
   final Questao questao;
   final String? bancoId;
 

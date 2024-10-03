@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
-
+/*
 class WidgetRanking extends StatefulWidget {
   final Questao questao;
   final String? bancoId;
@@ -37,31 +37,24 @@ class _WidgetRankingState extends State<WidgetRanking> {
     super.dispose();
   }
 
- void _initializeOptionControllers() {
-  _controleAlternativas.clear();
-  _controleNiveis.clear(); // Limpe também os níveis
+  void _initializeOptionControllers() {
+    _controleAlternativas.clear();
+    _controleNiveis.clear(); // Limpe também os níveis
 
-  // Certifique-se de que perguntasRanking não é nulo
-  if (widget.questao.perguntasRanking == null) {
-    widget.questao.perguntasRanking = []; // Inicialize como uma lista vazia
+    // Verifique se perguntasRanking não é nulo
+    if (widget.questao.perguntasRanking != null) {
+      for (var alternativa in widget.questao.perguntasRanking!) {
+        _controleAlternativas.add(TextEditingController(text: alternativa));
+      }
+    }
+
+    // Verifique se opcoesRanking não é nulo
+    if (widget.questao.opcoesRanking != null) {
+      for (var niveis in widget.questao.opcoesRanking!) {
+        _controleNiveis.add(TextEditingController(text: niveis));
+      }
+    }
   }
-
-  // Adicione controladores para cada alternativa existente
-  for (var alternativa in widget.questao.perguntasRanking!) {
-    _controleAlternativas.add(TextEditingController(text: alternativa));
-  }
-
-  // Certifique-se de que opcoesRanking não é nulo
-  if (widget.questao.opcoesRanking == null) {
-    widget.questao.opcoesRanking = []; // Inicialize como uma lista vazia
-  }
-
-  // Adicione controladores para cada nível existente
-  for (var niveis in widget.questao.opcoesRanking!) {
-    _controleNiveis.add(TextEditingController(text: niveis));
-  }
-}
-
 
   @override
  @override
@@ -183,3 +176,6 @@ Widget build(BuildContext context) {
   );
 }
 }
+
+
+*/

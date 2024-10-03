@@ -137,7 +137,7 @@ class WidgetOpcoesQuestao extends StatelessWidget {
                       textoQuestao: '',
                       tipoQuestao: QuestaoTipo.Ranking,
                       opcoesRanking: [],
-                      perguntasRanking: [],
+                     // perguntasRanking: [],
                     ),
                   );
 
