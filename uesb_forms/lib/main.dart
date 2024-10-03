@@ -18,8 +18,11 @@ void main() async {
   runApp(const MyApp());
 }
 
+<<<<<<< Updated upstream
 
 
+=======
+>>>>>>> Stashed changes
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

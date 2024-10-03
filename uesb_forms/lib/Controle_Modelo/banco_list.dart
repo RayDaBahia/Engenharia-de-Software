@@ -10,8 +10,9 @@ class BancoList with ChangeNotifier {
   int tamQuestoesBanco = 0;
   // Pega o usuário logado
   final AuthList? _authList;
-  List<Questao> questoesLista = []; // Lista para armazenar questões
 
+  List<Questao> questoesLista = []; // Lista para armazenar questões
+  List<Questao> questoesFiltro = []; // lista de questões filtrados
   List<Banco> bancosLista = [];
   List<Banco> bancosFiltro = []; // lista de bancos filtrados
 
@@ -71,8 +72,7 @@ class BancoList with ChangeNotifier {
   Future<void> AtualizarBanco(Banco banco) async {
     final user = _authList?.usuario;
 
-
-    verificaPreenchimento(questoesLista, banco) ;
+    verificaPreenchimento(questoesLista, banco);
 
     // Atualiza as informações do banco
     await _firestore
@@ -145,6 +145,7 @@ class BancoList with ChangeNotifier {
     }
   }
 
+<<<<<<< Updated upstream
   ////////////////////////////////////////////////////////////////GET BANCO //////////////////////////////////////////////////////
 
   Future<void> getBanco() async {
@@ -174,6 +175,9 @@ class BancoList with ChangeNotifier {
 
     notifyListeners();
   }
+=======
+  ///////////////////////////////////////////QUESTÕES //////////////////////////////////////////////////////////////////////////////
+>>>>>>> Stashed changes
 
   Future<void> adicionarQuestao(String bancoId, Questao questao) async {
     final user = _authList?.usuario;
@@ -237,10 +241,25 @@ class BancoList with ChangeNotifier {
     notifyListeners();
   }
 
-  void  verificaPreenchimento(List<Questao> questoes, Banco banco) {
+  // Método para filtrar questões 
+  void filtrarQuestoes(String texto) {
+    if (texto.isEmpty) {
+      questoesFiltro.clear(); 
+      notifyListeners();
+      return;
+    }
+
+    questoesFiltro = questoesLista
+        .where((questao) =>
+            questao.textoQuestao.toLowerCase().contains(texto.toLowerCase()))
+        .toList();
+
+    notifyListeners(); 
+  }
+
+  void verificaPreenchimento(List<Questao> questoes, Banco banco) {
     bool verificaPgt = questoes.any((q) => q.textoQuestao.isEmpty);
     bool verificaCampos = questoes.any((q) {
-      
       return q.opcoes?.every((opcao) => opcao.trim().isEmpty) ?? false;
     });
 
@@ -256,7 +275,67 @@ class BancoList with ChangeNotifier {
     }
   }
 
-//////////// EXCLUIR BANCO DE QUESTÕES ////////////////////
+  /////////////////////////////////////////// BANCO DE QUESTÕES ///////////////////////////////////////////////////////
+
+  Future<void> getBanco() async {
+    final user = _authList?.usuario;
+    if (user == null) {
+      throw Exception('não autenticado');
+    }
+
+    QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
+        .collection('usuarios')
+        .doc(user.id)
+        .collection('bancos')
+        .get();
+
+    bancosLista.clear();
+
+    bancosLista.addAll(snapshot.docs.map((doc) {
+      final data = doc.data();
+      return Banco(
+        id: doc.id,
+        nome: data['nome'] ?? '',
+        descricao: data['descricao'] ?? '',
+      );
+    }).toList());
+
+    notifyListeners();
+  }
+
+  // void getBanco() {
+  //   final user = _authList?.usuario; // Obtém o usuário logado
+  //   if (user == null) {
+  //     throw Exception('Usuário não autenticado');
+  //   }
+
+  //   // Busca todos os bancos do usuário no Firestore
+  //   _firestore
+  //       .collection('usuarios')
+  //       .doc(user.id)
+  //       .collection('bancos')
+  //       .get()
+  //       .then((snapshot) {
+  //     // Limpa a lista antes de adicionar novos bancos
+  //     bancosLista.clear();
+
+  //     // Converte os documentos retornados em uma lista de objetos Banco
+  //     bancosLista.addAll(snapshot.docs.map((doc) {
+  //       final data = doc.data();
+  //       return Banco(
+  //         id: doc.id,
+  //         nome: data['nome'] ?? '',
+  //         descricao: data['descricao'] ?? '',
+  //       );
+  //     }).toList());
+
+  //     // Notifica os listeners para atualizar a interface, se necessário
+  //     notifyListeners();
+  //   }).catchError((error) {
+  //     // Lida com erros, se houver
+  //     print('Erro ao buscar bancos: $error');
+  //   });
+  // }
 
   Future<void> excluirBanco(String bancoId) async {
     final user = _authList?.usuario;
@@ -289,10 +368,19 @@ class BancoList with ChangeNotifier {
 
   // Método para filtrar bancos pelo nome e adicionar à lista bancosFiltro
   void filtrarBanco(String nome) {
+<<<<<<< Updated upstream
     if (nome.isEmpty) {
       bancosFiltro.clear();
       notifyListeners();
       return;
+=======
+    bancosFiltro.clear();
+
+    if (nome.isNotEmpty) {
+      bancosFiltro.addAll(bancosLista.where((banco) {
+        return banco.nome.toLowerCase().contains(nome.toLowerCase());
+      }).toList());
+>>>>>>> Stashed changes
     }
 
     bancosFiltro = bancosLista
