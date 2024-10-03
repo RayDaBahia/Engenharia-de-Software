@@ -10,8 +10,9 @@ class BancoList with ChangeNotifier {
   int tamQuestoesBanco = 0;
   // Pega o usuário logado
   final AuthList? _authList;
-  List<Questao> questoesLista = []; // Lista para armazenar questões
 
+  List<Questao> questoesLista = []; // Lista para armazenar questões
+  List<Questao> questoesFiltro = []; // lista de questões filtrados
   List<Banco> bancosLista = [];
   List<Banco> bancosFiltro = []; // lista de bancos filtrados
 
@@ -71,8 +72,7 @@ class BancoList with ChangeNotifier {
   Future<void> AtualizarBanco(Banco banco) async {
     final user = _authList?.usuario;
 
-
-    verificaPreenchimento(questoesLista, banco) ;
+    verificaPreenchimento(questoesLista, banco);
 
     // Atualiza as informações do banco
     await _firestore
@@ -237,10 +237,25 @@ class BancoList with ChangeNotifier {
     notifyListeners();
   }
 
-  void  verificaPreenchimento(List<Questao> questoes, Banco banco) {
+  // Método para filtrar questões 
+  void filtrarQuestoes(String texto) {
+    if (texto.isEmpty) {
+      questoesFiltro.clear(); 
+      notifyListeners();
+      return;
+    }
+
+    questoesFiltro = questoesLista
+        .where((questao) =>
+            questao.textoQuestao.toLowerCase().contains(texto.toLowerCase()))
+        .toList();
+
+    notifyListeners(); 
+  }
+
+  void verificaPreenchimento(List<Questao> questoes, Banco banco) {
     bool verificaPgt = questoes.any((q) => q.textoQuestao.isEmpty);
     bool verificaCampos = questoes.any((q) {
-      
       return q.opcoes?.every((opcao) => opcao.trim().isEmpty) ?? false;
     });
 
