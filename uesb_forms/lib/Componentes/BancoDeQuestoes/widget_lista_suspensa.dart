@@ -11,10 +11,10 @@ class WidgetListaSuspensa extends StatefulWidget {
   const WidgetListaSuspensa({super.key, required this.questao, this.bancoId});
 
   @override
-  State<WidgetListaSuspensa> createState() => _WidgetMultiplaEscolhaState();
+  State<WidgetListaSuspensa> createState() => _WidgetListaSuspensaState();
 }
 
-class _WidgetMultiplaEscolhaState extends State<WidgetListaSuspensa> {
+class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
   late TextEditingController _perguntaController;
   final List<TextEditingController> _optionControllers = [];
 

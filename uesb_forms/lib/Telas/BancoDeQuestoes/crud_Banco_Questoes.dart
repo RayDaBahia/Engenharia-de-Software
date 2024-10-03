@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/questaoWidget.dart';
+import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_opcoes_questao.dart';
+import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_pesquisa_questao.dart';
 
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
@@ -100,40 +102,10 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
             SizedBox(
               height: 30,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _questaoFiltro,
-                    decoration: InputDecoration(
-                        fillColor: const Color.fromARGB(47, 90, 88, 88),
-                        filled: true,
-                        labelText: 'Pesquisar Questão',
-                        labelStyle: TextStyle(
-                          color: const Color.fromARGB(255, 37, 46, 72), // Cor branca
-                          fontWeight: FontWeight.bold, // Negrito
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                                color: const Color.fromARGB(255, 175, 186, 196)))),
-                  ),
-                ),
-                SizedBox(
-                  width: 15,
-                ),
-                Icon(
-                  Icons.find_in_page_outlined,
-                  color: Colors.grey,
-                  size: 45,
-                ),
-              ],
+            if(banco!=null)  WidgetPesquisaQuestao(),
+            SizedBox(
+              height: 60,
             ),
-
-          SizedBox(height: 60,),
-            
-          
             Expanded(
               child: ListView.builder(
                 itemCount: bancoList.questoesLista.length,
@@ -146,22 +118,14 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 },
               ),
             ),
-            SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                FloatingActionButton(
-                  onPressed: () {
-                    _showOptions(context);
-                  },
-                  backgroundColor: const Color.fromARGB(255, 33, 12, 71),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                  child: const Icon(Icons.add),
-                ),
+                WidgetOpcoesQuestao(),
                 const SizedBox(width: 20),
                 TextButton(
                   onPressed: () async {
@@ -218,150 +182,4 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
     );
   }
 
-  void _showOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView(
-            shrinkWrap:
-                true, // Permite que a ListView ocupe apenas o espaço necessário
-            children: [
-              ListTile(
-                leading: const Icon(Icons.text_fields),
-                title: const Text('Linha Única'),
-                onTap: () {
-                  Provider.of<BancoList>(context, listen: false)
-                      .adicionarQuestaoNaLista(
-                    Questao(
-                      textoQuestao: '',
-                      tipoQuestao: QuestaoTipo.LinhaUnica,
-                      resposta: '',
-                    ),
-                  );
-                  Navigator.pop(context);
-                  // Navegar ou mostrar o widget de linha única
-                },
-              ),
-              ListTile(
-                  leading: const Icon(Icons.text_fields),
-                  title: const Text('Múltiplas Linhas'),
-                  onTap: () {}),
-              ListTile(
-                leading: const Icon(Icons.format_list_numbered),
-                title: const Text('Número'),
-                onTap: () {
-                  Provider.of<BancoList>(context, listen: false)
-                      .adicionarQuestaoNaLista(
-                    Questao(
-                      textoQuestao: '',
-                      tipoQuestao: QuestaoTipo.Numerica,
-                      opcoes: [],
-                    ),
-                  );
-                  Navigator.pop(context);
-                  // Navegar ou mostrar o widget de número
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.calendar_today),
-                title: const Text('Data'),
-                onTap: () {
-                  Provider.of<BancoList>(context, listen: false)
-                      .adicionarQuestaoNaLista(
-                    Questao(
-                      textoQuestao: '',
-                      tipoQuestao: QuestaoTipo.Data,
-                    ),
-                  );
-
-                  Navigator.pop(context);
-                  // Navegar ou mostrar o widget de data
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Imagem (Captura)'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Navegar ou mostrar o widget de captura de imagem
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.check_box),
-                title: const Text('Múltipla Escolha'),
-                onTap: () {
-                  Provider.of<BancoList>(context, listen: false)
-                      .adicionarQuestaoNaLista(
-                    Questao(
-                      textoQuestao: '',
-                      tipoQuestao: QuestaoTipo.MultiPlaEscolha,
-                      opcoes: [],
-                    ),
-                  );
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.radio_button_checked),
-                title: const Text('Objetiva'),
-                onTap: () {
-                  Provider.of<BancoList>(context, listen: false)
-                      .adicionarQuestaoNaLista(
-                    Questao(
-                      id: Random().nextInt(1000000).toString(),
-                      textoQuestao: '',
-                      tipoQuestao: QuestaoTipo.Objetiva,
-                      opcoes: [],
-                    ),
-                  );
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.star),
-                title: const Text('Ranking (Classificação)'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Navegar ou mostrar o widget de ranking
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.arrow_drop_down),
-                title: const Text('Resposta Única (Lista Suspensa)'),
-                onTap: () {
-                  Provider.of<BancoList>(context, listen: false)
-                      .adicionarQuestaoNaLista(
-                    Questao(
-                      textoQuestao: '',
-                      tipoQuestao: QuestaoTipo.ListaSuspensa,
-                      opcoes: [],
-                    ),
-                  );
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.email),
-                title: const Text('E-mail (Com Validação)'),
-                onTap: () {
-                  Provider.of<BancoList>(context, listen: false)
-                      .adicionarQuestaoNaLista(
-                    Questao(
-                      textoQuestao: '',
-                      tipoQuestao: QuestaoTipo.Email,
-                      resposta: '',
-                    ),
-                  );
-                  Navigator.pop(context);
-                  // Navegar ou mostrar o widget de linha única
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 }
