@@ -130,6 +130,17 @@ class WidgetOpcoesQuestao extends StatelessWidget {
                 leading: const Icon(Icons.star),
                 title: const Text('Ranking (Classificação)'),
                 onTap: () {
+                 Provider.of<BancoList>(context, listen: false)
+                      .adicionarQuestaoNaLista(
+                    Questao(
+                      id: Random().nextInt(1000000).toString(),
+                      textoQuestao: '',
+                      tipoQuestao: QuestaoTipo.Ranking,
+                      opcoesRanking: [],
+                      perguntasRanking: [],
+                    ),
+                  );
+
                   Navigator.pop(context);
                   // Navegar ou mostrar o widget de ranking
                 },

@@ -25,9 +25,10 @@ class Questao {
       opcoesSelecionadas; // Respostas selecionadas em múltipla escolha
   String? opcaoSelecionada; // Resposta selecionada em objetiva / lista suspensa
 
-  // Campos para "Ranking"
-  List<String>? opcoesRanking; // Opções para ranking
-  List<int>? ordemRanking; // Ordem das opções no ranking
+ 
+ List<String>? perguntasRanking;
+ List<String>? opcoesRanking;
+// Ordem das opções no ranking
 
   // Campos para "E-mail"
   String? respostaEmail; // E-mail com validação
@@ -44,8 +45,8 @@ class Questao {
     this.opcoesSelecionadas,
     this.opcaoSelecionada,
     this.opcoesRanking,
-    this.ordemRanking,
     this.respostaEmail,
+    this.perguntasRanking
   });
 
   // Converter para Map para salvar no Firestore
@@ -61,8 +62,8 @@ class Questao {
       'opcoesSelecionadas': opcoesSelecionadas,
       'opcaoSelecionada': opcaoSelecionada,
       'opcoesRanking': opcoesRanking,
-      'ordemRanking': ordemRanking,
       'respostaEmail': respostaEmail,
+      'perguntasRanking': perguntasRanking
     };
   }
 
@@ -81,10 +82,14 @@ class Questao {
       maxArquivos: map['maxArquivos'],
       tamanhoMaximoArquivo: map['tamanhoMaximoArquivo'],
       opcoes: List<String>.from(map['opcoes'] ?? null),
-      opcoesSelecionadas: List<String>.from(map['opcoesSelecionadas'] ?? []),
+      opcoesSelecionadas: List<String>.from(map['opcoesSelecionadas'] ?? null),
       opcaoSelecionada: map['opcaoSelecionada'],
-      opcoesRanking: List<String>.from(map['opcoesRanking'] ?? []),
-      ordemRanking: List<int>.from(map['ordemRanking'] ?? []),
+   
+      opcoesRanking: List<String>.from(map['opcoesRanking'] ?? null),
+
+
+      perguntasRanking: List<String>.from(map['perguntasRanking']?? null),
+
       respostaEmail: map['respostaEmail'],
     );
   }
