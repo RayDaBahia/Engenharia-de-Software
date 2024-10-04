@@ -86,45 +86,45 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                 },
               ),
               const SizedBox(height: 20),
-              Column(
-                children: List.generate(
-                  _optionControllers.length,
-                  (index) => Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: widget.questao.tipoQuestao== QuestaoTipo.MultiPlaEscolha? const Icon(Icons.check_box) : const Icon(Icons.check_circle)
-,
-                      ),
-                      Expanded(
-                        child: TextField(
-                          controller: _optionControllers[index],
-                          decoration: InputDecoration(
-                            labelText: 'Opção ${index + 1}',
-                            border: const OutlineInputBorder(),
-                          ),
-                          onChanged: (value) {
-                            widget.questao.opcoes![index] = value;
-                            bancoList.adicionarQuestaoNaLista(widget.questao);
-                          },
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _optionControllers.removeAt(index);
+           Column(
+  children: List.generate(
+    _optionControllers.length,
+    (index) => Row(
+      children: [
+        IconButton(
+          onPressed: () {},
+          icon: widget.questao.tipoQuestao == QuestaoTipo.MultiPlaEscolha
+              ? const Icon(Icons.check_box)
+              : const Icon(Icons.check_circle),
+        ),
+        Expanded( // Aqui está correto
+          child: TextField(
+            controller: _optionControllers[index],
+            decoration: InputDecoration(
+              labelText: 'Opção ${index + 1}',
+              border: const OutlineInputBorder(),
+            ),
+            onChanged: (value) {
+              widget.questao.opcoes![index] = value;
+              bancoList.adicionarQuestaoNaLista(widget.questao);
+            },
+          ),
+        ),
+        IconButton(
+          onPressed: () {
+            setState(() {
+              _optionControllers.removeAt(index);
+              widget.questao.opcoes!.removeAt(index);
+              bancoList.adicionarQuestaoNaLista(widget.questao);
+            });
+          },
+          icon: const Icon(Icons.close),
+        ),
+      ],
+    ),
+  ),
+),
 
-                            widget.questao.opcoes!.removeAt(index);
-
-                            bancoList.adicionarQuestaoNaLista(widget.questao);
-                          });
-                        },
-                        icon: const Icon(Icons.close),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
               const SizedBox(height: 18),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

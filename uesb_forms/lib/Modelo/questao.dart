@@ -80,7 +80,7 @@ class Questao {
           : null,
       maxArquivos: map['maxArquivos'],
       tamanhoMaximoArquivo: map['tamanhoMaximoArquivo'],
-      opcoes: List<String>.from(map['opcoes'] ?? null),
+      opcoes: map['opcoes']==null?null:  List<String>.from(map['opcoes'] ?? []),
       opcoesSelecionadas: List<String>.from(map['opcoesSelecionadas'] ?? []),
       opcaoSelecionada: map['opcaoSelecionada'],
       opcoesRanking: List<String>.from(map['opcoesRanking'] ?? []),

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/questaoWidget.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_opcoes_questao.dart';
-import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_pesquisa_questao.dart';
 
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
@@ -13,7 +12,7 @@ import 'package:uesb_forms/Modelo/questao_tipo.dart';
 import 'package:uesb_forms/Modelo/Banco.dart';
 
 class CrudBancoQuestoes extends StatefulWidget {
-  const CrudBancoQuestoes({super.key}); // Adicionando o ID no construtor
+  const CrudBancoQuestoes({super.key});
 
   @override
   State<CrudBancoQuestoes> createState() => _CrudBancoQuestoesState();
@@ -21,7 +20,24 @@ class CrudBancoQuestoes extends StatefulWidget {
 
 class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
   Banco? banco;
-  bool _isLoaded = false; // Adiciona um flag para evitar múltiplas execuções
+  bool _isLoaded = false;
+
+  late TextEditingController _descricaoBancoController;
+  late TextEditingController _nomeBancoController;
+  late TextEditingController _questaoFiltro;
+
+  @override
+  void initState() {
+    super.initState();
+    _descricaoBancoController = TextEditingController();
+    _nomeBancoController = TextEditingController();
+    _questaoFiltro = TextEditingController();
+
+    // Adicione um listener ao controlador de filtro
+    _questaoFiltro.addListener(() {
+      setState(() {}); // Atualiza a UI quando o filtro muda
+    });
+  }
 
   @override
   void didChangeDependencies() {
@@ -30,12 +46,10 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
     if (!_isLoaded) {
       final args = ModalRoute.of(context)?.settings.arguments;
 
-      // Verifica se args não é nulo e é do tipo Banco
       if (args is Banco) {
         banco = args;
         Provider.of<BancoList>(context, listen: false)
             .buscarQuestoesBancoNoBd(banco!.id);
-
         _descricaoBancoController.text = banco!.descricao;
         _nomeBancoController.text = banco!.nome;
       } else {
@@ -46,35 +60,24 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
     }
   }
 
-  late TextEditingController _descricaoBancoController;
-  late TextEditingController _nomeBancoController;
-  late TextEditingController _questaoFiltro;
-
-  @override
-  @override
-  void initState() {
-    super.initState();
-    _descricaoBancoController = TextEditingController();
-    _nomeBancoController = TextEditingController();
-    _questaoFiltro = TextEditingController();
-    // Chama o método para obter bancos
-  }
-
-  @override
   @override
   Widget build(BuildContext context) {
     final bancoList = Provider.of<BancoList>(context, listen: true);
 
+    // Filtrar questões com base na entrada de pesquisa
+    final filtroTexto = _questaoFiltro.text.toLowerCase();
+    final questoesFiltradas = bancoList.filtrarQuestoes(filtroTexto);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 27, 7, 80),
-        
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            // Campos de texto para nome e descrição do banco
             TextField(
               controller: _nomeBancoController,
               maxLines: 1,
@@ -96,33 +99,37 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                     ? 'adicione uma descrição ao banco'
                     : '',
                 labelStyle: TextStyle(
-                  color: Colors.grey, // Cor clara para a descrição
+                  color: Colors.grey,
                 ),
               ),
             ),
-            SizedBox(
-              height: 15,
-            ),
-          
-            if(banco!=null)   WidgetPesquisaQuestao(),
-            SizedBox(
-              height: 40,
-            ),
+            const SizedBox(height: 15),
+            // Campo de pesquisa
+
+            if (banco != null)
+              TextField(
+                controller: _questaoFiltro,
+                decoration: InputDecoration(
+                  labelText: 'Pesquisar questão',
+                  labelStyle: TextStyle(color: Colors.grey),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+
+            const SizedBox(height: 40),
             Expanded(
               child: ListView.builder(
-                itemCount: bancoList.questoesLista.length,
+                itemCount: questoesFiltradas.length,
                 itemBuilder: (context, index) {
-                  final questao = bancoList.questoesLista[index];
+                  final questao = questoesFiltradas[index];
                   return QuestaoWidget(
                     questao: questao,
-                    bancoId: banco?.id ?? '', // Acesso seguro ao id do banco
+                    bancoId: banco?.id ?? '',
                   );
                 },
               ),
             ),
-            SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -131,14 +138,12 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 const SizedBox(width: 20),
                 TextButton(
                   onPressed: () async {
-                    
                     if (banco == null) {
                       try {
                         await bancoList.SalvarBanco(
                           _nomeBancoController.text,
                           _descricaoBancoController.text,
                         );
-                      
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                               content: Text("Banco criado com sucesso!")),
@@ -187,4 +192,11 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
     );
   }
 
+  @override
+  void dispose() {
+    _descricaoBancoController.dispose();
+    _nomeBancoController.dispose();
+    _questaoFiltro.dispose();
+    super.dispose();
+  }
 }

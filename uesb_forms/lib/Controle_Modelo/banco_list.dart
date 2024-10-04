@@ -238,17 +238,19 @@ class BancoList with ChangeNotifier {
   }
 
   // Método para filtrar questões 
-  void filtrarQuestoes(String texto) {
+ List<Questao> filtrarQuestoes(String texto) {
     if (texto.isEmpty) {
       questoesFiltro.clear(); 
       notifyListeners();
-      return;
+      
     }
 
     questoesFiltro = questoesLista
         .where((questao) =>
             questao.textoQuestao.toLowerCase().contains(texto.toLowerCase()))
         .toList();
+
+        return questoesFiltro;
 
     notifyListeners(); 
   }
