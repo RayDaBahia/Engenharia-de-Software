@@ -27,7 +27,7 @@ class Questao {
 
   // Campos para "Ranking"
   List<String>? opcoesRanking; // Opções para ranking
-  List<int>? ordemRanking; // Ordem das opções no ranking
+  List<String>? ordemRanking; // Ordem das opções no ranking
 
   // Campos para "E-mail"
   String? respostaEmail; // E-mail com validação
@@ -84,7 +84,7 @@ class Questao {
       opcoesSelecionadas: List<String>.from(map['opcoesSelecionadas'] ?? []),
       opcaoSelecionada: map['opcaoSelecionada'],
       opcoesRanking: List<String>.from(map['opcoesRanking'] ?? []),
-      ordemRanking: List<int>.from(map['ordemRanking'] ?? []),
+      ordemRanking: List<String>.from(map['ordemRanking'] ?? []),
       respostaEmail: map['respostaEmail'],
     );
   }

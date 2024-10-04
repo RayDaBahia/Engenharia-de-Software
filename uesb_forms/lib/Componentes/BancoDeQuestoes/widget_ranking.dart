@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
-/*
+
 class WidgetRanking extends StatefulWidget {
   final Questao questao;
   final String? bancoId;
@@ -42,15 +42,15 @@ class _WidgetRankingState extends State<WidgetRanking> {
     _controleNiveis.clear(); // Limpe também os níveis
 
     // Verifique se perguntasRanking não é nulo
-    if (widget.questao.perguntasRanking != null) {
-      for (var alternativa in widget.questao.perguntasRanking!) {
+    if (widget.questao.opcoesRanking != null) {
+      for (var alternativa in widget.questao.opcoesRanking!) {
         _controleAlternativas.add(TextEditingController(text: alternativa));
       }
     }
 
     // Verifique se opcoesRanking não é nulo
-    if (widget.questao.opcoesRanking != null) {
-      for (var niveis in widget.questao.opcoesRanking!) {
+    if (widget.questao.ordemRanking != null) {
+      for (var niveis in widget.questao.ordemRanking!) {
         _controleNiveis.add(TextEditingController(text: niveis));
       }
     }
@@ -98,7 +98,7 @@ Widget build(BuildContext context) {
                                   labelText: 'opção ${index + 1}',
                                 ),
                                 onChanged: (value) {
-                                  widget.questao.perguntasRanking![index] = value;
+                                  widget.questao.opcoesRanking![index] = value;
                                   bancoList.adicionarQuestaoNaLista(widget.questao);
                                 },
                               ),
@@ -113,7 +113,7 @@ Widget build(BuildContext context) {
                             onPressed: () {
                               setState(() {
                                 _controleAlternativas.add(TextEditingController(text: ''));
-                                widget.questao.perguntasRanking!.add(''); // Adicione um valor padrão
+                                widget.questao.opcoesRanking!.add(''); // Adicione um valor padrão
                               });
                             },
                             child: const Text("Adicionar outra opção"),
@@ -142,7 +142,7 @@ Widget build(BuildContext context) {
                                   labelText: 'Classificação ',
                                 ),
                                 onChanged: (value) {
-                                  widget.questao.opcoesRanking![index] = value;
+                                  widget.questao..ordemRanking![index] = value;
                                   bancoList.adicionarQuestaoNaLista(widget.questao);
                                 },
                               ),
@@ -157,7 +157,7 @@ Widget build(BuildContext context) {
                             onPressed: () {
                               setState(() {
                                 _controleNiveis.add(TextEditingController(text: ''));
-                                widget.questao.opcoesRanking!.add(''); // Adicione um valor padrão
+                                widget.questao.ordemRanking!.add(''); // Adicione um valor padrão
                               });
                             },
                             child: const Text("Adicionar Nível"),
@@ -178,4 +178,3 @@ Widget build(BuildContext context) {
 }
 
 
-*/

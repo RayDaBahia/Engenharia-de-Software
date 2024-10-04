@@ -41,6 +41,9 @@ class QuestaoWidget extends StatelessWidget {
       case QuestaoTipo.ListaSuspensa:
         return WidgetListaSuspensa(questao: questao);
 
+      case QuestaoTipo.Ranking:
+        return WidgetRanking(questao: questao);
+
       default:
         return const Text('Tipo de questão não suportado');
     }
