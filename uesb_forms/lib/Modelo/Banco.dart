@@ -1,18 +1,17 @@
 class Banco {
-  final String? id;
-  final String nome;
-  final String descricao;
+  String? id; // O ID é opcional
+   String nome; // Nome do banco (obrigatório)
+   String descricao; // Descrição do banco (obrigatório)
 
   Banco({
-    this.id,
-    required this.nome,
-    required this.descricao,
+    this.id, // Atribuição opcional
+    required this.nome, // Nome obrigatório
+    required this.descricao, // Descrição obrigatória
   });
 
   // Converte um objeto Banco em um Map (útil para Firestore)
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'nome': nome,
       'descricao': descricao,
     };
@@ -21,7 +20,7 @@ class Banco {
   // Converte um Map para um objeto Banco
   factory Banco.fromMap(Map<String, dynamic> map) {
     return Banco(
-      id: map['id'] ?? '',
+      id: map['id'], // ID opcional, pode ser nulo
       nome: map['nome'] ?? '',
       descricao: map['descricao'] ?? '',
     );

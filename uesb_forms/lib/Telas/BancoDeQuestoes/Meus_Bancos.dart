@@ -5,7 +5,7 @@ import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_pesquisa.dart';
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
-import 'package:uesb_forms/Modelo/banco.dart';
+import 'package:uesb_forms/Modelo/Banco.dart';
 
 class MeusBancos extends StatefulWidget {
   const MeusBancos({super.key});
@@ -23,8 +23,12 @@ class _MeusBancosState extends State<MeusBancos> {
 
   @override
   void didChangeDependencies() {
+
+/*
+que é chamado depois que o widget é inserido na árvore e quando suas dependências mudam
+*/
     super.didChangeDependencies();
-    // Safely access Provider here after dependencies are established
+   
     Provider.of<BancoList>(context, listen: false).getBanco();
   }
 

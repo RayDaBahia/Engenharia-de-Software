@@ -50,6 +50,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
     return SizedBox(
       width: 300,
       child: Card(
+    
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
