@@ -20,10 +20,11 @@ class _WidgetDataState extends State<WidgetData> {
 
   @override
   void initState() {
+     super.initState();
     controlePergunta = TextEditingController(text: widget.questao.textoQuestao);
     controleResposta = TextEditingController(text: '');
 
-    super.initState();
+   
   }
 
   void _selectDate() async {

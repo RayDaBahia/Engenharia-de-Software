@@ -12,9 +12,10 @@ class _WidgetPesquisaQuestaoState extends State<WidgetPesquisaQuestao> {
 
    @override
   void initState() {
+    super.initState();
     // TODO: implement initState
     pesquisaQuestao= TextEditingController(text: '');
-    super.initState();
+    
   }
 
   @override

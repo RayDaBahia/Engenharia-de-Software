@@ -21,10 +21,11 @@ class _WidgetLinhaUnicaState extends State<WidgetLinhaUnicaOremail > {
 
   @override
   void initState() {
+     super.initState();
     controlePergunta = TextEditingController(text: widget.questao.textoQuestao);
     controleResposta = TextEditingController(text: '');
 
-    super.initState();
+   
   }
 
   @override

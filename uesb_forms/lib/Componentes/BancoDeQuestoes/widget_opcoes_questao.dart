@@ -88,6 +88,7 @@ class WidgetOpcoesQuestao extends StatelessWidget {
                 },
               ),
               ListTile(
+                
                 leading: const Icon(Icons.camera_alt),
                 title: const Text('Imagem (Captura)'),
                 onTap: () {
@@ -102,6 +103,7 @@ class WidgetOpcoesQuestao extends StatelessWidget {
                   Provider.of<BancoList>(context, listen: false)
                       .adicionarQuestaoNaLista(
                     Questao(
+                      id: Random().nextInt(1000000).toString(),
                       textoQuestao: '',
                       tipoQuestao: QuestaoTipo.MultiPlaEscolha,
                       opcoes: [],

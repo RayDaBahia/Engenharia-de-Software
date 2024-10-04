@@ -59,6 +59,8 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
                 children: [
                   IconButton(
                       onPressed: () {
+
+                        
                         bancoList.removerQuestao(
                             widget.bancoId, widget.questao);
                       },

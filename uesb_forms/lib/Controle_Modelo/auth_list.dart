@@ -48,11 +48,11 @@ class AuthList with ChangeNotifier {
       accessToken: GoogleAuth.accessToken,
       idToken: GoogleAuth.idToken,
     );
-
+/*
   if (!verificarEmailUesb(GoogleUser.email ?? '')) {
     handleSignOut();
       throw erroLogin( 'dominio_nao_autorizado');
-    }
+    */
 
 // so vai para o firebase se o dominio tiver ok
  // Realiza o login no Firebase com as credenciais do Google
