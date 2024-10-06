@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uesb_forms/Componentes/BancoDeQuestoes/searchDelegate.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widgetBanco_Questao.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 
 class WidgetPesquisa extends StatefulWidget {
-  const WidgetPesquisa({super.key});
+  final List<String> nomesBancos; // Recebe a lista de nomes dos bancos
+  WidgetPesquisa({super.key, required this.nomesBancos});
 
   @override
   State<WidgetPesquisa> createState() => _WidgetPesquisaState();
@@ -12,17 +14,9 @@ class WidgetPesquisa extends StatefulWidget {
 
 class _WidgetPesquisaState extends State<WidgetPesquisa> {
   String nomeDoBanco = '';
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Safely access Provider here after dependencies are established
-    Provider.of<BancoList>(context, listen: false).getBanco();
-  }
 
   @override
   Widget build(BuildContext context) {
-    final bancoList = Provider.of<BancoList>(context, listen: true);
-
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -30,26 +24,27 @@ class _WidgetPesquisaState extends State<WidgetPesquisa> {
         children: [
           SizedBox(
             width: MediaQuery.sizeOf(context).width * 0.8,
-              child: Expanded(
-              child: TextField(
-                onChanged: (value) {
-                   setState(() {
+            child: TextField(
+              onTap: () => showSearch(
+                context: context,
+                delegate: MySearchDelegate(widget
+                    .nomesBancos), // Passa os nomes dos bancos para o delegate
+              ),
+              onChanged: (value) {
+                setState(
+                  () {
                     nomeDoBanco = value;
-                    /*Expanded(
-                      child: ListView.builder(
-                        itemCount: bancoList.filtrarBancosPorNome(value).length,
-                        itemBuilder: (context, index) {
-                          final bancoQuestao = bancoList.filtrarBancosPorNome(value)[index];
-                          return WidgetbancoQuestao(banco: bancoQuestao);
-                        },
-                      ),
-                    );*/  
-                  });
-                },
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Nome do Banco',
-                ),
+                    showSearch(
+                      context: context,
+                      delegate: MySearchDelegate(
+                          widget.nomesBancos), // Usa a lista para pesquisa
+                    );
+                  },
+                );
+              },
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Nome do Banco',
               ),
             ),
           ),

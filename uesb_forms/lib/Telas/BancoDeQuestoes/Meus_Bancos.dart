@@ -23,12 +23,11 @@ class _MeusBancosState extends State<MeusBancos> {
 
   @override
   void didChangeDependencies() {
-
 /*
 que é chamado depois que o widget é inserido na árvore e quando suas dependências mudam
 */
     super.didChangeDependencies();
-   
+
     Provider.of<BancoList>(context, listen: false).getBanco();
   }
 
@@ -48,7 +47,9 @@ que é chamado depois que o widget é inserido na árvore e quando suas dependê
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           if (bancoList.bancosLista.isNotEmpty) ...[
-            WidgetPesquisa(),
+            WidgetPesquisa(
+                nomesBancos:
+                    bancoList.bancosLista.map((banco) => banco.nome).toList()),
             Expanded(
               child: ListView.builder(
                 itemCount: bancoList.bancosLista.length,
