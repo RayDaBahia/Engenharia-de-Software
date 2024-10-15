@@ -50,6 +50,7 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
         banco = args;
         Provider.of<BancoList>(context, listen: false)
             .buscarQuestoesBancoNoBd(banco!.id);
+            
         _descricaoBancoController.text = banco!.descricao;
         _nomeBancoController.text = banco!.nome;
       } else {
@@ -116,7 +117,6 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 ),
               ),
 
-            const SizedBox(height: 40),
             Expanded(
               child: ListView.builder(
                 itemCount: questoesFiltradas.length,
