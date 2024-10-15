@@ -20,11 +20,9 @@ class _WidgetDataState extends State<WidgetData> {
 
   @override
   void initState() {
-     super.initState();
+    super.initState();
     controlePergunta = TextEditingController(text: widget.questao.textoQuestao);
     controleResposta = TextEditingController(text: '');
-
-   
   }
 
   void _selectDate() async {
@@ -65,10 +63,11 @@ class _WidgetDataState extends State<WidgetData> {
                         },
                         icon: const Icon(Icons.delete)),
                     IconButton(
-                        onPressed: () {
-                          
-                        },
-                        icon: const Icon(Icons.copy_sharp)),
+                        onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.image),
+                    ),
                   ],
                 ),
                 TextField(

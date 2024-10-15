@@ -118,6 +118,13 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
                         },
                         icon: const Icon(Icons.close),
                       ),
+
+                      IconButton(
+                          onPressed: () {
+                          
+                          },
+                          icon: const Icon(Icons.image),
+                     ),
                     ],
                   ),
                 ),

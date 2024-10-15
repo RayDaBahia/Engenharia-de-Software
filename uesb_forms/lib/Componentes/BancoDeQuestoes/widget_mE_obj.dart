@@ -120,6 +120,12 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
           },
           icon: const Icon(Icons.close),
         ),
+         IconButton(
+          onPressed: () {
+          
+          },
+          icon: const Icon(Icons.image),
+        ),
       ],
     ),
   ),

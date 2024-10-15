@@ -8,24 +8,23 @@ class WidgetLinhaUnicaOremail extends StatefulWidget {
   final String? idBanco;
   final Questao questao;
 
-  const WidgetLinhaUnicaOremail ({super.key, required this.questao, this.idBanco});
+  const WidgetLinhaUnicaOremail(
+      {super.key, required this.questao, this.idBanco});
 
   @override
-  State<WidgetLinhaUnicaOremail > createState() => _WidgetLinhaUnicaState();
+  State<WidgetLinhaUnicaOremail> createState() => _WidgetLinhaUnicaState();
 }
 
-class _WidgetLinhaUnicaState extends State<WidgetLinhaUnicaOremail > {
+class _WidgetLinhaUnicaState extends State<WidgetLinhaUnicaOremail> {
   late TextEditingController controlePergunta;
 
   late TextEditingController controleResposta;
 
   @override
   void initState() {
-     super.initState();
+    super.initState();
     controlePergunta = TextEditingController(text: widget.questao.textoQuestao);
     controleResposta = TextEditingController(text: '');
-
-   
   }
 
   @override
@@ -44,7 +43,12 @@ class _WidgetLinhaUnicaState extends State<WidgetLinhaUnicaOremail > {
                       bancoList.removerQuestao(widget.idBanco, widget.questao);
                     },
                     icon: const Icon(Icons.delete)),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
+                IconButton(
+                    onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.image),
+                ),
               ],
             ),
             TextField(
@@ -66,7 +70,10 @@ class _WidgetLinhaUnicaState extends State<WidgetLinhaUnicaOremail > {
               decoration: InputDecoration(
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10)),
-                  labelText: widget.questao.tipoQuestao==QuestaoTipo.LinhaUnica? 'Resposta' : 'Digite seu e-mail'),
+                  labelText:
+                      widget.questao.tipoQuestao == QuestaoTipo.LinhaUnica
+                          ? 'Resposta'
+                          : 'Digite seu e-mail'),
               enabled: false,
             ),
           ],
