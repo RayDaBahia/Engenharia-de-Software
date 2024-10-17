@@ -92,30 +92,40 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 ),
               ),
             ),
-            TextField(
-              controller: _descricaoBancoController,
-              maxLines: 1,
-              decoration: InputDecoration(
-                labelText: _descricaoBancoController.text.isEmpty
-                    ? 'adicione uma descrição ao banco'
-                    : '',
-                labelStyle: TextStyle(
-                  color: Colors.grey,
-                ),
-              ),
-            ),
-            const SizedBox(height: 15),
-            // Campo de pesquisa
+           
+   Padding(
+    padding:EdgeInsets.symmetric(vertical: 15), 
+    child: TextField(
+  controller: _descricaoBancoController,
+  maxLines: null, // Permite que o campo de descrição cresça conforme necessário
+  maxLength: 150, // Limite de 150 caracteres
+  decoration: InputDecoration(
+    labelText: _descricaoBancoController.text.isEmpty
+        ? 'adicione uma descrição ao banco'
+        : '',
+    labelStyle: TextStyle(
+      color: Colors.grey,
+    ),
+    border: OutlineInputBorder(),
+  ),
+  onChanged: (text) {
+    setState(() {}); // Atualiza a UI para o contador de caracteres
+  },
+),),
 
-            if (banco != null)
-              TextField(
+
+           // if (banco != null)
+            Padding(
+          padding: EdgeInsets.only(bottom: 25), // Apenas 15 pixels na parte inferior
+
+        child:   TextField(
                 controller: _questaoFiltro,
                 decoration: InputDecoration(
                   labelText: 'Pesquisar questão',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  border: OutlineInputBorder(),
+                  labelStyle: TextStyle(color: const Color.fromARGB(255, 0, 29, 44)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(13)),
                 ),
-              ),
+              ),   ),
 
             Expanded(
               child: ListView.builder(

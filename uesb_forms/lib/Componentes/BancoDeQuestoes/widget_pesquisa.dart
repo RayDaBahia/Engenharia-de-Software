@@ -17,7 +17,9 @@ class _WidgetPesquisaState extends State<WidgetPesquisa> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return 
+    
+    Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,

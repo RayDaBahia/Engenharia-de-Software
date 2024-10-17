@@ -37,7 +37,8 @@ class MySearchDelegate extends SearchDelegate {
     return ListView.builder(
       itemCount: results.length,
       itemBuilder: (context, index) {
-        return ListTile(
+        return
+         ListTile(
           title: Text(results[index]),
           onTap: () {
             // Navega para a tela do banco passando o nome do banco selecionado como argumento
