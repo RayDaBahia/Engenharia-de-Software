@@ -48,8 +48,8 @@ que é chamado depois que o widget é inserido na árvore e quando suas dependê
         children: [
           if (bancoList.bancosLista.isNotEmpty) ...[
             WidgetPesquisa(
-                nomesBancos:
-                    bancoList.bancosLista.map((banco) => banco.nome).toList()),
+                listaDeBancos:
+                    bancoList.bancosLista),
             Expanded(
               child: ListView.builder(
                 itemCount: bancoList.bancosLista.length,

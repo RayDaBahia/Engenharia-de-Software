@@ -3,10 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/searchDelegate.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widgetBanco_Questao.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
+import 'package:uesb_forms/Modelo/Banco.dart';
 
 class WidgetPesquisa extends StatefulWidget {
-  final List<String> nomesBancos; // Recebe a lista de nomes dos bancos
-  WidgetPesquisa({super.key, required this.nomesBancos});
+  final List<Banco> listaDeBancos; // Recebe a lista de nomes dos bancos
+  WidgetPesquisa({super.key, required this.listaDeBancos});
 
   @override
   State<WidgetPesquisa> createState() => _WidgetPesquisaState();
@@ -29,8 +30,8 @@ class _WidgetPesquisaState extends State<WidgetPesquisa> {
             child: TextField(
               onTap: () => showSearch(
                 context: context,
-                delegate: MySearchDelegate(widget
-                    .nomesBancos), // Passa os nomes dos bancos para o delegate
+                delegate: MySearchDelegate(widget.listaDeBancos
+                    ), // Passa os nomes dos bancos para o delegate
               ),
               onChanged: (value) {
                 setState(
@@ -39,7 +40,7 @@ class _WidgetPesquisaState extends State<WidgetPesquisa> {
                     showSearch(
                       context: context,
                       delegate: MySearchDelegate(
-                          widget.nomesBancos), // Usa a lista para pesquisa
+                          widget.listaDeBancos), // Usa a lista para pesquisa
                     );
                   },
                 );

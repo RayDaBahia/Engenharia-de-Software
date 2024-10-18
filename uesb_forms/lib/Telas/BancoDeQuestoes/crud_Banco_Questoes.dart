@@ -121,8 +121,10 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
         child:   TextField(
                 controller: _questaoFiltro,
                 decoration: InputDecoration(
+                      filled: true, // Ativa o preenchimento
+              fillColor: const Color.fromARGB(255, 169, 169, 211),
                   labelText: 'Pesquisar questão',
-                  labelStyle: TextStyle(color: const Color.fromARGB(255, 0, 29, 44)),
+                  labelStyle: TextStyle(color: const Color.fromARGB(255, 251, 253, 254)),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(13)),
                 ),
               ),   ),
