@@ -1,9 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Modelo/questao_tipo.dart';
+import 'package:uesb_forms/Componentes/WidgetOpcoesImagem.dart';
 
 class WidgetMultiplaEscolha extends StatefulWidget {
   final Questao questao;
@@ -18,6 +21,7 @@ class WidgetMultiplaEscolha extends StatefulWidget {
 class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
   late TextEditingController _perguntaController;
   final List<TextEditingController> _optionControllers = [];
+  Uint8List? selectedImage;
 
   @override
   void initState() {
@@ -25,6 +29,12 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
     _perguntaController =
         TextEditingController(text: widget.questao.textoQuestao);
     _initializeOptionControllers();
+  }
+
+  void _handleImageSelected(Uint8List? image) {
+    setState(() {
+      selectedImage = image; // Atualiza a imagem selecionada
+    });
   }
 
   void _initializeOptionControllers() {
@@ -50,7 +60,6 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
     return SizedBox(
       width: 300,
       child: Card(
-    
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -65,11 +74,21 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                             widget.bancoId, widget.questao);
                       },
                       icon: const Icon(Icons.delete)),
-                  IconButton(onPressed: () {
-                 
-                  }, icon: const Icon(Icons.copy_sharp)),
+                  IconButton(
+                      onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
                 ],
               ),
+              // Exibir a imagem selecionada, se houver
+              if (selectedImage != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Image.memory(
+                    selectedImage!,
+                    height: 500,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               TextField(
                 controller: _perguntaController,
                 maxLines: null,
@@ -86,50 +105,65 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                 },
               ),
               const SizedBox(height: 20),
-           Column(
-  children: List.generate(
-    _optionControllers.length,
-    (index) => Row(
-      children: [
-        IconButton(
-          onPressed: () {},
-          icon: widget.questao.tipoQuestao == QuestaoTipo.MultiPlaEscolha
-              ? const Icon(Icons.check_box)
-              : const Icon(Icons.check_circle),
-        ),
-        Expanded( // Aqui está correto
-          child: TextField(
-            controller: _optionControllers[index],
-            decoration: InputDecoration(
-              labelText: 'Opção ${index + 1}',
-              border: const OutlineInputBorder(),
-            ),
-            onChanged: (value) {
-              widget.questao.opcoes![index] = value;
-              bancoList.adicionarQuestaoNaLista(widget.questao);
-            },
-          ),
-        ),
-        IconButton(
-          onPressed: () {
-            setState(() {
-              _optionControllers.removeAt(index);
-              widget.questao.opcoes!.removeAt(index);
-              bancoList.adicionarQuestaoNaLista(widget.questao);
-            });
-          },
-          icon: const Icon(Icons.close),
-        ),
-         IconButton(
-          onPressed: () {
-          
-          },
-          icon: const Icon(Icons.image),
-        ),
-      ],
-    ),
-  ),
-),
+              Column(
+                children: List.generate(
+                  _optionControllers.length,
+                  (index) => Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: widget.questao.tipoQuestao ==
+                                QuestaoTipo.MultiPlaEscolha
+                            ? const Icon(Icons.check_box)
+                            : const Icon(Icons.check_circle),
+                      ),
+                      Expanded(
+                        // Aqui está correto
+                        child: TextField(
+                          controller: _optionControllers[index],
+                          decoration: InputDecoration(
+                            labelText: 'Opção ${index + 1}',
+                            border: const OutlineInputBorder(),
+                          ),
+                          onChanged: (value) {
+                            widget.questao.opcoes![index] = value;
+                            bancoList.adicionarQuestaoNaLista(widget.questao);
+                          },
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _optionControllers.removeAt(index);
+                            widget.questao.opcoes!.removeAt(index);
+                            bancoList.adicionarQuestaoNaLista(widget.questao);
+                          });
+                        },
+                        icon: const Icon(Icons.close),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return Dialog(
+                                child: WidgetOpcoesImagem(
+                                  onImageSelected: (image) {
+                                    _handleImageSelected(
+                                        image); // Atualiza a imagem selecionada
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        icon: const Icon(Icons.image),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
               const SizedBox(height: 18),
               Row(

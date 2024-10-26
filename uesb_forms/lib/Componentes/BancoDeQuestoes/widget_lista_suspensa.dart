@@ -1,8 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
+import 'package:uesb_forms/Componentes/WidgetOpcoesImagem.dart';
 
 class WidgetListaSuspensa extends StatefulWidget {
   final Questao questao;
@@ -17,6 +20,7 @@ class WidgetListaSuspensa extends StatefulWidget {
 class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
   late TextEditingController _perguntaController;
   final List<TextEditingController> _optionControllers = [];
+  Uint8List? selectedImage;
 
   @override
   void initState() {
@@ -42,6 +46,12 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
     super.dispose();
   }
 
+  void _handleImageSelected(Uint8List? image) {
+    setState(() {
+      selectedImage = image; // Atualiza a imagem selecionada
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final bancoList = Provider.of<BancoList>(context, listen: false);
@@ -59,17 +69,25 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
                 children: [
                   IconButton(
                       onPressed: () {
-
-                        
                         bancoList.removerQuestao(
                             widget.bancoId, widget.questao);
                       },
                       icon: const Icon(Icons.delete)),
-                  IconButton(onPressed: () {
-                 
-                  }, icon: const Icon(Icons.copy_sharp)),
+                  IconButton(
+                      onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
                 ],
               ),
+              // Exibir a imagem selecionada, se houver
+              if (selectedImage != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Image.memory(
+                    selectedImage!,
+                    height: 500,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               TextField(
                 controller: _perguntaController,
                 maxLines: null,
@@ -92,8 +110,7 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
                   _optionControllers.length,
                   (index) => Row(
                     children: [
-                    Text('${index + 1}.'),
-
+                      Text('${index + 1}.'),
                       Expanded(
                         child: TextField(
                           controller: _optionControllers[index],
@@ -118,13 +135,25 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
                         },
                         icon: const Icon(Icons.close),
                       ),
-
                       IconButton(
-                          onPressed: () {
-                          
-                          },
-                          icon: const Icon(Icons.image),
-                     ),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return Dialog(
+                                child: WidgetOpcoesImagem(
+                                  onImageSelected: (image) {
+                                    _handleImageSelected(
+                                        image); // Atualiza a imagem selecionada
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        icon: const Icon(Icons.image),
+                      ),
                     ],
                   ),
                 ),
@@ -151,19 +180,18 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
     );
   }
 
-
-Widget dropDown() {
-  return DropdownButton<String>(
-    hint: const Text('Selecione uma opção'), // Texto exibido quando nada está selecionado
-    items: widget.questao.opcoes!.map((String item) {
-      return DropdownMenuItem<String>(
-        value: item,
-        child: Text(item),
-      );
-    }).toList(),
-    onChanged: null, // Define o onChanged como null para desativar a interação
-  );
-}
-
-
+  Widget dropDown() {
+    return DropdownButton<String>(
+      hint: const Text(
+          'Selecione uma opção'), // Texto exibido quando nada está selecionado
+      items: widget.questao.opcoes!.map((String item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged:
+          null, // Define o onChanged como null para desativar a interação
+    );
+  }
 }

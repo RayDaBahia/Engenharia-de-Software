@@ -1,3 +1,10 @@
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
 plugins {
     id "com.android.application"
     // START: FlutterFire Configuration
@@ -10,7 +17,7 @@ plugins {
 
 android {
     namespace = "com.example.uesb_forms"
-    compileSdk = flutter.compileSdkVersion
+    compileSdkVersion localProperties.getProperty('flutter.compileSdkVersion').toInteger()
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -28,7 +35,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdkVersion 23
-        targetSdk = 23
+        targetSdk = localProperties.getProperty('flutter.compileSdkVersion')
         versionCode = 1
         versionName = "1.0"
     }

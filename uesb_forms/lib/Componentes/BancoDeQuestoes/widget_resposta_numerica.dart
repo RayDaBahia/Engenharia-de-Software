@@ -4,14 +4,14 @@ import 'package:provider/provider.dart';
 
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
+import 'package:uesb_forms/Componentes/WidgetOpcoesImagem.dart';
 
 class WidgetRespostaNumerica extends StatefulWidget {
-
-  
   final Questao questao;
   final String? bancoId;
 
-  const WidgetRespostaNumerica({super.key, required this.questao, this.bancoId});
+  const WidgetRespostaNumerica(
+      {super.key, required this.questao, this.bancoId});
 
   @override
   State<WidgetRespostaNumerica> createState() => _WidgetMultiplaEscolhaState();
@@ -20,6 +20,7 @@ class WidgetRespostaNumerica extends StatefulWidget {
 class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
   late TextEditingController _perguntaController;
   final List<TextEditingController> _optionControllers = [];
+  Uint8List? selectedImage;
 
   @override
   void initState() {
@@ -27,6 +28,12 @@ class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
     _perguntaController =
         TextEditingController(text: widget.questao.textoQuestao);
     _initializeOptionControllers();
+  }
+
+  void _handleImageSelected(Uint8List? image) {
+    setState(() {
+      selectedImage = image; // Atualiza a imagem selecionada
+    });
   }
 
   void _initializeOptionControllers() {
@@ -66,13 +73,37 @@ class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
                             widget.bancoId, widget.questao);
                       },
                       icon: const Icon(Icons.delete)),
-                  IconButton(onPressed: () {}, 
-                  icon: const Icon(Icons.copy_sharp)),
-                   IconButton(onPressed: () {
-                  
-                   }, 
-                  icon: const Icon(Icons.image)),
-                  
+                  IconButton(
+                      onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
+                  IconButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return Dialog(
+                              child: WidgetOpcoesImagem(
+                                onImageSelected: (image) {
+                                  _handleImageSelected(
+                                      image); // Atualiza a imagem selecionada
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      icon: const Icon(Icons.image)),
+                  // Exibir a imagem selecionada, se houver
+                  if (selectedImage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Image.memory(
+                        selectedImage!,
+                        height: 500,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                 ],
               ),
               TextField(
