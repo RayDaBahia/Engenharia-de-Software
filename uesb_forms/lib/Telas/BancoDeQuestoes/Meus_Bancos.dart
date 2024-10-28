@@ -33,8 +33,8 @@ que é chamado depois que o widget é inserido na árvore e quando suas dependê
 
   @override
   Widget build(BuildContext context) {
-    var screenHeight = MediaQuery.sizeOf(context).height;
-    var screenWidth = MediaQuery.sizeOf(context).width;
+    //var screenHeight = MediaQuery.sizeOf(context).height;
+    //var screenWidth = MediaQuery.sizeOf(context).width;
 
     final bancoList = Provider.of<BancoList>(context, listen: true);
     return Scaffold(
@@ -43,45 +43,51 @@ que é chamado depois que o widget é inserido na árvore e quando suas dependê
         iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: const Color.fromARGB(255, 27, 7, 80),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          if (bancoList.bancosLista.isNotEmpty) ...[
-            WidgetPesquisa(
-                listaDeBancos:
-                    bancoList.bancosLista),
-            Expanded(
-              child: ListView.builder(
-                itemCount: bancoList.bancosLista.length,
-                itemBuilder: (context, index) {
-                  final bancoQuestao = bancoList.bancosLista[index];
-                  return WidgetbancoQuestao(banco: bancoQuestao);
-                },
+      body: Padding(
+        padding: EdgeInsets.only(bottom: 10),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            if (bancoList.bancosLista.isNotEmpty) ...[
+              WidgetPesquisa(listaDeBancos: bancoList.bancosLista),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: bancoList.bancosLista.length,
+                  itemBuilder: (context, index) {
+                    final bancoQuestao = bancoList.bancosLista[index];
+                    return WidgetbancoQuestao(banco: bancoQuestao);
+                  },
+                ),
               ),
-            ),
-          ] else ...[
-            Center(
-              child: Text('Você não possui bancos'),
-            ),
+            ] else ...[
+              Center(
+                child: Text('Você não possui bancos'),
+              ),
+            ],
+            // Botão para adicionar novo banco
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(Rotas.CRUD_BANCO);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 27, 7, 80),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.add,
+                    size: 30,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            )
           ],
-          // Botão para adicionar novo banco
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed(Rotas.CRUD_BANCO);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 27, 7, 80),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(100),
-              ),
-            ),
-            child: const Icon(
-              Icons.add,
-              size: 30,
-              color: Colors.white,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
