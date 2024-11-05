@@ -237,12 +237,11 @@ class BancoList with ChangeNotifier {
     notifyListeners();
   }
 
-  // Método para filtrar questões 
- List<Questao> filtrarQuestoes(String texto) {
+  // Método para filtrar questões
+  List<Questao> filtrarQuestoes(String texto) {
     if (texto.isEmpty) {
-      questoesFiltro.clear(); 
+      questoesFiltro.clear();
       notifyListeners();
-      
     }
 
     questoesFiltro = questoesLista
@@ -250,9 +249,9 @@ class BancoList with ChangeNotifier {
             questao.textoQuestao.toLowerCase().contains(texto.toLowerCase()))
         .toList();
 
-        return questoesFiltro;
+    return questoesFiltro;
 
-    notifyListeners(); 
+    notifyListeners();
   }
 
   void verificaPreenchimento(List<Questao> questoes, Banco banco) {
@@ -275,8 +274,6 @@ class BancoList with ChangeNotifier {
 
   /////////////////////////////////////////// BANCO DE QUESTÕES ///////////////////////////////////////////////////////
 
- 
-  
   Future<void> excluirBanco(String bancoId) async {
     final user = _authList?.usuario;
     if (user != null) {
@@ -286,13 +283,71 @@ class BancoList with ChangeNotifier {
           .collection('bancos')
           .doc(bancoId);
 
+      // Exclui todas as questões associadas ao banco
       final questoesSnapshot = await bancoRef.collection('questoes').get();
       for (var doc in questoesSnapshot.docs) {
         await doc.reference.delete();
       }
 
+      // Exclui o próprio banco
       await bancoRef.delete();
+
+      // Remove o banco da lista local e notifica ouvintes
+      bancosLista.removeWhere((banco) => banco.id == bancoId);
+      notifyListeners(); // Atualiza a interface
     }
+  }
+
+  Future<void> duplicarBanco(String bancoId) async {
+    final user = _authList?.usuario;
+    if (user == null) {
+      throw Exception('Usuário não autenticado');
+    }
+
+    // 1. Buscar o banco original
+    final bancoOriginalDoc = await _firestore
+        .collection('usuarios')
+        .doc(user.id)
+        .collection('bancos')
+        .doc(bancoId)
+        .get();
+
+    if (!bancoOriginalDoc.exists) {
+      throw Exception('Banco não encontrado');
+    }
+
+    final bancoOriginalData = bancoOriginalDoc.data()!;
+    final bancoOriginal = Banco(
+      id: bancoOriginalDoc.id,
+      nome: bancoOriginalData['nome'],
+      descricao: bancoOriginalData['descricao'],
+    );
+
+    // 2. Buscar as questões associadas ao banco original
+    final questoesSnapshot = await _firestore
+        .collection('usuarios')
+        .doc(user.id)
+        .collection('bancos')
+        .doc(bancoId)
+        .collection('questoes')
+        .get();
+
+    final List<Questao> questoesParaDuplicar = questoesSnapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id; // Recupera o ID da questão original
+      return Questao.fromMap(data);
+    }).toList();
+
+    // 3. Criar um novo banco com nome modificado
+    final bancoDuplicado = Banco(
+      id: '',
+      nome: '${bancoOriginal.nome} - Cópia',
+      descricao: bancoOriginal.descricao,
+    );
+
+    // 4. Adicionar o novo banco e as questões duplicadas ao Firestore
+    await addBanco(bancoDuplicado, questoesParaDuplicar);
+    
   }
 
   // Método para filtrar bancos pelo nome
