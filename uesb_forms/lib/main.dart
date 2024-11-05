@@ -9,7 +9,7 @@ import 'package:uesb_forms/Telas/login.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Utils/firebase_options.dart';
-//@NepomucenoFacul1507#
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
