@@ -54,7 +54,21 @@ class WidgetOpcoesQuestao extends StatelessWidget {
               ListTile(
                   leading: const Icon(Icons.text_fields),
                   title: const Text('Múltiplas Linhas'),
-                  onTap: () {}),
+                  onTap: () {
+
+               Provider.of<BancoList>(context, listen: false)
+                      .adicionarQuestaoNaLista(
+                    Questao(
+                      textoQuestao: '',
+                      tipoQuestao: QuestaoTipo.MultiplasLinhas,
+                      opcoes: [],
+                    ),
+                  );
+                  Navigator.pop(context);
+
+
+
+                  }),
               ListTile(
                 leading: const Icon(Icons.format_list_numbered),
                 title: const Text('Número'),

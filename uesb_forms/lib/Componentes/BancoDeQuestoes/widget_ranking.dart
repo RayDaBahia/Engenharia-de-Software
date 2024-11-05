@@ -75,6 +75,9 @@ class _WidgetRankingState extends State<WidgetRanking> {
     return SizedBox(
       width: 300,
       child: Card(
+        elevation: 5,
+        shadowColor: Colors.black,
+        color: Colors.white, // Cor de fundo do card
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(

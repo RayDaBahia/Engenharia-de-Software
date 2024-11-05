@@ -5,6 +5,7 @@ import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_lista_suspensa.dar
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_mE_obj.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_ranking.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_resposta_numerica.dart';
+import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_multiplasLinhas.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
@@ -43,6 +44,9 @@ class QuestaoWidget extends StatelessWidget {
 
       case QuestaoTipo.Ranking:
         return WidgetRanking(questao: questao);
+
+      case QuestaoTipo.MultiplasLinhas:
+        return WidgetMultiplaslinhas(questao: questao);
 
       default:
         return const Text('Tipo de questão não suportado');

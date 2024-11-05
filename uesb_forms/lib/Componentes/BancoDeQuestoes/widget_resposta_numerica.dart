@@ -59,6 +59,9 @@ class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
     return SizedBox(
       width: 300,
       child: Card(
+        elevation: 5,
+        shadowColor: Colors.black,
+        color: Colors.white, // Cor de fundo do card
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
