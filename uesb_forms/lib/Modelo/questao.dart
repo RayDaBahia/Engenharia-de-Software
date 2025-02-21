@@ -1,10 +1,10 @@
+import 'dart:typed_data'; // Adicione esta importação para usar Uint8List
 import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
 class Questao {
   String? id;
   String textoQuestao;
-  QuestaoTipo
-      tipoQuestao; // "Linha Única", "Múltiplas Linhas", "Número", "Data", "Imagem", "Múltipla Escolha", etc.
+  QuestaoTipo tipoQuestao;
 
   // Campos para "Linha Única" e "Múltiplas Linhas"
   String? resposta = ''; // Para armazenar resposta de texto
@@ -32,6 +32,9 @@ class Questao {
   // Campos para "E-mail"
   String? respostaEmail; // E-mail com validação
 
+  // Novo campo para armazenar a imagem
+  Uint8List? imagem; // Adicione este campo
+
   Questao({
     required this.textoQuestao,
     required this.tipoQuestao,
@@ -46,6 +49,7 @@ class Questao {
     this.opcoesRanking,
     this.ordemRanking,
     this.respostaEmail,
+    this.imagem, // Adicione este campo
   });
 
   // Converter para Map para salvar no Firestore
@@ -63,6 +67,7 @@ class Questao {
       'opcoesRanking': opcoesRanking,
       'ordemRanking': ordemRanking,
       'respostaEmail': respostaEmail,
+      'imagem': imagem, // Adicione este campo
     };
   }
 
@@ -80,12 +85,14 @@ class Questao {
           : null,
       maxArquivos: map['maxArquivos'],
       tamanhoMaximoArquivo: map['tamanhoMaximoArquivo'],
-      opcoes: map['opcoes']==null?null:  List<String>.from(map['opcoes'] ?? []),
+      opcoes:
+          map['opcoes'] == null ? null : List<String>.from(map['opcoes'] ?? []),
       opcoesSelecionadas: List<String>.from(map['opcoesSelecionadas'] ?? []),
       opcaoSelecionada: map['opcaoSelecionada'],
       opcoesRanking: List<String>.from(map['opcoesRanking'] ?? []),
       ordemRanking: List<String>.from(map['ordemRanking'] ?? []),
       respostaEmail: map['respostaEmail'],
+      imagem: map['imagem'], // Adicione este campo
     );
   }
 }

@@ -9,6 +9,8 @@ import 'package:uesb_forms/Telas/login.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Utils/firebase_options.dart';
+import 'package:uesb_forms/provider/image_provider.dart'
+    as custom_image_provider;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,8 +20,6 @@ void main() async {
   runApp(const MyApp());
 }
 
-
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -27,16 +27,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_)=>AuthList(),),
-        //O ProductService sempre terá acesso à instância mais atualizada do AuthService,
-       ChangeNotifierProxyProvider<AuthList, BancoList >(
-        create: (_)=>BancoList(),
-        
-        update: (context, authList, previousBancoList)
-        => BancoList(authList)
-        ,)
-
-    
+        ChangeNotifierProvider(create: (_) => AuthList()),
+        ChangeNotifierProxyProvider<AuthList, BancoList>(
+          create: (_) => BancoList(),
+          update: (context, authList, previousBancoList) => BancoList(authList),
+        ),
+        ChangeNotifierProvider(
+            create: (_) =>
+                custom_image_provider.ImageProvider()), // Usando o alias
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -44,21 +42,18 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           appBarTheme: const AppBarTheme(
             iconTheme: IconThemeData(
-              color: Colors.white
-            )
+              color: Colors.white,
+            ),
           ),
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
-          
         ),
-        //home: MeusFormularios(),
         routes: {
           Rotas.HOME: (ctx) => const Login(),
           Rotas.MEUS_FORMULARIOS: (ctx) => const MeusFormularios(),
-          Rotas.MEUS_BANCOS: (ctx)=> const MeusBancos( ),
-          Rotas.CRUD_BANCO: (ctx)=> const CrudBancoQuestoes( )
+          Rotas.MEUS_BANCOS: (ctx) => const MeusBancos(),
+          Rotas.CRUD_BANCO: (ctx) => const CrudBancoQuestoes(),
         },
-        
       ),
     );
   }

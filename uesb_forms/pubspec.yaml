@@ -43,7 +43,7 @@ dependencies:
   cloud_firestore: ^5.4.1
   image_picker: ^0.8.4+5
   permission_handler: ^10.2.0
-  image: ^3.0.1
+  image: ^4.0.15
 
 
 dev_dependencies:

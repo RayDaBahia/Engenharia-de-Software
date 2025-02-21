@@ -4,14 +4,17 @@ import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Modelo/questao_tipo.dart';
-import 'package:uesb_forms/Componentes/WidgetOpcoesImagem.dart';
+import 'package:uesb_forms/Componentes/widget_opcoes_imagem.dart';
 
 class WidgetLinhaUnicaOremail extends StatefulWidget {
   final String? idBanco;
   final Questao questao;
 
-  const WidgetLinhaUnicaOremail(
-      {super.key, required this.questao, this.idBanco});
+  const WidgetLinhaUnicaOremail({
+    Key? key,
+    required this.questao,
+    this.idBanco,
+  }) : super(key: key);
 
   @override
   State<WidgetLinhaUnicaOremail> createState() =>
@@ -21,8 +24,6 @@ class WidgetLinhaUnicaOremail extends StatefulWidget {
 class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
   late TextEditingController controlePergunta;
   late TextEditingController controleResposta;
-  Uint8List?
-      selectedImage; // Variável para armazenar a imagem selecionada como bytes
 
   @override
   void initState() {
@@ -33,13 +34,14 @@ class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
 
   void _handleImageSelected(Uint8List? image) {
     setState(() {
-      selectedImage = image; // Atualiza a imagem selecionada
+      widget.questao.imagem = image; // Atualiza a imagem na questão
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final bancoList = Provider.of<BancoList>(context, listen: false);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -60,17 +62,13 @@ class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
                 ),
                 IconButton(
                   onPressed: () {
-                    // Abre o widget de opções de imagem quando o botão de imagem
                     showDialog(
                       context: context,
                       builder: (context) {
                         return Dialog(
                           child: WidgetOpcoesImagem(
-                            onImageSelected: (image) {
-                              _handleImageSelected(
-                                  image); // Atualiza a imagem selecionada
-                              Navigator.of(context).pop();
-                            },
+                            onImageSelected:
+                                _handleImageSelected, // Passa o callback
                           ),
                         );
                       },
@@ -80,15 +78,13 @@ class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
                 ),
               ],
             ),
-            // Exibir a imagem selecionada, se houver
-            if (selectedImage != null)
+            if (widget.questao.imagem != null) // Exibe a imagem se existir
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Image.memory(
-                  selectedImage!,
-                  height: 500,
+                  widget.questao.imagem!,
                   width: double.infinity,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain, // Mantém a proporção da imagem
                 ),
               ),
             TextField(
