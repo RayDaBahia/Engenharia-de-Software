@@ -11,6 +11,7 @@ class WidgetListaSuspensa extends StatefulWidget {
   final Questao questao;
   final String? bancoId;
 
+
   const WidgetListaSuspensa({super.key, required this.questao, this.bancoId});
 
   @override
@@ -25,8 +26,7 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
   @override
   void initState() {
     super.initState();
-    _perguntaController =
-        TextEditingController(text: widget.questao.textoQuestao);
+    _perguntaController = TextEditingController(text: widget.questao.textoQuestao);
     _initializeOptionControllers();
   }
 
@@ -54,14 +54,14 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
 
   @override
   Widget build(BuildContext context) {
-    final bancoList = Provider.of<BancoList>(context, listen: false);
+    final bancoList = Provider.of<BancoList>(context, listen: true);
 
     return SizedBox(
       width: 300,
       child: Card(
-      elevation: 5,
-      shadowColor: Colors.black,
-      color: Colors.white, // Cor de fundo do card
+        elevation: 5,
+        shadowColor: Colors.black,
+        color: Colors.white, // Cor de fundo do card
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -71,13 +71,12 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
-                      onPressed: () {
-                        bancoList.removerQuestao(
-                            widget.bancoId, widget.questao);
-                      },
-                      icon: const Icon(Icons.delete)),
-                  IconButton(
-                      onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
+                    onPressed: () {
+                      bancoList.removerQuestao(widget.bancoId, widget.questao);
+                    },
+                    icon: const Icon(Icons.delete),
+                  ),
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
                 ],
               ),
               // Exibir a imagem selecionada, se houver
@@ -106,7 +105,8 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
                   bancoList.adicionarQuestaoNaLista(widget.questao);
                 },
               ),
-              dropDown(),
+             dropDown(), 
+             
               const SizedBox(height: 20),
               Column(
                 children: List.generate(
@@ -130,9 +130,7 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
                         onPressed: () {
                           setState(() {
                             _optionControllers.removeAt(index);
-
                             widget.questao.opcoes!.removeAt(index);
-
                             bancoList.adicionarQuestaoNaLista(widget.questao);
                           });
                         },
@@ -146,8 +144,7 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
                               return Dialog(
                                 child: WidgetOpcoesImagem(
                                   onImageSelected: (image) {
-                                    _handleImageSelected(
-                                        image); // Atualiza a imagem selecionada
+                                    _handleImageSelected(image); // Atualiza a imagem selecionada
                                     Navigator.of(context).pop();
                                   },
                                 ),
@@ -162,6 +159,8 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
                 ),
               ),
               const SizedBox(height: 18),
+         
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -183,18 +182,29 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
     );
   }
 
-  Widget dropDown() {
-    return DropdownButton<String>(
-      hint: const Text(
-          'Selecione uma opção'), // Texto exibido quando nada está selecionado
-      items: widget.questao.opcoes!.map((String item) {
-        return DropdownMenuItem<String>(
-          value: item,
-          child: Text(item),
-        );
-      }).toList(),
-      onChanged:
-          null, // Define o onChanged como null para desativar a interação
-    );
-  }
+Widget dropDown() {
+  return DropdownButton<String>(
+    hint: const Text('Selecione uma opção'), // Texto exibido quando nada está selecionado
+    items: widget.questao.opcoes!.map((String item) {
+      return DropdownMenuItem<String>(
+        value: item,
+        child: Text(item),
+      );
+    }).toList(),
+    onChanged: (String? newValue) {
+      setState(() {
+        // Atualizar a questão com a nova opção selecionada
+        if (newValue != null) {
+          // Encontrar o índice da opção selecionada
+          int index = widget.questao.opcoes!.indexOf(newValue);
+          if (index != -1) {
+            widget.questao.opcoes![index] = newValue;
+          }
+        }
+      });
+    },
+  );
 }
+
+}
+

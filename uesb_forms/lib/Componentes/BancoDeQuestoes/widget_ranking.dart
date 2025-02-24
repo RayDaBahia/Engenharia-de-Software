@@ -1,10 +1,8 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
-import 'package:uesb_forms/Componentes/WidgetOpcoesImagem.dart';
 
 class WidgetRanking extends StatefulWidget {
   final Questao questao;
@@ -25,59 +23,64 @@ class _WidgetRankingState extends State<WidgetRanking> {
   @override
   void initState() {
     super.initState();
-    _perguntaController =
-        TextEditingController(text: widget.questao.textoQuestao);
-    _initializeOptionControllers(); // Inicialize controladores
+    _perguntaController = TextEditingController(text: widget.questao.textoQuestao);
+    _initializeOptionControllers();
   }
 
   void _handleImageSelected(Uint8List? image) {
     setState(() {
-      selectedImage = image; // Atualiza a imagem selecionada
+      selectedImage = image;
     });
   }
 
   @override
   void dispose() {
     _perguntaController.dispose();
-    for (var controllerP in _controleAlternativas) {
-      controllerP.dispose();
+    for (var controller in _controleAlternativas) {
+      controller.dispose();
     }
-    for (var controllerN in _controleNiveis) {
-      controllerN.dispose();
+    for (var controller in _controleNiveis) {
+      controller.dispose();
     }
     super.dispose();
   }
 
   void _initializeOptionControllers() {
     _controleAlternativas.clear();
-    _controleNiveis.clear(); // Limpe também os níveis
+    _controleNiveis.clear();
 
-    // Verifique se perguntasRanking não é nulo
+    // Inicializa as alternativas e níveis com base nas propriedades do modelo `Questao`
     if (widget.questao.opcoesRanking != null) {
       for (var alternativa in widget.questao.opcoesRanking!) {
         _controleAlternativas.add(TextEditingController(text: alternativa));
       }
     }
 
-    // Verifique se opcoesRanking não é nulo
     if (widget.questao.ordemRanking != null) {
-      for (var niveis in widget.questao.ordemRanking!) {
-        _controleNiveis.add(TextEditingController(text: niveis));
+      for (var nivel in widget.questao.ordemRanking!) {
+        _controleNiveis.add(TextEditingController(text: nivel));
       }
     }
   }
 
-  @override
+  void _atualizarQuestao() {
+    // Atualiza as opções de ranking no modelo
+    widget.questao.opcoesRanking = _controleAlternativas.map((controller) => controller.text).toList();
+    widget.questao.ordemRanking = _controleNiveis.map((controller) => controller.text).toList();
+    
+    // Notifica o Provider de que a questão foi alterada
+    final bancoList = Provider.of<BancoList>(context, listen: false);
+    bancoList.adicionarQuestaoNaLista(widget.questao); // Atualiza a lista no Provider
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bancoList = Provider.of<BancoList>(context, listen: false);
-
     return SizedBox(
       width: 300,
       child: Card(
         elevation: 5,
         shadowColor: Colors.black,
-        color: Colors.white, // Cor de fundo do card
+        color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -86,19 +89,19 @@ class _WidgetRankingState extends State<WidgetRanking> {
               TextField(
                 controller: _perguntaController,
                 maxLines: null,
-                decoration:
-                    InputDecoration(labelText: 'Digite sua pergunta aqui'),
+                decoration: const InputDecoration(labelText: 'Digite sua pergunta aqui'),
                 onChanged: (value) {
-                  widget.questao.textoQuestao = value;
-                  bancoList.adicionarQuestaoNaLista(widget.questao);
+                  setState(() {
+                    widget.questao.textoQuestao = value;
+                  });
+                  _atualizarQuestao();  // Atualiza o banco de dados com a nova pergunta
                 },
               ),
               const SizedBox(height: 20),
               Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween, // Alinha as colunas
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // coluna de alternativas
+                  // Coluna de alternativas
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,42 +114,32 @@ class _WidgetRankingState extends State<WidgetRanking> {
                                 child: TextField(
                                   controller: _controleAlternativas[index],
                                   decoration: InputDecoration(
-                                    labelText: 'opção ${index + 1}',
+                                    labelText: 'Opção ${index + 1}',
                                   ),
                                   onChanged: (value) {
-                                    widget.questao.opcoesRanking![index] =
-                                        value;
-                                    bancoList.adicionarQuestaoNaLista(
-                                        widget.questao);
+                                    _atualizarQuestao(); // Atualiza o ranking no banco
                                   },
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _controleAlternativas
-                                      .add(TextEditingController(text: ''));
-                                  widget.questao.opcoesRanking!
-                                      .add(''); // Adicione um valor padrão
-                                });
-                              },
-                              child: const Text("Adicionar outra opção"),
-                            ),
-                          ],
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _controleAlternativas.add(TextEditingController(text: ''));
+                              widget.questao.opcoesRanking?.add('');
+                            });
+                            _atualizarQuestao();  // Atualiza o banco com a nova opção
+                          },
+                          child: const Text("Adicionar outra opção"),
                         ),
                       ],
                     ),
                   ),
-
                   const SizedBox(width: 20), // Espaço entre colunas
 
-                  // coluna de níveis
+                  // Coluna de níveis
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,35 +151,26 @@ class _WidgetRankingState extends State<WidgetRanking> {
                               Expanded(
                                 child: TextField(
                                   controller: _controleNiveis[index],
-                                  decoration: InputDecoration(
-                                    labelText: 'Classificação ',
+                                  decoration: const InputDecoration(
+                                    labelText: 'Classificação',
                                   ),
                                   onChanged: (value) {
-                                    widget.questao
-                                      ..ordemRanking![index] = value;
-                                    bancoList.adicionarQuestaoNaLista(
-                                        widget.questao);
+                                    _atualizarQuestao(); // Atualiza a classificação no banco
                                   },
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _controleNiveis
-                                      .add(TextEditingController(text: ''));
-                                  widget.questao.ordemRanking!
-                                      .add(''); // Adicione um valor padrão
-                                });
-                              },
-                              child: const Text("Adicionar Nível"),
-                            ),
-                          ],
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _controleNiveis.add(TextEditingController(text: ''));
+                              widget.questao.ordemRanking?.add('');
+                            });
+                            _atualizarQuestao();  // Atualiza o banco com o novo nível
+                          },
+                          child: const Text("Adicionar Nível"),
                         ),
                       ],
                     ),

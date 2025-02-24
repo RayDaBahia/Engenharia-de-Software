@@ -22,11 +22,17 @@ class _MeusBancosState extends State<MeusBancos> {
   }
 
   @override
+  bool isFormulario = false; // Valor padrão
+
+  @override
   void didChangeDependencies() {
-/*
-que é chamado depois que o widget é inserido na árvore e quando suas dependências mudam
-*/
     super.didChangeDependencies();
+
+    final argumentos =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    // Se o argumento não existir, assume false
+    isFormulario = argumentos?['isFormulario'] ?? false;
 
     Provider.of<BancoList>(context, listen: false).getBanco();
   }
@@ -38,10 +44,18 @@ que é chamado depois que o widget é inserido na árvore e quando suas dependê
 
     final bancoList = Provider.of<BancoList>(context, listen: true);
     return Scaffold(
-      drawer: MenuLateral(),
+      drawer: isFormulario ? null : MenuLateral(),
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: const Color.fromARGB(255, 27, 7, 80),
+        leading: isFormulario
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            : null, // Se não for formulário, mantém o padrão
       ),
       body: Padding(
         padding: EdgeInsets.only(bottom: 10),
@@ -49,13 +63,17 @@ que é chamado depois que o widget é inserido na árvore e quando suas dependê
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             if (bancoList.bancosLista.isNotEmpty) ...[
-              WidgetPesquisa(listaDeBancos: bancoList.bancosLista),
+              WidgetPesquisa(
+                listaDeBancos: bancoList.bancosLista,
+                isFormulario: isFormulario,
+              ),
               Expanded(
                 child: ListView.builder(
                   itemCount: bancoList.bancosLista.length,
                   itemBuilder: (context, index) {
                     final bancoQuestao = bancoList.bancosLista[index];
-                    return WidgetbancoQuestao(banco: bancoQuestao);
+                    return WidgetbancoQuestao(
+                        banco: bancoQuestao, isFormulario: isFormulario);
                   },
                 ),
               ),
@@ -65,6 +83,7 @@ que é chamado depois que o widget é inserido na árvore e quando suas dependê
               ),
             ],
             // Botão para adicionar novo banco
+            if(!isFormulario)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

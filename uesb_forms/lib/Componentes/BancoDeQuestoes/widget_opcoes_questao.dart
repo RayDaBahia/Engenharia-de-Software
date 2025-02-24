@@ -152,8 +152,8 @@ class WidgetOpcoesQuestao extends StatelessWidget {
                       id: Random().nextInt(1000000).toString(),
                       textoQuestao: '',
                       tipoQuestao: QuestaoTipo.Ranking,
-                      opcoesRanking: [],
-                     ordemRanking: [],
+             
+               
                     ),
                   );
 

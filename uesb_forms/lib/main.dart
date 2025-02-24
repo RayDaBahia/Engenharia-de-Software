@@ -5,7 +5,11 @@ import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Bancos.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Formularios.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/crud_Banco_Questoes.dart';
-import 'package:uesb_forms/Telas/login.dart';
+import 'package:uesb_forms/Telas/Formulario/Configruacoes.dart';
+
+import 'package:uesb_forms/Telas/Formulario/SelecaoQuestoesBanco.dart';
+import 'package:uesb_forms/Telas/Login.dart';
+
 import 'package:uesb_forms/Utils/rotas.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Utils/firebase_options.dart';
@@ -56,7 +60,10 @@ class MyApp extends StatelessWidget {
           Rotas.HOME: (ctx) => const Login(),
           Rotas.MEUS_FORMULARIOS: (ctx) => const MeusFormularios(),
           Rotas.MEUS_BANCOS: (ctx)=> const MeusBancos( ),
-          Rotas.CRUD_BANCO: (ctx)=> const CrudBancoQuestoes( )
+          Rotas.CRUD_BANCO: (ctx)=> const CrudBancoQuestoes( ),
+          Rotas.CRIAR_FORMULARIO: (ctx)=> const Configruacoes(),
+        
+          Rotas.SELECAO_QUESTOES_BANCO: (ctx)=>  SelecaoQuestoesBanco()
         },
         
       ),

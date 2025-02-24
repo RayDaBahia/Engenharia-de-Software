@@ -4,8 +4,10 @@ import 'package:uesb_forms/Utils/rotas.dart';
 
 class MySearchDelegate extends SearchDelegate {
   final List<Banco> listaDeBancos;
+  bool isFormulario=false;
 
-  MySearchDelegate(this.listaDeBancos);
+   MySearchDelegate(this.listaDeBancos, [this.isFormulario = false]);
+
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -48,6 +50,9 @@ class MySearchDelegate extends SearchDelegate {
               arguments:
                   results[index], // Aqui você passa o argumento para a rota
             );
+            
+
+
             close(context, null); // Fecha a pesquisa após a navegação
           },
         );
@@ -68,12 +73,24 @@ class MySearchDelegate extends SearchDelegate {
           title: Text(suggestions[index].nome),
           onTap: () {
             // Navega para a tela do banco passando o nome do banco selecionado como argumento
+
+            if(!isFormulario){
             Navigator.of(context).pushNamed(
               Rotas.CRUD_BANCO,
               arguments:
                   suggestions[index], // Aqui você passa o argumento para a rota
+            );}
+
+            else{ 
+              
+              Navigator.of(context).pushNamed(
+               Rotas.SELECAO_QUESTOES_BANCO,
+               arguments:
+                  suggestions[index], // Aqui você passa o argumento para a rota
             );
-            //close(context, null); // Fecha a pesquisa após a navegação
+
+              
+            }
           },
         );
       },

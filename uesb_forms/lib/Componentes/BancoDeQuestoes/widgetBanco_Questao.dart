@@ -6,10 +6,11 @@ import 'package:uesb_forms/Utils/rotas.dart';
 
 class WidgetbancoQuestao extends StatelessWidget {
   final Banco banco;
+  final bool isFormulario;
 
   const WidgetbancoQuestao({
     super.key,
-    required this.banco,
+    required this.banco, required this.isFormulario,
   });
 
   @override
@@ -22,8 +23,16 @@ class WidgetbancoQuestao extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        Navigator.of(context).pushNamed(Rotas.CRUD_BANCO, arguments: banco);
-      },
+        if(!isFormulario){
+        Navigator.of(context).pushNamed(Rotas.CRUD_BANCO, arguments: banco);}
+        else{
+   Navigator.of(context).pushNamed(
+          Rotas.SELECAO_QUESTOES_BANCO,
+          arguments: banco,
+        );
+
+
+      }},
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Container(
@@ -53,81 +62,82 @@ class WidgetbancoQuestao extends StatelessWidget {
                         fontSize: 30,
                       ),
                     ),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.delete),
-                          color: Color.fromARGB(255, 27, 7, 80),
-                          onPressed: () async {
-                            // Exibe um diálogo de confirmação
-                            final confirm = await showDialog<bool>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text('Confirmar Exclusão'),
-                                  content: Text(
-                                      'Tem certeza de que deseja excluir este banco?'),
-                                  actions: <Widget>[
-                                    TextButton(
-                                      child: Text('Cancelar'),
-                                      onPressed: () {
-                                        Navigator.of(context).pop(
-                                            false); // Retorna 'false' ao pressionar "Cancelar"
-                                      },
-                                    ),
-                                    TextButton(
-                                      child: Text('Excluir'),
-                                      onPressed: () {
-                                        Navigator.of(context).pop(
-                                            true); // Retorna 'true' ao pressionar "Excluir"
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
+                    if(!isFormulario)
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.delete),
+                            color: Color.fromARGB(255, 27, 7, 80),
+                            onPressed: () async {
+                              // Exibe um diálogo de confirmação
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Confirmar Exclusão'),
+                                    content: Text(
+                                        'Tem certeza de que deseja excluir este banco?'),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: Text('Cancelar'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(
+                                              false); // Retorna 'false' ao pressionar "Cancelar"
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: Text('Excluir'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(
+                                              true); // Retorna 'true' ao pressionar "Excluir"
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
 
-                            // Se o usuário confirmou a exclusão
-                            if (confirm == true) {
+                              // Se o usuário confirmou a exclusão
+                              if (confirm == true) {
+                                try {
+                                  await bancoList.excluirBanco(banco.id ?? '');
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content:
+                                            Text('Banco excluído com sucesso')),
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text('Erro ao excluir o banco')),
+                                  );
+                                }
+                              }
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.copy),
+                            color: Color.fromARGB(255, 27, 7, 80),
+                            onPressed: () async {
                               try {
-                                await bancoList.excluirBanco(banco.id ?? '');
+                                await bancoList.duplicarBanco(banco.id ?? '');
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       content:
-                                          Text('Banco excluído com sucesso')),
+                                          Text('Banco duplicado com sucesso')),
                                 );
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                      content: Text('Erro ao excluir o banco')),
+                                      content: Text('Erro ao duplicar o banco')),
                                 );
                               }
-                            }
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.copy),
-                          color: Color.fromARGB(255, 27, 7, 80),
-                          onPressed: () async {
-                            try {
-                              await bancoList.duplicarBanco(banco.id ?? '');
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content:
-                                        Text('Banco duplicado com sucesso')),
-                              );
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content: Text('Erro ao duplicar o banco')),
-                              );
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 const Divider(
                   color: Colors.black,
                 ),

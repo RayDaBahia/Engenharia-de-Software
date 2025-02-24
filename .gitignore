@@ -2,3 +2,5 @@
 uesb_forms/lib/Componentes/BancoDeQuestoes/widget_multipla_escolha.dart
 uesb_forms/android/local.properties
 uesb_forms/android/local.properties
+uesb_forms/ios/Flutter/Generated.xcconfig
+uesb_forms/ios/Flutter/flutter_export_environment.sh

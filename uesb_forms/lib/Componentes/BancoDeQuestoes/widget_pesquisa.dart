@@ -7,7 +7,8 @@ import 'package:uesb_forms/Modelo/Banco.dart';
 
 class WidgetPesquisa extends StatefulWidget {
   final List<Banco> listaDeBancos; // Recebe a lista de nomes dos bancos
-  WidgetPesquisa({super.key, required this.listaDeBancos});
+  bool isFormulario;
+  WidgetPesquisa({super.key, required this.listaDeBancos, this.isFormulario = false});
 
   @override
   State<WidgetPesquisa> createState() => _WidgetPesquisaState();

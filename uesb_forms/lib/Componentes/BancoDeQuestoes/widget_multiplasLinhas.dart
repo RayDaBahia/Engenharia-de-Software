@@ -9,6 +9,7 @@ import 'package:uesb_forms/Componentes/WidgetOpcoesImagem.dart';
 class WidgetMultiplaslinhas extends StatefulWidget {
   final String? idBanco;
   final Questao questao;
+  
 
   const WidgetMultiplaslinhas({super.key, required this.questao, this.idBanco});
 
