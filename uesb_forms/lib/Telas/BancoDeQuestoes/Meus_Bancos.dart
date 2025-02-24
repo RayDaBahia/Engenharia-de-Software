@@ -21,7 +21,7 @@ class _MeusBancosState extends State<MeusBancos> {
     // Do not access context-dependent services here
   }
 
-  @override
+ 
   bool isFormulario = false; // Valor padrão
 
   @override

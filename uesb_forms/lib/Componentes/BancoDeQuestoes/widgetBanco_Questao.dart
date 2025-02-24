@@ -26,11 +26,13 @@ class WidgetbancoQuestao extends StatelessWidget {
         if(!isFormulario){
         Navigator.of(context).pushNamed(Rotas.CRUD_BANCO, arguments: banco);}
         else{
-   Navigator.of(context).pushNamed(
-          Rotas.SELECAO_QUESTOES_BANCO,
-          arguments: banco,
-        );
-
+              Navigator.of(context).pushNamed(
+                Rotas.SELECAO_QUESTOES_BANCO,
+                arguments: {
+                  'banco': banco, // Passando o banco
+                
+                },
+              );
 
       }},
       child: Padding(

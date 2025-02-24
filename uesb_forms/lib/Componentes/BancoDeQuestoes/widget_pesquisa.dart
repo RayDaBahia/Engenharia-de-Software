@@ -7,8 +7,8 @@ import 'package:uesb_forms/Modelo/Banco.dart';
 
 class WidgetPesquisa extends StatefulWidget {
   final List<Banco> listaDeBancos; // Recebe a lista de nomes dos bancos
-  bool isFormulario;
-  WidgetPesquisa({super.key, required this.listaDeBancos, this.isFormulario = false});
+  final bool isFormulario;
+  WidgetPesquisa({super.key, required this.listaDeBancos, required this.isFormulario });
 
   @override
   State<WidgetPesquisa> createState() => _WidgetPesquisaState();
@@ -16,7 +16,7 @@ class WidgetPesquisa extends StatefulWidget {
 
 class _WidgetPesquisaState extends State<WidgetPesquisa> {
   String nomeDoBanco = '';
-
+  
   @override
   Widget build(BuildContext context) {
     return 
@@ -31,7 +31,7 @@ class _WidgetPesquisaState extends State<WidgetPesquisa> {
             child: TextField(
               onTap: () => showSearch(
                 context: context,
-                delegate: MySearchDelegate(widget.listaDeBancos
+                delegate: MySearchDelegate(widget.listaDeBancos,isFormulario: widget.isFormulario
                     ), // Passa os nomes dos bancos para o delegate
               ),
               onChanged: (value) {
@@ -41,7 +41,7 @@ class _WidgetPesquisaState extends State<WidgetPesquisa> {
                     showSearch(
                       context: context,
                       delegate: MySearchDelegate(
-                          widget.listaDeBancos), // Usa a lista para pesquisa
+                          widget.listaDeBancos, isFormulario: widget.isFormulario), // Usa a lista para pesquisa
                     );
                   },
                 );

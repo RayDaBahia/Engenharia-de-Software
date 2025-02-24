@@ -68,20 +68,6 @@ class _WidgetListaSuspensaFormState extends State< WidgetListaSuspensaForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Remover botões de exclusão e edição
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    onPressed: null, // Desabilita o botão de exclusão
-                    icon: const Icon(Icons.delete, color: Colors.grey),
-                  ),
-                  IconButton(
-                    onPressed: null,
-                    icon: const Icon(Icons.copy_sharp, color: Colors.grey),
-                  ),
-                ],
-              ),
               // Exibir a imagem selecionada, se houver
               if (selectedImage != null)
                 Padding(

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:uesb_forms/Modelo/Banco.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
+import 'package:flutter/material.dart';
+import 'package:uesb_forms/Modelo/Banco.dart';
+import 'package:uesb_forms/Utils/rotas.dart';
 
 class MySearchDelegate extends SearchDelegate {
   final List<Banco> listaDeBancos;
-  bool isFormulario=false;
+  final bool isFormulario; // Torna final para evitar modificações acidentais
 
-   MySearchDelegate(this.listaDeBancos, [this.isFormulario = false]);
-
+  MySearchDelegate(this.listaDeBancos, {this.isFormulario = false}); // Agora é um parâmetro nomeado opcional
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -33,26 +35,32 @@ class MySearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    List<Banco> results =listaDeBancos
+    List<Banco> results = listaDeBancos
         .where((banco) => banco.nome.toLowerCase().contains(query.toLowerCase()))
         .toList();
 
     return ListView.builder(
       itemCount: results.length,
       itemBuilder: (context, index) {
-        return
-         ListTile(
+        return ListTile(
           title: Text(results[index].nome),
           onTap: () {
-            // Navega para a tela do banco passando o nome do banco selecionado como argumento
-            Navigator.of(context).pushNamed(
-              Rotas.CRUD_BANCO,
-              arguments:
-                  results[index], // Aqui você passa o argumento para a rota
-            );
-            
-
-
+            if (!isFormulario) {
+              // Se não for um formulário, navega para CRUD_BANCO
+              Navigator.of(context).pushNamed(
+                Rotas.CRUD_BANCO,
+                arguments: results[index], // Passando o banco como argumento
+              );
+            } else {
+              // Se for um formulário, navega para SELECAO_QUESTOES_BANCO com argumentos no formato correto
+              Navigator.of(context).pushNamed(
+                Rotas.SELECAO_QUESTOES_BANCO,
+                arguments: {
+                  'banco': results[index], // Agora está correto
+                  'isAlteracao': false, // Se precisar passar essa informação
+                },
+              );
+            }
             close(context, null); // Fecha a pesquisa após a navegação
           },
         );
@@ -72,25 +80,21 @@ class MySearchDelegate extends SearchDelegate {
         return ListTile(
           title: Text(suggestions[index].nome),
           onTap: () {
-            // Navega para a tela do banco passando o nome do banco selecionado como argumento
-
-            if(!isFormulario){
-            Navigator.of(context).pushNamed(
-              Rotas.CRUD_BANCO,
-              arguments:
-                  suggestions[index], // Aqui você passa o argumento para a rota
-            );}
-
-            else{ 
-              
+            if (!isFormulario) {
               Navigator.of(context).pushNamed(
-               Rotas.SELECAO_QUESTOES_BANCO,
-               arguments:
-                  suggestions[index], // Aqui você passa o argumento para a rota
-            );
-
-              
+                Rotas.CRUD_BANCO,
+                arguments: suggestions[index],
+              );
+            } else {
+              Navigator.of(context).pushNamed(
+                Rotas.SELECAO_QUESTOES_BANCO,
+                arguments: {
+                  'banco': suggestions[index], // Agora está correto
+                  'isAlteracao': true, // Se precisar passar essa informação
+                },
+              );
             }
+            close(context, null);
           },
         );
       },

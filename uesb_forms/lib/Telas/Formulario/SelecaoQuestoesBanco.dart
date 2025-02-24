@@ -4,18 +4,24 @@ import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Modelo/Banco.dart';
 import 'package:uesb_forms/Componentes/Formulario/QuestaoWidgetForm.dart';
+import 'package:uesb_forms/Utils/rotas.dart';
+import 'package:uesb_forms/Telas/Formulario/Configruacoes.dart';
 
 class SelecaoQuestoesBanco extends StatefulWidget {
-  const SelecaoQuestoesBanco ({super.key});
+  final Banco? banco;
+  final bool isAlteracao;
+
+  const SelecaoQuestoesBanco({super.key, this.banco, this.isAlteracao = false});
 
   @override
-  State<SelecaoQuestoesBanco> createState() => _SelecaoQuestoesBancoState();
+  _SelecaoQuestoesBancoState createState() => _SelecaoQuestoesBancoState();
 }
 
 class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
   late TextEditingController _questaoFiltro;
   final Set<Questao> _questoesSelecionadas = {};
   Banco? banco;
+  bool isAlteracao = false;
 
   @override
   void initState() {
@@ -29,13 +35,24 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (banco == null) {
-      final args = ModalRoute.of(context)?.settings.arguments;
-      if (args is Banco) {
+
+    // Pegando os argumentos passados pela rota
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    if (args != null) {
+      final bancoArg = args['banco'] as Banco?;
+      final isAlteracaoArg = args['isAlteracao'] as bool?;
+
+      // Verifica se é necessário atualizar o estado
+      if (bancoArg != null && (banco == null || banco!.id != bancoArg.id)) {
         setState(() {
-          banco = args;
+          banco = bancoArg;
+          isAlteracao = isAlteracaoArg ?? false; // Caso 'isAlteracao' seja null, define como false
         });
-        Provider.of<BancoList>(context, listen: false).buscarQuestoesBancoNoBd(banco!.id);
+
+        if (banco != null) {
+          Provider.of<BancoList>(context, listen: false).buscarQuestoesBancoNoBd(banco!.id);
+        }
       }
     }
   }
@@ -48,26 +65,34 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 27, 7, 80),
-        title: TextField(
-          controller: _questaoFiltro,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: const Color.fromARGB(249, 0, 16, 81),
-            hintText: 'Pesquisar questões...',
-            hintStyle: const TextStyle(color: Colors.white70),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(13)),
-            prefixIcon: const Icon(Icons.search, color: Colors.white),
-          ),
-          style: const TextStyle(color: Colors.white),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            // Substitui a tela atual pela nova
+            if (!isAlteracao) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => Configruacoes(), // Substitua por sua tela real
+                ),
+              );
+            } else {
+              Navigator.of(context).pushReplacementNamed(
+                Rotas.EDICAO_FORMULARIO_TELA,
+                arguments: {
+                  'questoesSelecionadas': _questoesSelecionadas.toList(),
+                },
+              );
+            }
+          },
         ),
+        backgroundColor: const Color.fromARGB(255, 27, 7, 80),
+        title: const Text('Seleção de Questões'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
             Expanded(
-
               child: ListView.builder(
                 itemCount: questoesFiltradas.length,
                 itemBuilder: (context, index) {
@@ -97,7 +122,19 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    if (!isAlteracao) {
+                       Navigator.of(context).pushReplacementNamed(
+                      Rotas.MEUS_BANCOS,
+                    arguments:{ 'isFormulario':true,}                   // Aqui você passa o argumento para a rota
+                            );   
+                    } else {
+                      Navigator.of(context).pushReplacementNamed(
+                        Rotas.EDICAO_FORMULARIO_TELA,
+                        arguments: {
+                          'questoesSelecionadas': _questoesSelecionadas.toList(),
+                        },
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey,
@@ -106,7 +143,12 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context, _questoesSelecionadas.toList());
+                    Navigator.of(context).pushNamed(
+                      Rotas.EDICAO_FORMULARIO_TELA,
+                      arguments: {
+                        'questoesSelecionadas': _questoesSelecionadas.toList(),
+                      },
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,

@@ -1,8 +1,11 @@
+import 'package:flutter/foundation.dart'; // Adicione para kIsWeb
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Excecoes/erro_login.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -24,7 +27,6 @@ class _LoginState extends State<Login> {
           TextButton(
             child: const Text('OK'),
             onPressed: () {
-              setState(() {});
               Navigator.of(ctx).pop();
             },
           ),
@@ -33,38 +35,40 @@ class _LoginState extends State<Login> {
     );
   }
 
+  Future<void> loginWithGoogle(AuthList authList) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      if (kIsWeb) {
+        // Web: Usa signInSilently() ou renderButton()
+        await authList.handleGoogleSignInWeb();
+      } else {
+        // Mobile: Usa signIn normalmente
+        await authList.handleGoogleSignIn();
+      }
+
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, Rotas.MEUS_FORMULARIOS);
+      }
+    } on erroLogin catch (e) {
+      String errorMessage = e.toString();
+      if (mounted) {
+        _showErrorDialog(context, errorMessage);
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authUser = Provider.of<AuthList>(context, listen: false);
-
-    Future<void> loginWithGoogle(AuthList authList) async {
-  setState(() {
-    _isLoading = true;
-  });
-
-  try {
-    await authList.handleGoogleSignIn();
-
-    if (mounted) {
-      
-      Navigator.pushReplacementNamed(context, Rotas.MEUS_FORMULARIOS);
-    }
-  } on erroLogin catch (e) {
-    String errorMessage = e.toString();
-
-    if (mounted) {
-      _showErrorDialog(context, errorMessage);
-    }
-
-    print(errorMessage);
-  } finally {
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-}
 
     return Scaffold(
       body: Container(
@@ -125,8 +129,8 @@ class _LoginState extends State<Login> {
                   side: const BorderSide(
                     color: Color.fromARGB(255, 255, 255, 255),
                     width: 2,
-                  ), // Borda branca
-                  elevation: 0, // Remove a sombra
+                  ),
+                  elevation: 0,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -142,9 +146,7 @@ class _LoginState extends State<Login> {
                             "images/google.png",
                             height: 25,
                           ),
-                          const Padding(
-                            padding: EdgeInsets.fromLTRB(10, 20, 0, 20),
-                          ),
+                          const SizedBox(width: 10),
                           const Text(
                             "Google",
                             style: TextStyle(

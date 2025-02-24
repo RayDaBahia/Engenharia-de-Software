@@ -14,4 +14,6 @@ class Rotas {
 
   static const SELECAO_QUESTOES_BANCO= '/Selecionar-Questoes-Banco';
 
+  static const EDICAO_FORMULARIO_TELA = '/EdicaoBanco';
+
 }
