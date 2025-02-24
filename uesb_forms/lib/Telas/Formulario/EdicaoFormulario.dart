@@ -38,14 +38,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
   }
 
 void _adicionarMaisQuestoes(BuildContext context) {
-  Navigator.of(context).pushNamed(
-    Rotas.SELECAO_QUESTOES_BANCO,
-    arguments: {
-      'banco': _banco,
-       'isAlteracao': true
-      
-    },
-  );
+    Navigator.of(context).pop();
 }
 
 
@@ -56,19 +49,13 @@ void _adicionarMaisQuestoes(BuildContext context) {
 
       appBar: AppBar(
 
-  leading: IconButton(
-    icon: Icon(Icons.arrow_back),
-    onPressed: () {
-      // Substitui a tela atual pela nova
-      Navigator.of(context).pushReplacementNamed(
-        Rotas.SELECIONAR_QUESTOES_FORMULARIO,
-        arguments: {
-          'questoesSelecionadas': _questoesSelecionadas.toList(),
-          'isAlteracao': true
-        },
-      );
-    },
-  ),
+leading: IconButton(
+  icon: Icon(Icons.arrow_back),
+  onPressed: () {
+    Navigator.of(context).pop(); // Volta para a tela anterior
+  },
+),
+
 
          title: const Text(
   'Edição do Questionário',

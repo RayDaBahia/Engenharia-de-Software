@@ -8,10 +8,10 @@ import 'package:uesb_forms/Utils/rotas.dart';
 import 'package:uesb_forms/Telas/Formulario/Configruacoes.dart';
 
 class SelecaoQuestoesBanco extends StatefulWidget {
-  final Banco? banco;
-  final bool isAlteracao;
 
-  const SelecaoQuestoesBanco({super.key, this.banco, this.isAlteracao = false});
+
+
+ 
 
   @override
   _SelecaoQuestoesBancoState createState() => _SelecaoQuestoesBancoState();
@@ -69,24 +69,26 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             // Substitui a tela atual pela nova
-            if (!isAlteracao) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => Configruacoes(), // Substitua por sua tela real
-                ),
-              );
-            } else {
+            if (isAlteracao) {
+          
+
               Navigator.of(context).pushReplacementNamed(
                 Rotas.EDICAO_FORMULARIO_TELA,
                 arguments: {
                   'questoesSelecionadas': _questoesSelecionadas.toList(),
                 },
               );
+            } else {
+            Navigator.of(context).pushReplacementNamed(
+                      Rotas.MEUS_BANCOS,
+                    arguments:{ 'isFormulario':true,}                   // Aqui você passa o argumento para a rota
+                            ); 
             }
           },
         ),
         backgroundColor: const Color.fromARGB(255, 27, 7, 80),
-        title: const Text('Seleção de Questões'),
+        title: const Text('Seleção de Questões', style: TextStyle(  fontWeight: FontWeight.bold,
+    color: Colors.white,)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

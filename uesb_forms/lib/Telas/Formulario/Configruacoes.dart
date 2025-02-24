@@ -12,7 +12,10 @@ class Configruacoes extends StatelessWidget {
         title: const Text('Configurações'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => {Navigator.of(context).pushReplacementNamed(
+              Rotas.MEUS_FORMULARIOS
+              
+        ),},
         ),
       ),
       body: Padding(
@@ -30,7 +33,7 @@ class Configruacoes extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).pushNamed(
+          Navigator.of(context).pushReplacementNamed(
               Rotas.MEUS_BANCOS,
               arguments:{ 'isFormulario':true,}                   // Aqui você passa o argumento para a rota
             );
