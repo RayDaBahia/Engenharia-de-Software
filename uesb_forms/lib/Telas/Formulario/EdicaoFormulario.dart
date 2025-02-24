@@ -38,7 +38,14 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
   }
 
 void _adicionarMaisQuestoes(BuildContext context) {
-    Navigator.of(context).pop();
+     Navigator.of(context).pushNamed(
+                Rotas.SELECAO_QUESTOES_BANCO,
+                arguments: {
+                  'banco': _banco, // Passando o banco
+                  'isAlteracao':true
+                
+                },
+              );
 }
 
 
