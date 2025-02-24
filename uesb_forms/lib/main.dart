@@ -6,6 +6,7 @@ import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Bancos.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Formularios.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/crud_Banco_Questoes.dart';
 import 'package:uesb_forms/Telas/Formulario/Configruacoes.dart';
+import 'package:uesb_forms/Telas/Formulario/ConfigurarAcesso.dart';
 import 'package:uesb_forms/Telas/Formulario/EdicaoFormulario.dart';
 import 'package:uesb_forms/Telas/Formulario/SelecaoQuestoesBanco.dart';
 
@@ -65,7 +66,8 @@ class MyApp extends StatelessWidget {
           Rotas.CRIAR_FORMULARIO: (ctx)=> const Configruacoes(),
         
           Rotas.SELECAO_QUESTOES_BANCO: (ctx)=>  SelecaoQuestoesBanco (), 
-          Rotas.EDICAO_FORMULARIO_TELA: (ctx)=> EdicaoQuestionario()
+          Rotas.EDICAO_FORMULARIO_TELA: (ctx)=> EdicaoQuestionario(),
+          Rotas.CONFIGURAR_ACESSO_FORMS: (ctx) => ConfigurarAcessoScreen()
         },
         
       ),

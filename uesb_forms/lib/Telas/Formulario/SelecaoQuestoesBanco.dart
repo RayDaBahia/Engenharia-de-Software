@@ -9,10 +9,6 @@ import 'package:uesb_forms/Telas/Formulario/Configruacoes.dart';
 
 class SelecaoQuestoesBanco extends StatefulWidget {
 
-
-
- 
-
   @override
   _SelecaoQuestoesBancoState createState() => _SelecaoQuestoesBancoState();
 }

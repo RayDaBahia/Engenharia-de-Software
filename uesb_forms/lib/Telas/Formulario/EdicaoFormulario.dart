@@ -38,7 +38,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
   }
 
 void _adicionarMaisQuestoes(BuildContext context) {
-     Navigator.of(context).pushNamed(
+     Navigator.of(context).pushReplacementNamed(
                 Rotas.SELECAO_QUESTOES_BANCO,
                 arguments: {
                   'banco': _banco, // Passando o banco
@@ -114,6 +114,7 @@ leading: IconButton(
                 ),
                 ElevatedButton(
                   onPressed: () {
+                    Navigator.pushNamed(context,Rotas.CONFIGURAR_ACESSO_FORMS);
                 
                   },
                   style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 1, 21, 37)),

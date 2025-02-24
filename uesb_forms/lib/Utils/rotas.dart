@@ -16,4 +16,8 @@ class Rotas {
 
   static const EDICAO_FORMULARIO_TELA = '/EdicaoBanco';
 
+static const CONFIGURAR_ACESSO_FORMS = '/Configurar-Acesso-Formulario';
+
+
+
 }
