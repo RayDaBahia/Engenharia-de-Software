@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show ChangeNotifier, kIsWeb;
@@ -14,6 +15,8 @@ class AuthList with ChangeNotifier {
     hostedDomain: 'uesb.edu.br',
   );
   User? _user;
+  Timer? _debounce;
+  String _ultimoEmailPesquisado = "";
 
   AuthList() {
     _auth.authStateChanges().listen((User? user) {
@@ -28,32 +31,78 @@ class AuthList with ChangeNotifier {
 
   /// Autenticação com Google (Android/iOS)
   Future<void> handleGoogleSignIn() async {
-    if (kIsWeb) {
-      return handleGoogleSignInWeb();
+    try {
+      if (kIsWeb) {
+        return handleGoogleSignInWeb();
+      }
+
+      final GoogleUser = await _googleSignIn.signIn();
+      if (GoogleUser == null) return;
+
+      final GoogleAuth = await GoogleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: GoogleAuth.accessToken,
+        idToken: GoogleAuth.idToken,
+      );
+
+      UserCredential userCredential = await _auth.signInWithCredential(credential);
+      _user = userCredential.user;
+
+      if (_user != null) {
+        _usuario = Usuario(
+          id: _user!.uid,
+          nome: GoogleUser.displayName ?? '',
+          email: GoogleUser.email,
+          fotoPerfilUrl: GoogleUser.photoUrl ?? '',
+        );
+        persistirNoBanco(_usuario!);
+        notifyListeners();
+      }
+    } catch (e) {
+      print("Erro ao autenticar com Google: $e");
+      throw erroLogin("Falha no login: $e");
+    }
+  }
+
+  /// Stream para buscar usuários por email com debounce
+  Stream<List<Usuario>> buscarUsuariosPorEmail(String email) {
+    if (email.isEmpty) {
+      return Stream.value([]);
     }
 
-    final GoogleUser = await _googleSignIn.signIn();
-    if (GoogleUser == null) return;
+    var query = _firestore
+        .collection('usuarios')
+        .where('email', isGreaterThanOrEqualTo: email)
+        .where('email', isLessThanOrEqualTo: '$email\uf8ff');
 
-    final GoogleAuth = await GoogleUser.authentication;
+    return query.snapshots().map((snapshot) {
+      var listaUsuarios = snapshot.docs.map((doc) {
+        return Usuario(
+          id: doc.id,
+          nome: doc['nome'],
+          email: doc['email'],
+          fotoPerfilUrl: doc['fotoPerfilUrl'] ?? '',
+        );
+      }).toList();
 
-    final credential = GoogleAuthProvider.credential(
-      accessToken: GoogleAuth.accessToken,
-      idToken: GoogleAuth.idToken,
-    );
+      // Removendo o usuário logado, se existir
+      if (_usuario != null) {
+        listaUsuarios.removeWhere((u) => u.id == _usuario!.id);
+      }
 
-    UserCredential userCredential = await _auth.signInWithCredential(credential);
-    _user = userCredential.user;
+      return listaUsuarios;
+    });
+  }
 
-    _usuario = Usuario(
-      id: _user!.uid,
-      nome: GoogleUser.displayName.toString(),
-      email: GoogleUser.email,
-      fotoPerfilUrl: GoogleUser.photoUrl.toString(),
-    );
+  /// Debounce para evitar múltiplas requisições no Firestore
+  void onSearchChanged(String email, Function(Stream<List<Usuario>>) callback) {
+    if (email == _ultimoEmailPesquisado) return;
+    _ultimoEmailPesquisado = email;
 
-    persistirNoBanco(_usuario!);
-    notifyListeners();
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(Duration(milliseconds: 500), () {
+      callback(buscarUsuariosPorEmail(email));
+    });
   }
 
   /// Autenticação com Google (Web)
@@ -65,8 +114,8 @@ class AuthList with ChangeNotifier {
       googleProvider.setCustomParameters({'prompt': 'select_account'});
 
       UserCredential userCredential = await _auth.signInWithPopup(googleProvider);
-
       User? user = userCredential.user;
+
       if (user != null) {
         _usuario = Usuario(
           id: user.uid,
@@ -74,7 +123,6 @@ class AuthList with ChangeNotifier {
           email: user.email ?? '',
           fotoPerfilUrl: user.photoURL ?? '',
         );
-
         persistirNoBanco(_usuario!);
         notifyListeners();
       }
@@ -103,15 +151,14 @@ class AuthList with ChangeNotifier {
     return _auth.currentUser != null;
   }
 
+  /// Persistência no Firestore sem sobrescrever dados antigos
   void persistirNoBanco(Usuario usuario) async {
     final docRef = _firestore.collection('usuarios').doc(usuario.id);
-    final docSnapshot = await docRef.get();
-
-    if (!docSnapshot.exists) {
-      await _firestore.collection('usuarios').doc(usuario.id).set({
-        'nome': usuario.nome,
-        'email': usuario.email,
-      });
-    }
+    await docRef.set({
+      'nome': usuario.nome,
+      'email': usuario.email,
+      'fotoPerfilUrl': usuario.fotoPerfilUrl,
+      'id': usuario.id
+    }, SetOptions(merge: true));
   }
 }

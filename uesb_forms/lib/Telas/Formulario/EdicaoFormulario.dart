@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:uesb_forms/Componentes/Formulario/QuestaoWidgetForm.dart';
+import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Modelo/Banco.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
@@ -37,42 +39,33 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
     }
   }
 
-void _adicionarMaisQuestoes(BuildContext context) {
-     Navigator.of(context).pushReplacementNamed(
-                Rotas.SELECAO_QUESTOES_BANCO,
-                arguments: {
-                  'banco': _banco, // Passando o banco
-                  'isAlteracao':true
-                
-                },
-              );
-}
-
+  void _adicionarMaisQuestoes(BuildContext context) {
+    Navigator.of(context).pushReplacementNamed(
+      Rotas.SELECAO_QUESTOES_BANCO,
+      arguments: {
+        'banco': _banco,
+        'isAlteracao': true
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    
-
       appBar: AppBar(
-
-leading: IconButton(
-  icon: Icon(Icons.arrow_back),
-  onPressed: () {
-    Navigator.of(context).pop(); // Volta para a tela anterior
-  },
-),
-
-
-         title: const Text(
-  'Edição do Questionário',
-  style: TextStyle(
-    fontWeight: FontWeight.bold,
-    color: Colors.white,
-  ),
-  
-),
-
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title: const Text(
+          'Edição do Questionário',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         backgroundColor: const Color.fromARGB(255, 27, 7, 80),
       ),
       body: Padding(
@@ -90,6 +83,16 @@ leading: IconButton(
                           title: QuestaoWidgetForm(
                             questao: questao,
                             bancoId: _banco?.id ?? "",
+                          ),
+                          subtitle: CheckboxListTile(
+                            title: const Text("Questão obrigatória"),
+                            value: questao.obrigatoria,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                questao.obrigatoria = value ?? false;
+                              });
+                            },
+                            controlAffinity: ListTileControlAffinity.leading,
                           ),
                           trailing: IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
@@ -109,16 +112,26 @@ leading: IconButton(
               children: [
                 ElevatedButton(
                   onPressed: () => _adicionarMaisQuestoes(context),
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 1, 21, 37)),
-                  child: const Text('Adicionar Questões',style:TextStyle(color:Color.fromRGBO(250, 250, 250, 1) ), ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 1, 21, 37),
+                  ),
+                  child: const Text(
+                    'Adicionar Questões',
+                    style: TextStyle(color: Color.fromRGBO(250, 250, 250, 1)),
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context,Rotas.CONFIGURAR_ACESSO_FORMS);
-                
+                   Provider.of<QuestionarioList>(context, listen: false).setDadosIniciais(listaDeQuestoes: _questoesSelecionadas);
+                    Navigator.pushNamed(context, Rotas.CONFIGURAR_ACESSO_FORMS);
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 1, 21, 37)),
-                  child: const Text('Próximo', style: TextStyle(color:Color.fromRGBO(250, 250, 250, 1) ),),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 1, 21, 37),
+                  ),
+                  child: const Text(
+                    'Próximo',
+                    style: TextStyle(color: Color.fromRGBO(250, 250, 250, 1)),
+                  ),
                 ),
               ],
             ),

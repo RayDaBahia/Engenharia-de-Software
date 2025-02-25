@@ -1,8 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
+import 'package:uesb_forms/Modelo/Questionario.dart'; // ou onde está a classe QuestionarioList
 
-class Configruacoes extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:uesb_forms/Utils/rotas.dart';
+import 'package:uesb_forms/Modelo/Questionario.dart'; // Certifique-se de importar o provider correto
+
+class Configruacoes extends StatefulWidget {
   const Configruacoes({super.key});
+
+  @override
+  State<Configruacoes> createState() => _ConfigruacoesState();
+}
+
+class _ConfigruacoesState extends State<Configruacoes> {
+  final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _metaController = TextEditingController();
+  String? _preenchidoPor; // Valor selecionado no dropdown
+
+  @override
+  void dispose() {
+    _nomeController.dispose();
+    _metaController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,10 +36,8 @@ class Configruacoes extends StatelessWidget {
         title: const Text('Configurações'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => {Navigator.of(context).pushReplacementNamed(
-              Rotas.MEUS_FORMULARIOS
-              
-        ),},
+          onPressed: () => Navigator.of(context)
+              .pushReplacementNamed(Rotas.MEUS_FORMULARIOS),
         ),
       ),
       body: Padding(
@@ -23,20 +45,44 @@ class Configruacoes extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const CampoTexto(label: "Nome"),
+            CampoTexto(controller: _nomeController, label: "Nome"),
             const SizedBox(height: 10),
-            const CampoDropdown(label: "Preenchido por"),
+            CampoDropdown(
+              label: "Preenchido por",
+              onChanged: (value) {
+                setState(() {
+                  _preenchidoPor = value;
+                });
+              },
+            ),
             const SizedBox(height: 10),
-            const CampoTexto(label: "Meta"),
+            CampoTexto(controller: _metaController, label: "Meta"),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).pushReplacementNamed(
-              Rotas.MEUS_BANCOS,
-              arguments:{ 'isFormulario':true,}                   // Aqui você passa o argumento para a rota
+          // Verifica se o valor do dropdown foi selecionado
+          if (_preenchidoPor == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Selecione a opção "Preenchido por"')),
             );
+            return;
+          }
+          // Atualiza o provider com os dados inseridos
+          final questionarioProvider =
+              Provider.of<QuestionarioList>(context, listen: false);
+
+          questionarioProvider.setDadosIniciais(
+            meta: _metaController.text,
+            nome: _nomeController.text,
+            preenchido: _preenchidoPor!,
+          );
+          // Navega para a próxima tela
+          Navigator.of(context).pushReplacementNamed(
+            Rotas.MEUS_BANCOS,
+            arguments: {'isFormulario': true},
+          );
         },
         backgroundColor: Colors.purple.shade900,
         child: const Icon(Icons.add, color: Colors.white),
@@ -47,8 +93,9 @@ class Configruacoes extends StatelessWidget {
 
 class CampoTexto extends StatelessWidget {
   final String label;
+  final TextEditingController? controller;
 
-  const CampoTexto({super.key, required this.label});
+  const CampoTexto({super.key, required this.label, this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +105,7 @@ class CampoTexto extends StatelessWidget {
         Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
         TextField(
+          controller: controller,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey.shade200,
@@ -72,10 +120,12 @@ class CampoTexto extends StatelessWidget {
   }
 }
 
+
 class CampoDropdown extends StatelessWidget {
   final String label;
+  final ValueChanged<String?>? onChanged;
 
-  const CampoDropdown({super.key, required this.label});
+  const CampoDropdown({super.key, required this.label, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -94,9 +144,12 @@ class CampoDropdown extends StatelessWidget {
             ),
           ),
           items: ['Entrevistador', 'Entrevistado', 'Ambos']
-              .map((opcao) => DropdownMenuItem(value: opcao, child: Text(opcao)))
+              .map(
+                (opcao) =>
+                    DropdownMenuItem(value: opcao, child: Text(opcao)),
+              )
               .toList(),
-          onChanged: (value) {},
+          onChanged: onChanged,
         ),
       ],
     );

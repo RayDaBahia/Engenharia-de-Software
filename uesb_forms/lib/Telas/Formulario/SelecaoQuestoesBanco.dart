@@ -8,7 +8,6 @@ import 'package:uesb_forms/Utils/rotas.dart';
 import 'package:uesb_forms/Telas/Formulario/Configruacoes.dart';
 
 class SelecaoQuestoesBanco extends StatefulWidget {
-
   @override
   _SelecaoQuestoesBancoState createState() => _SelecaoQuestoesBancoState();
 }
@@ -47,7 +46,12 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
         });
 
         if (banco != null) {
-          Provider.of<BancoList>(context, listen: false).buscarQuestoesBancoNoBd(banco!.id);
+          // Agendar a busca após o build terminar para evitar modificar o estado durante o build
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Future.microtask(() {
+              Provider.of<BancoList>(context, listen: false).buscarQuestoesBancoNoBd(banco!.id);
+            });
+          });
         }
       }
     }
@@ -66,8 +70,6 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
           onPressed: () {
             // Substitui a tela atual pela nova
             if (isAlteracao) {
-          
-
               Navigator.of(context).pushReplacementNamed(
                 Rotas.EDICAO_FORMULARIO_TELA,
                 arguments: {
@@ -75,16 +77,20 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
                 },
               );
             } else {
-            Navigator.of(context).pushReplacementNamed(
-                      Rotas.MEUS_BANCOS,
-                    arguments:{ 'isFormulario':true,}                   // Aqui você passa o argumento para a rota
-                            ); 
+              Navigator.of(context).pushReplacementNamed(
+                Rotas.MEUS_BANCOS,
+                arguments: {
+                  'isFormulario': true, // Aqui você passa o argumento para a rota
+                },
+              );
             }
           },
         ),
         backgroundColor: const Color.fromARGB(255, 27, 7, 80),
-        title: const Text('Seleção de Questões', style: TextStyle(  fontWeight: FontWeight.bold,
-    color: Colors.white,)),
+        title: const Text(
+          'Seleção de Questões',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -97,7 +103,10 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
                   final questao = questoesFiltradas[index];
                   final isSelected = _questoesSelecionadas.contains(questao);
                   return ListTile(
-                    title: QuestaoWidgetForm(questao: questao, bancoId: banco?.id ?? ''),
+                    title: QuestaoWidgetForm(
+                      questao: questao,
+                      bancoId: banco?.id ?? '',
+                    ),
                     trailing: Checkbox(
                       value: isSelected,
                       onChanged: (bool? value) {
@@ -121,10 +130,12 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
                 ElevatedButton(
                   onPressed: () {
                     if (!isAlteracao) {
-                       Navigator.of(context).pushReplacementNamed(
-                      Rotas.MEUS_BANCOS,
-                    arguments:{ 'isFormulario':true,}                   // Aqui você passa o argumento para a rota
-                            );   
+                      Navigator.of(context).pushReplacementNamed(
+                        Rotas.MEUS_BANCOS,
+                        arguments: {
+                          'isFormulario': true, // Aqui você passa o argumento para a rota
+                        },
+                      );
                     } else {
                       Navigator.of(context).pushReplacementNamed(
                         Rotas.EDICAO_FORMULARIO_TELA,

@@ -2,12 +2,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
+import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Bancos.dart';
-import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Formularios.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/crud_Banco_Questoes.dart';
 import 'package:uesb_forms/Telas/Formulario/Configruacoes.dart';
 import 'package:uesb_forms/Telas/Formulario/ConfigurarAcesso.dart';
 import 'package:uesb_forms/Telas/Formulario/EdicaoFormulario.dart';
+import 'package:uesb_forms/Telas/Formulario/Meus_Formularios.dart';
 import 'package:uesb_forms/Telas/Formulario/SelecaoQuestoesBanco.dart';
 
 import 'package:uesb_forms/Telas/Login.dart';
@@ -40,7 +41,16 @@ class MyApp extends StatelessWidget {
         
         update: (context, authList, previousBancoList)
         => BancoList(authList)
+        ,),
+
+        
+  ChangeNotifierProxyProvider<AuthList, QuestionarioList >(
+        create: (_)=>QuestionarioList(),
+        
+        update: (context, authList, previousBancoList)
+        => QuestionarioList(authList)
         ,)
+
 
     
       ],
@@ -67,7 +77,7 @@ class MyApp extends StatelessWidget {
         
           Rotas.SELECAO_QUESTOES_BANCO: (ctx)=>  SelecaoQuestoesBanco (), 
           Rotas.EDICAO_FORMULARIO_TELA: (ctx)=> EdicaoQuestionario(),
-          Rotas.CONFIGURAR_ACESSO_FORMS: (ctx) => ConfigurarAcessoScreen()
+          Rotas.CONFIGURAR_ACESSO_FORMS: (ctx) => ConfigurarAcesso()
         },
         
       ),
