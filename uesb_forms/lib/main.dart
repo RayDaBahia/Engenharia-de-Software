@@ -7,7 +7,7 @@ import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Bancos.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/crud_Banco_Questoes.dart';
 import 'package:uesb_forms/Telas/Formulario/Configruacoes.dart';
 import 'package:uesb_forms/Telas/Formulario/ConfigurarAcesso.dart';
-import 'package:uesb_forms/Telas/Formulario/EdicaoFormulario.dart';
+import 'package:uesb_forms/Telas/Formulario/EdicaoQuestionario.dart';
 import 'package:uesb_forms/Telas/Formulario/Meus_Formularios.dart';
 import 'package:uesb_forms/Telas/Formulario/SelecaoQuestoesBanco.dart';
 

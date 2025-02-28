@@ -51,50 +51,54 @@ class _ConfigurarAcessoState extends State<ConfigurarAcesso> {
       }
     });
   }
+void _FinalizarQuestionario() async {
+  final questionarioProvider = Provider.of<QuestionarioList>(context, listen: false);
 
-  void _FinalizarQuestionario(){
-       final questionarioProvider =
-              Provider.of<QuestionarioList>(context, listen: false);
+  await questionarioProvider.adicionarQuestionario(
+    senha: dadosQuestionario['senha'], 
+    entrevistadores: dadosQuestionario['entrevistadores'], 
+    prazo: dadosQuestionario['prazo'], 
+    publicado: dadosQuestionario['publicado']
+  );
+}
 
-      questionarioProvider.adicionarQuestionario(
-        senha: dadosQuestionario['senha'], 
-        entrevistadores: dadosQuestionario['entrevistadores'], 
-        prazo: dadosQuestionario['prazo'], 
-        publicado: dadosQuestionario['publicado']);
-          
-  }
 
   // Método para exibir o diálogo de confirmação
-  void _showPublishDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Publicar Questionário?"),
-          content: Text("Deseja publicar o questionário agora?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                _capturarInformacoes(true); // Captura as informações antes de finalizar
-                _FinalizarQuestionario();
-                _publicarQuestionario();
-              },
-              child: Text("Sim"),
-            ),
-            TextButton(
-              onPressed: () {
-                // Se o usuário escolher "Não", apenas feche o diálogo
-                 _capturarInformacoes(false);
-                 _FinalizarQuestionario();
-            
-              },
-              child: Text("Não"),
-            ),
-          ],
-        );
-      },
-    );
-  }
+ void _showPublishDialog() {
+  showDialog(
+    context: context,
+    builder: (BuildContext dialogContext) { // Novo contexto específico do diálogo
+      return AlertDialog(
+        title: Text("Publicar Questionário?"),
+        content: Text("Deseja publicar o questionário agora?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+           _capturarInformacoes(true);
+           _FinalizarQuestionario();
+            _publicarQuestionario();
+              
+              // Garante que o diálogo seja fechado corretamente
+              Navigator.of(dialogContext, rootNavigator: true).pop();
+            },
+            child: Text("Sim"),
+          ),
+          TextButton(
+            onPressed: () {
+            _capturarInformacoes(false);
+             _FinalizarQuestionario();
+              
+              // Garante que o diálogo seja fechado corretamente
+              Navigator.of(dialogContext, rootNavigator: true).pop();
+            },
+            child: Text("Não"),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   void _publicarQuestionario() {
     // Exibe os dados capturados
@@ -145,7 +149,7 @@ class _ConfigurarAcessoState extends State<ConfigurarAcesso> {
           .map((e) => e['email'])
           .toList(); // Lista de entrevistadores selecionados
       dadosQuestionario['prazo'] = _prazoSelecionado; // Prazo selecionado
-      dadosQuestionario['publicado']=true;
+      dadosQuestionario['publicado']=publicado;
     });
   }
 

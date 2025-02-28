@@ -22,8 +22,8 @@ class _WidgetbancoQuestaoState extends State<WidgetbancoQuestao> {
   late BancoList _bancoList;
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _bancoList = Provider.of<BancoList>(context, listen: false);
   }
 

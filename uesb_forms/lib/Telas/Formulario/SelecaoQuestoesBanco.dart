@@ -5,7 +5,6 @@ import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Modelo/Banco.dart';
 import 'package:uesb_forms/Componentes/Formulario/QuestaoWidgetForm.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
-import 'package:uesb_forms/Telas/Formulario/Configruacoes.dart';
 
 class SelecaoQuestoesBanco extends StatefulWidget {
   @override
@@ -23,7 +22,7 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
     super.initState();
     _questaoFiltro = TextEditingController();
     _questaoFiltro.addListener(() {
-      setState(() {});
+      setState(() {}); // Atualiza o estado ao digitar no campo de filtro
     });
   }
 
@@ -31,26 +30,19 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Pegando os argumentos passados pela rota
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     if (args != null) {
       final bancoArg = args['banco'] as Banco?;
       final isAlteracaoArg = args['isAlteracao'] as bool?;
 
-      // Verifica se é necessário atualizar o estado
       if (bancoArg != null && (banco == null || banco!.id != bancoArg.id)) {
-        setState(() {
-          banco = bancoArg;
-          isAlteracao = isAlteracaoArg ?? false; // Caso 'isAlteracao' seja null, define como false
-        });
+        banco = bancoArg;
+        isAlteracao = isAlteracaoArg ?? false;
 
         if (banco != null) {
-          // Agendar a busca após o build terminar para evitar modificar o estado durante o build
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            Future.microtask(() {
-              Provider.of<BancoList>(context, listen: false).buscarQuestoesBancoNoBd(banco!.id);
-            });
+            Provider.of<BancoList>(context, listen: false).buscarQuestoesBancoNoBd(banco!.id);
           });
         }
       }
@@ -59,7 +51,7 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
 
   @override
   Widget build(BuildContext context) {
-    final bancoList = Provider.of<BancoList>(context, listen: true);
+    final bancoList = Provider.of<BancoList>(context);
     final filtroTexto = _questaoFiltro.text.toLowerCase();
     final questoesFiltradas = bancoList.filtrarQuestoes(filtroTexto);
 
@@ -67,24 +59,7 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            // Substitui a tela atual pela nova
-            if (isAlteracao) {
-              Navigator.of(context).pushReplacementNamed(
-                Rotas.EDICAO_FORMULARIO_TELA,
-                arguments: {
-                  'questoesSelecionadas': _questoesSelecionadas.toList(),
-                },
-              );
-            } else {
-              Navigator.of(context).pushReplacementNamed(
-                Rotas.MEUS_BANCOS,
-                arguments: {
-                  'isFormulario': true, // Aqui você passa o argumento para a rota
-                },
-              );
-            }
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         backgroundColor: const Color.fromARGB(255, 27, 7, 80),
         title: const Text(
@@ -96,6 +71,14 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
+            TextField(
+              controller: _questaoFiltro,
+              decoration: const InputDecoration(
+                labelText: 'Filtrar questões',
+                prefixIcon: Icon(Icons.search),
+              ),
+            ),
+            const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
                 itemCount: questoesFiltradas.length,
@@ -129,25 +112,9 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    if (!isAlteracao) {
-                      Navigator.of(context).pushReplacementNamed(
-                        Rotas.MEUS_BANCOS,
-                        arguments: {
-                          'isFormulario': true, // Aqui você passa o argumento para a rota
-                        },
-                      );
-                    } else {
-                      Navigator.of(context).pushReplacementNamed(
-                        Rotas.EDICAO_FORMULARIO_TELA,
-                        arguments: {
-                          'questoesSelecionadas': _questoesSelecionadas.toList(),
-                        },
-                      );
-                    }
+                    Navigator.pop(context);
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                  ),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
                   child: const Text('Voltar'),
                 ),
                 ElevatedButton(
@@ -159,9 +126,7 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
                       },
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                  ),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
                   child: const Text('Confirmar'),
                 ),
               ],

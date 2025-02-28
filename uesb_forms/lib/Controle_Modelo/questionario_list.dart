@@ -24,118 +24,100 @@ class QuestionarioList extends ChangeNotifier {
   QuestionarioList([this._authList]) {
     _fetchQuestionarios();
   }
-Future<void> _fetchQuestionarios() async {
-  final snapshot = await _firestore.collection('questionarios').get();
-  _questionarios = snapshot.docs
-      .map((doc) => Questionario.fromMap(doc.data(), doc.id))
-      .toList();
-  aplicarFiltro();
-}
 
+  Future<void> _fetchQuestionarios() async {
+    if (_authList?.usuario == null) {
+      await Future.delayed(const Duration(milliseconds: 500)); // Aguarda provider atualizar
+    }
 
-  // Método para atualizar os dados iniciais do questionário, agora com a lista de questões
+    try {
+      final snapshot = await _firestore.collection('questionarios').get();
+      _questionarios = snapshot.docs
+          .map((doc) => Questionario.fromMap(doc.data(), doc.id))
+          .toList();
+      aplicarFiltro();
+    } catch (e) {
+      debugPrint('Erro ao buscar questionários: $e');
+    }
+  }
+
   void setDadosIniciais({
     String? meta,
     String? nome,
     String? preenchido,
-    List<Questao>? listaDeQuestoes, // Adiciona a lista de questões como parâmetro
+    List<Questao>? listaDeQuestoes,
   }) {
     this.meta = meta;
     this.nome = nome;
     this.preenchidoPor = preenchido;
 
     if (listaDeQuestoes != null) {
-      this.listaQuestoes = listaDeQuestoes; // Atualiza a lista de questões
+      this.listaQuestoes = listaDeQuestoes;
     }
-
     notifyListeners();
   }
 
   List<Questionario> getQuestionariosDoLider() {
-    return _questionarios
-        .where((q) => q.liderId == _authList?.usuario?.id)
-        .toList();
+    return _questionarios.where((q) => q.liderId == _authList?.usuario?.id).toList();
   }
 
   List<Questionario> getQuestionariosDoEntrevistador() {
-    return _questionarios
-        .where((q) => q.entrevistadores.contains(_authList?.usuario?.id))
-        .toList();
+    return _questionarios.where((q) => q.entrevistadores.contains(_authList?.usuario?.id)).toList();
   }
 
   void aplicarFiltro() {
-    switch (_filtroSelecionado) {
-      case 'Líder':
-        _filteredQuestionarios = _questionarios
-            .where((q) => q.liderId == _authList?.usuario?.id)
-            .toList();
-        break;
-      case 'Entrevistador':
-        _filteredQuestionarios = _questionarios
-            .where((q) => q.entrevistadores.contains(_authList?.usuario?.id))
-            .toList();
-        break;
-      case 'Aplicado':
-        _filteredQuestionarios = _questionarios.where((q) => q.aplicado).toList();
-        break;
-      case 'Publicado':
-        _filteredQuestionarios =
-            _questionarios.where((q) => q.publicado).toList();
-        break;
-      case 'Em construção':
-        _filteredQuestionarios =
-            _questionarios.where((q) => !q.publicado && !q.aplicado).toList();
-        break;
-      case 'Publicado Visível':
-        _filteredQuestionarios =
-            _questionarios.where((q) => q.publicado && q.visivel).toList();
-        break;
-      case 'Publicado Não Visível':
-        _filteredQuestionarios =
-            _questionarios.where((q) => q.publicado && !q.visivel).toList();
-        break;
-      default:
-        _filteredQuestionarios = List.from(_questionarios);
+    final filtros = {
+      'Líder': () => _questionarios.where((q) => q.liderId == _authList?.usuario?.id).toList(),
+      'Entrevistador': () => _questionarios.where((q) => q.entrevistadores.contains(_authList?.usuario?.id)).toList(),
+      'Aplicado': () => _questionarios.where((q) => q.aplicado).toList(),
+      'Publicado': () => _questionarios.where((q) => q.publicado).toList(),
+      'Em construção': () => _questionarios.where((q) => !q.publicado && !q.aplicado).toList(),
+      'Publicado Visível': () => _questionarios.where((q) => q.publicado && q.visivel).toList(),
+      'Publicado Não Visível': () => _questionarios.where((q) => q.publicado && !q.visivel).toList(),
+    };
+
+    _filteredQuestionarios = filtros[_filtroSelecionado]?.call() ?? List.from(_questionarios);
+    notifyListeners();
+  }
+
+  Future<void> adicionarQuestionario({
+    required String senha,
+    required List<String> entrevistadores,
+    required DateTime prazo,
+    required bool publicado,
+  }) async {
+    try {
+      final dataPublicacao = DateTime.now();
+      final docRef = _firestore.collection('questionarios').doc();
+
+      final questionario = Questionario(
+        id: docRef.id,
+        nome: nome?.isNotEmpty == true ? nome! : 'Sem nome',
+        descricao: '',
+        publicado: publicado,
+        visivel: true,
+        ativo: true,
+        prazo: prazo,
+        dataPublicacao: dataPublicacao,
+        entrevistadores: entrevistadores,
+        link: '',
+        aplicado: false,
+        liderId: _authList?.usuario?.id ?? '',
+        senha: senha.isNotEmpty ? senha : null, // Senha opcional
+        tipoAplicacao: preenchidoPor ?? '',
+        meta: int.tryParse(meta ?? '0') ?? 0, // Converte meta para número
+      );
+
+      await docRef.set(questionario.toMap());
+
+      _questionarios.add(questionario);
+      aplicarFiltro();
+
+      notifyListeners(); // Notifica a UI sobre a atualização
+    } catch (e) {
+      debugPrint('Erro ao adicionar questionário: $e');
     }
-    notifyListeners();
   }
-Future<void> adicionarQuestionario({
-  required String senha,
-  required List<String> entrevistadores,
-  required DateTime prazo,
-  required bool publicado,
-}) async {
-  try {
-    final dataPublicacao = DateTime.now();
-
-    final questionario = Questionario(
-      id: '',
-      nome: nome ?? '',
-      descricao:  '',
-      publicado: publicado,
-      visivel: true,
-      ativo: true,
-      prazo: prazo,
-      dataPublicacao: dataPublicacao,
-      entrevistadores: entrevistadores,
-      link: '',
-      aplicado: false,
-      liderId: _authList?.usuario?.id ?? '',
-      senha: senha,
-      tipoAplicacao:preenchidoPor?? '',
-      meta: int.parse(meta ?? '0'),
-    );
-
-    final docRef = await _firestore.collection('questionarios').add(questionario.toMap());
-    questionario.id = docRef.id;
-
-    _questionarios.add(questionario);
-    notifyListeners();
-  } catch (e) {
-    throw Exception('Erro ao adicionar questionário: $e');
-  }
-}
-
 
   List<Questionario> obterQuestionariosFiltrados() {
     return _filteredQuestionarios;
