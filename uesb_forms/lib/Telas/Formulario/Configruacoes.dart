@@ -2,12 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
-import 'package:uesb_forms/Modelo/Questionario.dart'; // ou onde está a classe QuestionarioList
+import 'package:flutter/services.dart';
 
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:uesb_forms/Utils/rotas.dart';
-import 'package:uesb_forms/Modelo/Questionario.dart'; // Certifique-se de importar o provider correto
 
 class Configruacoes extends StatefulWidget {
   const Configruacoes({super.key});
@@ -18,12 +14,14 @@ class Configruacoes extends StatefulWidget {
 
 class _ConfigruacoesState extends State<Configruacoes> {
   final TextEditingController _nomeController = TextEditingController();
+  final TextEditingController _descricaoController = TextEditingController();
   final TextEditingController _metaController = TextEditingController();
-  String? _preenchidoPor; // Valor selecionado no dropdown
+  String? _preenchidoPor;
 
   @override
   void dispose() {
     _nomeController.dispose();
+    _descricaoController.dispose();
     _metaController.dispose();
     super.dispose();
   }
@@ -36,8 +34,7 @@ class _ConfigruacoesState extends State<Configruacoes> {
         title: const Text('Configurações'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context)
-              .pushReplacementNamed(Rotas.MEUS_FORMULARIOS),
+          onPressed: () => Navigator.of(context).pushReplacementNamed(Rotas.MEUS_FORMULARIOS),
         ),
       ),
       body: Padding(
@@ -45,7 +42,17 @@ class _ConfigruacoesState extends State<Configruacoes> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CampoTexto(controller: _nomeController, label: "Nome"),
+            CampoTexto(
+              controller: _nomeController,
+              label: "Nome",
+              maxLength: 60, // Limite de 60 caracteres
+            ),
+            const SizedBox(height: 10),
+            CampoTexto(
+              controller: _descricaoController,
+              label: "Descrição",
+              maxLength: 160, // Limite de 160 caracteres
+            ),
             const SizedBox(height: 10),
             CampoDropdown(
               label: "Preenchido por",
@@ -56,29 +63,29 @@ class _ConfigruacoesState extends State<Configruacoes> {
               },
             ),
             const SizedBox(height: 10),
-            CampoTexto(controller: _metaController, label: "Meta"),
+            CampoNumero(
+              controller: _metaController,
+              label: "Meta",
+            ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Verifica se o valor do dropdown foi selecionado
           if (_preenchidoPor == null) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Selecione a opção "Preenchido por"')),
             );
             return;
           }
-          // Atualiza o provider com os dados inseridos
-          final questionarioProvider =
-              Provider.of<QuestionarioList>(context, listen: false);
 
+          final questionarioProvider = Provider.of<QuestionarioList>(context, listen: false);
           questionarioProvider.setDadosIniciais(
             meta: _metaController.text,
             nome: _nomeController.text,
             preenchido: _preenchidoPor!,
           );
-          // Navega para a próxima tela
+
           Navigator.of(context).pushReplacementNamed(
             Rotas.MEUS_BANCOS,
             arguments: {'isFormulario': true},
@@ -94,8 +101,9 @@ class _ConfigruacoesState extends State<Configruacoes> {
 class CampoTexto extends StatelessWidget {
   final String label;
   final TextEditingController? controller;
+  final int? maxLength;
 
-  const CampoTexto({super.key, required this.label, this.controller});
+  const CampoTexto({super.key, required this.label, this.controller, this.maxLength});
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +114,39 @@ class CampoTexto extends StatelessWidget {
         const SizedBox(height: 4),
         TextField(
           controller: controller,
+          maxLength: maxLength, // Aplica a limitação de caracteres
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.grey.shade200,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(5),
+              borderSide: BorderSide.none,
+            ),
+            counterText: "", // Remove a exibição do contador padrão
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class CampoNumero extends StatelessWidget {
+  final String label;
+  final TextEditingController? controller;
+
+  const CampoNumero({super.key, required this.label, this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Permite apenas números
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey.shade200,
@@ -119,7 +160,6 @@ class CampoTexto extends StatelessWidget {
     );
   }
 }
-
 
 class CampoDropdown extends StatelessWidget {
   final String label;
@@ -145,8 +185,7 @@ class CampoDropdown extends StatelessWidget {
           ),
           items: ['Entrevistador', 'Entrevistado', 'Ambos']
               .map(
-                (opcao) =>
-                    DropdownMenuItem(value: opcao, child: Text(opcao)),
+                (opcao) => DropdownMenuItem(value: opcao, child: Text(opcao)),
               )
               .toList(),
           onChanged: onChanged,

@@ -1,23 +1,40 @@
-import 'package:uesb_forms/Modelo/questao_tipo.dart';
-import 'package:uesb_forms/Modelo/questao_tipo.dart';
+import 'package:hive/hive.dart';
+import 'questao_tipo.dart';  // Certifique-se de importar corretamente sua enumeração
 
+
+@HiveType(typeId: 0) // O typeId deve ser único
 class Questao {
+  @HiveField(0)
   String? id;
+  
+  @HiveField(1)
   String textoQuestao;
+  
+  @HiveField(2)
   QuestaoTipo tipoQuestao;
+  
+  @HiveField(3)
   String? resposta;
+  
+  @HiveField(4)
   DateTime? respostaData;
+  
+  @HiveField(5)
   List<String>? opcoes;
 
-  // Novas propriedades para o ranking
+  @HiveField(6)
   List<String>? opcoesRanking;
+
+  @HiveField(7)
   List<String>? ordemRanking;
+
+  @HiveField(8)
   Map<String, String>? respostaRanking;
 
-  // Direcionamento de respostas (opção escolhida → ID da próxima questão)
+  @HiveField(9)
   Map<String, String?>? direcionamento;
 
-  // Indica se a questão é obrigatória
+  @HiveField(10)
   bool obrigatoria;
 
   Questao({
@@ -34,7 +51,7 @@ class Questao {
     this.obrigatoria = false, // Por padrão, a questão não é obrigatória
   });
 
-  // Converter para Map para salvar no Firestore
+  // Método toMap e fromMap para conversão com Firestore podem ser mantidos
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -51,14 +68,13 @@ class Questao {
     };
   }
 
-  // Criar instância a partir de um Map
   factory Questao.fromMap(Map<String, dynamic> map) {
     return Questao(
       id: map['id'],
       textoQuestao: map['textoQuestao'] ?? '',
       tipoQuestao: QuestaoTipo.values.firstWhere(
         (tipo) => tipo.name == map['tipoQuestao'],
-        orElse: () => QuestaoTipo.LinhaUnica, // Define um valor padrão se não encontrar
+        orElse: () => QuestaoTipo.LinhaUnica, // Valor padrão
       ),
       resposta: map['resposta'],
       respostaData: map['respostaData'] != null
@@ -74,7 +90,7 @@ class Questao {
       obrigatoria: map['obrigatoria'] ?? false,
     );
   }
-
+  
   // Método copyWith para criar uma nova instância com valores atualizados
   Questao copyWith({
     String? id,

@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
 import 'package:uesb_forms/Modelo/usuario.dart'; // Assumindo que a classe Usuario está definida nesse arquivo
-import 'package:uesb_forms/Controle_Modelo/auth_list.dart'; // O modelo de AuthList que contém a lógica de busca
+import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
+import 'package:uesb_forms/Utils/rotas.dart'; // O modelo de AuthList que contém a lógica de busca
 
 class ConfigurarAcesso extends StatefulWidget {
   @override
@@ -78,8 +79,7 @@ void _FinalizarQuestionario() async {
            _FinalizarQuestionario();
             _publicarQuestionario();
               
-              // Garante que o diálogo seja fechado corretamente
-              Navigator.of(dialogContext, rootNavigator: true).pop();
+            Navigator.pushReplacementNamed(context, Rotas.QUESTIONARIO_LIST_SCREEN);
             },
             child: Text("Sim"),
           ),
@@ -87,9 +87,9 @@ void _FinalizarQuestionario() async {
             onPressed: () {
             _capturarInformacoes(false);
              _FinalizarQuestionario();
+             Navigator.pushReplacementNamed(context, Rotas.QUESTIONARIO_LIST_SCREEN);
               
-              // Garante que o diálogo seja fechado corretamente
-              Navigator.of(dialogContext, rootNavigator: true).pop();
+             
             },
             child: Text("Não"),
           ),
@@ -146,7 +146,7 @@ void _FinalizarQuestionario() async {
           : null; // Senha (se fornecida)
       dadosQuestionario['entrevistadores'] = entrevistadores
           .where((e) => e['selecionado'] == true)
-          .map((e) => e['email'])
+          .map((e) => e['email'] as String)
           .toList(); // Lista de entrevistadores selecionados
       dadosQuestionario['prazo'] = _prazoSelecionado; // Prazo selecionado
       dadosQuestionario['publicado']=publicado;
