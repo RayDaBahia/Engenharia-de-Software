@@ -30,8 +30,12 @@ class _ConfigruacoesState extends State<Configruacoes> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.purple.shade900,
-        title: const Text('Configurações'),
+        backgroundColor: const Color.fromRGBO(30, 9, 66, 1),
+     title: const Text(
+    'Configurações',
+    style: TextStyle(color: Colors.white),
+  ),
+
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pushReplacementNamed(Rotas.MEUS_FORMULARIOS),
