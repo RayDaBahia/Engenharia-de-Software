@@ -119,7 +119,7 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushNamed(
+                    Navigator.of(context).pushReplacementNamed(
                       Rotas.EDICAO_FORMULARIO_TELA,
                       arguments: {
                         'questoesSelecionadas': _questoesSelecionadas.toList(),

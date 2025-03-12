@@ -8,8 +8,6 @@ class Rotas {
 
   static const MEUS_BANCOS = '/Meus-Bancos';
 
-  static const CRIAR_FORMULARIO= '/Configuracoes';
-
  static const SELECIONAR_QUESTOES_FORMULARIO= '/Selecionar-Questoes-Formulario';
 
   static const SELECAO_QUESTOES_BANCO= '/Selecionar-Questoes-Banco';
@@ -18,7 +16,7 @@ class Rotas {
 
   static const CONFIGURAR_ACESSO_FORMS = '/Configurar-Acesso-Formulario';
 
-  static const QUESTIONARIO_LIST_SCREEN= '/Questionario-List-Screen';
+ 
 
 
 

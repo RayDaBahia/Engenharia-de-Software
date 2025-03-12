@@ -4,7 +4,7 @@ import 'package:uesb_forms/Componentes/BancoDeQuestoes/widgetBanco_Questao.dart'
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_pesquisa.dart';
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
-import 'package:uesb_forms/Telas/Formulario/Configruacoes.dart';
+import 'package:uesb_forms/Telas/Formulario/EdicaoQuestionario.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 import 'package:uesb_forms/Modelo/Banco.dart';
 
@@ -57,7 +57,7 @@ class _MeusBancosState extends State<MeusBancos> {
                 
                Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) => Configruacoes(), // Substitua por sua tela real
+                  builder: (context) => EdicaoQuestionario(), // Substitua por sua tela real
                 ),);
       
                 },

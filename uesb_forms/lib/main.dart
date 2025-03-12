@@ -10,11 +10,9 @@ import 'package:uesb_forms/Modelo/Qustionario.g.dart';
 import 'package:uesb_forms/Modelo/questao.g.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Bancos.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/crud_Banco_Questoes.dart';
-import 'package:uesb_forms/Telas/Formulario/Configruacoes.dart';
 import 'package:uesb_forms/Telas/Formulario/ConfigurarAcesso.dart';
 import 'package:uesb_forms/Telas/Formulario/EdicaoQuestionario.dart';
 import 'package:uesb_forms/Telas/Formulario/Meus_Formularios.dart';
-import 'package:uesb_forms/Telas/Formulario/QuestionarioListScreen.dart';
 import 'package:uesb_forms/Telas/Formulario/SelecaoQuestoesBanco.dart';
 import 'package:uesb_forms/Telas/Login.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
@@ -69,7 +67,7 @@ class MyApp extends StatelessWidget {
           appBarTheme: const AppBarTheme(
             iconTheme: IconThemeData(color: Colors.white),
           ),
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 18, 2, 47)),
           useMaterial3: true,
         ),
         routes: {
@@ -77,11 +75,10 @@ class MyApp extends StatelessWidget {
           Rotas.MEUS_FORMULARIOS: (ctx) => const MeusFormularios(),
           Rotas.MEUS_BANCOS: (ctx) => const MeusBancos(),
           Rotas.CRUD_BANCO: (ctx) => const CrudBancoQuestoes(),
-          Rotas.CRIAR_FORMULARIO: (ctx) => const Configruacoes(),
           Rotas.SELECAO_QUESTOES_BANCO: (ctx) => SelecaoQuestoesBanco(),
           Rotas.EDICAO_FORMULARIO_TELA: (ctx) => EdicaoQuestionario(),
           Rotas.CONFIGURAR_ACESSO_FORMS: (ctx) => ConfigurarAcesso(),
-          Rotas.QUESTIONARIO_LIST_SCREEN: (ctx) => QuestionarioListScreen(),
+      
         },
       ),
     );

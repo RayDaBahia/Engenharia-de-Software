@@ -44,7 +44,7 @@ class MeusFormularios extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 40.0), // Distância do botão em relação ao rodapé
             child: ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pushNamed(Rotas.CRIAR_FORMULARIO);
+                Navigator.of(context).pushNamed(Rotas.EDICAO_FORMULARIO_TELA);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 27, 7, 80),

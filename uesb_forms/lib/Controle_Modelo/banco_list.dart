@@ -241,7 +241,7 @@ class BancoList with ChangeNotifier {
   List<Questao> filtrarQuestoes(String texto) {
     if (texto.isEmpty) {
       questoesFiltro.clear();
-      notifyListeners();
+ 
     }
 
     questoesFiltro = questoesLista

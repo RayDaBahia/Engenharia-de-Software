@@ -78,8 +78,8 @@ void _FinalizarQuestionario() async {
            _capturarInformacoes(true);
            _FinalizarQuestionario();
             _publicarQuestionario();
-              
-            Navigator.pushReplacementNamed(context, Rotas.QUESTIONARIO_LIST_SCREEN);
+          //    
+          //  Navigator.pushReplacementNamed(context, Rotas.QUESTIONARIO_LIST_SCREEN);
             },
             child: Text("Sim"),
           ),
@@ -87,7 +87,7 @@ void _FinalizarQuestionario() async {
             onPressed: () {
             _capturarInformacoes(false);
              _FinalizarQuestionario();
-             Navigator.pushReplacementNamed(context, Rotas.QUESTIONARIO_LIST_SCREEN);
+           //  Navigator.pushReplacementNamed(context, Rotas.QUESTIONARIO_LIST_SCREEN);
               
              
             },
