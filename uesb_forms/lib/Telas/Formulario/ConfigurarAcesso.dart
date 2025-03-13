@@ -55,12 +55,14 @@ class _ConfigurarAcessoState extends State<ConfigurarAcesso> {
 void _FinalizarQuestionario() async {
   final questionarioProvider = Provider.of<QuestionarioList>(context, listen: false);
 
+
   await questionarioProvider.adicionarQuestionario(
     senha: dadosQuestionario['senha'], 
     entrevistadores: dadosQuestionario['entrevistadores'], 
     prazo: dadosQuestionario['prazo'], 
     publicado: dadosQuestionario['publicado']
   );
+  questionarioProvider.limparQuestoesSelecionadas();
 }
 
 
@@ -75,10 +77,11 @@ void _FinalizarQuestionario() async {
         actions: [
           TextButton(
             onPressed: () {
+
            _capturarInformacoes(true);
            _FinalizarQuestionario();
-            _publicarQuestionario();
-            
+
+      
             Navigator.pushReplacementNamed(context, Rotas.MEUS_FORMULARIOS);
             },
             child: Text("Sim"),
@@ -100,13 +103,7 @@ void _FinalizarQuestionario() async {
 }
 
 
-  void _publicarQuestionario() {
-    // Exibe os dados capturados
-    print("Dados capturados para o questionário:");
-    print(dadosQuestionario); // Exibindo os dados no console
 
-    // Aqui você pode salvar os dados em um banco de dados ou realizar outra ação
-  }
 
   // Função para escolher a data e hora do prazo
   Future<void> _selecionarPrazo() async {

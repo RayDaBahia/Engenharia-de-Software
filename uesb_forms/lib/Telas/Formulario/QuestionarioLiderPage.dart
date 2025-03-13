@@ -71,7 +71,7 @@ class _QuestionariosLiderPageState extends State<QuestionariosLiderPage> {
           child: questionariosLider.isEmpty
               ? const Center(
                   child: Text(
-                    'Você ainda não possui questionários como Líder',
+                    'Sem Formulário a Exibir',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 )
@@ -95,6 +95,7 @@ class _QuestionariosLiderPageState extends State<QuestionariosLiderPage> {
                           return FormularioCard(
                             questionario: questionario,
                             numRespostas: respostas,
+                            isLider: true,
                           );
                         },
                       );

@@ -52,10 +52,8 @@ class _MeusBancosState extends State<MeusBancos> {
         leading: isFormulario
             ? IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () {
-                  
-                
-               Navigator.of(context).pushReplacement(
+                onPressed: () {              
+               Navigator.of(context).pop(
                 MaterialPageRoute(
                   builder: (context) => EdicaoQuestionario(), // Substitua por sua tela real
                 ),);

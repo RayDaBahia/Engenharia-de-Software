@@ -70,6 +70,45 @@ class Questionario {
         _meta = meta,
         _liderNome = liderNome;
 
+  // Método para copiar o objeto com novos valores
+  Questionario copyWith({
+    String? id,
+    String? nome,
+    String? tipoAplicacao,
+    String? descricao,
+    bool? publicado,
+    bool? visivel,
+    bool? ativo,
+    DateTime? prazo,
+    DateTime? dataPublicacao,
+    List<String>? entrevistadores,
+    String? link,
+    bool? aplicado,
+    String? liderId,
+    String? senha,
+    int? meta,
+    String? liderNome,
+  }) {
+    return Questionario(
+      id: id ?? _id,
+      nome: nome ?? _nome,
+      tipoAplicacao: tipoAplicacao ?? _tipoAplicacao,
+      descricao: descricao ?? _descricao,
+      publicado: publicado ?? _publicado,
+      visivel: visivel ?? _visivel,
+      ativo: ativo ?? _ativo,
+      prazo: prazo ?? _prazo,
+      dataPublicacao: dataPublicacao ?? _dataPublicacao,
+      entrevistadores: entrevistadores ?? _entrevistadores,
+      link: link ?? _link,
+      aplicado: aplicado ?? _aplicado,
+      liderId: liderId ?? _liderId,
+      senha: senha ?? _senha,
+      meta: meta ?? _meta,
+      liderNome: liderNome ?? _liderNome,
+    );
+  }
+
   // Métodos Getters e Setters
 
   String get id => _id;

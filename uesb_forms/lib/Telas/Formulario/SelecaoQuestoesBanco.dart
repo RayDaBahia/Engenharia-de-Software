@@ -120,7 +120,7 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Provider.of<QuestionarioList>(context, listen: false).adicionarListaQuestoesSelecionadaas(_questoesSelecionadas.toList());
+                    Provider.of<QuestionarioList>(context, listen: false).adicionarListaQuestoesSelecionadas(_questoesSelecionadas.toList());
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),

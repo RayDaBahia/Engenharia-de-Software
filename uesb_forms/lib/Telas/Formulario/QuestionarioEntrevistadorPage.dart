@@ -40,6 +40,7 @@ class QuestionariosEntrevistadorPage extends StatelessWidget {
                     return FormularioCard(
                       questionario: questionario,
                       numRespostas: respostas,
+                      isLider: false,
                     );
                   },
                 );

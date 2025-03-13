@@ -51,6 +51,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
+              _questoesSelecionadas.clear();
             Navigator.of(context).pop();
           },
         ),
@@ -141,6 +142,15 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                
                 ElevatedButton(
                   onPressed: () {
+
+                if (_preenchidoPor == null ) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                   const SnackBar(content: Text('É necessário informar quem irá preencher o quetionário')),
+                   );
+                    return;
+                  }
+
+
                    Provider.of<QuestionarioList>(context, listen: false).setDadosTemporarios(listaDeQuestoes: _questoesSelecionadas, nome: _nomeController.text, descricao: _descricaoController.text, meta: _metaController.text, preenchido: _preenchidoPor); 
                     Navigator.pushNamed(context, Rotas.CONFIGURAR_ACESSO_FORMS);
                   },
@@ -160,13 +170,6 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
       ),
        floatingActionButton: FloatingActionButton(
         onPressed: () {
-          if (_preenchidoPor == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Selecione a opção "Preenchido por"')),
-            );
-            return;
-          }
-
            _adicionarMaisQuestoes(context);
        
 
