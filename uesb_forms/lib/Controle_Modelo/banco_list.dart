@@ -57,6 +57,7 @@ class BancoList with ChangeNotifier {
       WriteBatch batch = _firestore.batch(); // Inicia o batch
 
       for (var questao in questoes) {
+        questao.bancoId = bancoRef.id; // Adiciona o ID do banco à questão
         final questaoRef = bancoRef.collection('questoes').doc();
         batch.set(questaoRef, questao.toMap());
       }
@@ -375,4 +376,37 @@ class BancoList with ChangeNotifier {
 
     notifyListeners();
   }
+
+
+
+Future<Questao?> buscarQuestaoEspecifica(String bancoId, String questaoId) async {
+  final user = _authList?.usuario;
+  if (user == null) {
+    throw Exception('Usuário não autenticado');
+  }
+
+  final questaoDoc = await _firestore
+      .collection('usuarios')
+      .doc(user.id)
+      .collection('bancos')
+      .doc(bancoId)
+      .collection('questoes')
+      .doc(questaoId)
+      .get();
+
+  if (!questaoDoc.exists) {
+    return null; // Retorna null se a questão não existir
+  }
+
+  final data = questaoDoc.data();
+  if (data != null) {
+    data['id'] = questaoDoc.id; // Adiciona o ID da questão
+    return Questao.fromMap(data); // Converte os dados para um objeto Questao
+  }
+
+  return null;
+}
+
+
+
 }

@@ -7,14 +7,12 @@ import 'package:uesb_forms/Modelo/questao_tipo.dart';
 import 'package:uesb_forms/Componentes/WidgetOpcoesImagem.dart';
 
 class WidgetLinhaUnicaOremailForm extends StatefulWidget {
-  final String? idBanco;
   final Questao questao;
   final bool isFormulario; // 🔥 Define se está preenchendo o formulário
 
   const WidgetLinhaUnicaOremailForm({
     super.key,
     required this.questao,
-    this.idBanco,
     this.isFormulario = true, // Padrão: não está preenchendo o formulário
   });
 
@@ -31,7 +29,7 @@ class _WidgetLinhaUnicaOremailFormState extends State<WidgetLinhaUnicaOremailFor
   @override
   void initState() {
     super.initState();
-    controleResposta = TextEditingController(text: widget.questao.resposta ?? '');
+
   }
 
 
@@ -61,8 +59,7 @@ class _WidgetLinhaUnicaOremailFormState extends State<WidgetLinhaUnicaOremailFor
               ),
               maxLines: 1,
               maxLength: (MediaQuery.of(context).size.width / 11).floor(),
-              onChanged:  (value) {
-                      widget.questao.resposta = value;}
+    
                    
             ),
           ],

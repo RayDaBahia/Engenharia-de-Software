@@ -20,25 +20,10 @@ class _WidgetRankingFormState extends State<WidgetRankingForm> {
   void initState() {
     super.initState();
 
-    opcoesRanking = widget.questao.opcoesRanking ?? [];
-    ordemRanking = widget.questao.ordemRanking ?? [];
-
-    if (ordemRanking.isEmpty && opcoesRanking.isNotEmpty) {
-      ordemRanking = List.generate(opcoesRanking.length, (index) => (index + 1).toString());
-    }
-
-    if (widget.questao.respostaRanking == null) {
-      widget.questao.respostaRanking = {};
-    }
-
-    respostasTemporarias = Map.from(widget.questao.respostaRanking!);
-    classificacoesSelecionadas = respostasTemporarias.values.toList();
-  }
-
-  void _atualizarQuestao() {
-    widget.questao.opcoesRanking = opcoesRanking;
-    widget.questao.ordemRanking = ordemRanking;
-    widget.questao.respostaRanking = Map.from(respostasTemporarias);
+    opcoesRanking = widget.questao.opcoes ?? [];
+    respostasTemporarias = {};
+    classificacoesSelecionadas = [];
+    ordemRanking = List.generate(opcoesRanking.length, (index) => (index + 1).toString());
   }
 
   @override
@@ -78,19 +63,25 @@ class _WidgetRankingFormState extends State<WidgetRankingForm> {
                         hint: const Text('Classifique'),
                         onChanged: (String? newValue) {
                           setState(() {
-                            if (newValue != null && !respostasTemporarias.containsValue(newValue)) {
+                            if (newValue != null &&
+                                !respostasTemporarias.containsValue(newValue)) {
                               if (respostasTemporarias[opcao] != null) {
                                 classificacoesSelecionadas.remove(respostasTemporarias[opcao]);
                               }
-                              classificacoesSelecionadas.add(newValue);
-                              respostasTemporarias[opcao] = newValue;
+                              if (classificacoesSelecionadas.length < opcoesRanking.length) {
+                                classificacoesSelecionadas.add(newValue);
+                                respostasTemporarias[opcao] = newValue;
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Você já classificou todas as opções!')),
+                                );
+                              }
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Esse número já foi selecionado!')),
+                                const SnackBar(content: Text('Esse número já foi selecionado!')),
                               );
                             }
                           });
-                          _atualizarQuestao();
                         },
                         items: List.generate(opcoesRanking.length, (i) {
                           String value = (i + 1).toString();
@@ -107,12 +98,33 @@ class _WidgetRankingFormState extends State<WidgetRankingForm> {
                   );
                 }).toList(),
               ],
-              ElevatedButton(
+          ElevatedButton(
                 onPressed: () {
-                  _atualizarQuestao();
+                  // Organize as classificações de acordo com a seleção feita pelo usuário
+                  List<Map<String, dynamic>> classificacoes = [];
+                  respostasTemporarias.forEach((opcao, classificacao) {
+                    classificacoes.add({
+                      'opcao': opcao,
+                      'classificacao': int.parse(classificacao),
+                    });
+                  });
+
+                  // Ordene as classificações para garantir que elas estejam na ordem correta
+                  classificacoes.sort((a, b) => a['classificacao'].compareTo(b['classificacao']));
+
+                  // Atualize o atributo resposta na questão
+                  //widget.questao.resposta = classificacoes;
+
+                  // Caso precise exibir uma mensagem de sucesso:
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Ranking salvo com sucesso!')),
+                  );
+
+                  // Você pode também enviar os dados para o Firebase ou outro lugar aqui
                 },
-                child: const Text('Salvar Ranking'),
-              ),
+                  child: const Text('Salvar Ranking'),
+                  ),
+
             ],
           ),
         ),

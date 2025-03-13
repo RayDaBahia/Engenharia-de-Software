@@ -50,23 +50,18 @@ class _WidgetRankingState extends State<WidgetRanking> {
     _controleNiveis.clear();
 
     // Inicializa as alternativas e níveis com base nas propriedades do modelo `Questao`
-    if (widget.questao.opcoesRanking != null) {
-      for (var alternativa in widget.questao.opcoesRanking!) {
+    if (widget.questao.opcoes != null) {
+      for (var alternativa in widget.questao.opcoes!) {
         _controleAlternativas.add(TextEditingController(text: alternativa));
       }
     }
 
-    if (widget.questao.ordemRanking != null) {
-      for (var nivel in widget.questao.ordemRanking!) {
-        _controleNiveis.add(TextEditingController(text: nivel));
-      }
-    }
+    
   }
 
   void _atualizarQuestao() {
     // Atualiza as opções de ranking no modelo
-    widget.questao.opcoesRanking = _controleAlternativas.map((controller) => controller.text).toList();
-    widget.questao.ordemRanking = _controleNiveis.map((controller) => controller.text).toList();
+    widget.questao.opcoes= _controleAlternativas.map((controller) => controller.text).toList();
     
     // Notifica o Provider de que a questão foi alterada
     final bancoList = Provider.of<BancoList>(context, listen: false);
@@ -128,7 +123,7 @@ class _WidgetRankingState extends State<WidgetRanking> {
                           onPressed: () {
                             setState(() {
                               _controleAlternativas.add(TextEditingController(text: ''));
-                              widget.questao.opcoesRanking?.add('');
+                              widget.questao.opcoes?.add('');
                             });
                             _atualizarQuestao();  // Atualiza o banco com a nova opção
                           },
@@ -162,16 +157,7 @@ class _WidgetRankingState extends State<WidgetRanking> {
                             ],
                           ),
                         ),
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _controleNiveis.add(TextEditingController(text: ''));
-                              widget.questao.ordemRanking?.add('');
-                            });
-                            _atualizarQuestao();  // Atualiza o banco com o novo nível
-                          },
-                          child: const Text("Adicionar Nível"),
-                        ),
+                       
                       ],
                     ),
                   ),

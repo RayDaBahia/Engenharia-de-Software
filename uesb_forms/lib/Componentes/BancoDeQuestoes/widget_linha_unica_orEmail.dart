@@ -25,14 +25,14 @@ class WidgetLinhaUnicaOremail extends StatefulWidget {
 
 class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
   late TextEditingController controlePergunta;
-  late TextEditingController controleResposta;
+
   Uint8List? selectedImage; // Variável para armazenar a imagem selecionada
 
   @override
   void initState() {
     super.initState();
     controlePergunta = TextEditingController(text: widget.questao.textoQuestao);
-    controleResposta = TextEditingController(text: widget.questao.resposta ?? '');
+  
   }
 
   void _handleImageSelected(Uint8List? image) {
@@ -115,7 +115,7 @@ class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
 
                  const SizedBox(height: 10), // Caso contrário, não exibe nada
             TextField(
-              controller: controleResposta,
+            
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10)),
@@ -126,11 +126,7 @@ class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
               maxLines: 1,
               maxLength: (MediaQuery.of(context).size.width / 11).floor(),
               enabled: widget.isFormulario, // 🔥 Só ativa se estiver preenchendo o formulário
-              onChanged: widget.isFormulario
-                  ? (value) {
-                      widget.questao.resposta = value;
-                    }
-                  : null, // 🔥 Só salva se estiver preenchendo o formulário
+            
             ),
           ],
         ),

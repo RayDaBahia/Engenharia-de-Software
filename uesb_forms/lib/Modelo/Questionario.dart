@@ -1,6 +1,5 @@
 import 'package:hive/hive.dart';
 
-
 @HiveType(typeId: 0)
 class Questionario {
   @HiveField(0)
@@ -33,6 +32,8 @@ class Questionario {
   String _tipoAplicacao;
   @HiveField(14)
   int _meta;
+  @HiveField(15)
+  String? _liderNome; // Novo campo para o nome do líder
 
   // Tornando todos os parâmetros opcionais com valores padrão
   Questionario({
@@ -51,6 +52,7 @@ class Questionario {
     String? liderId,
     String? senha,
     int meta = 0,
+    String? liderNome, // Novo campo no construtor
   })  : _id = id,
         _nome = nome,
         _tipoAplicacao = tipoAplicacao,
@@ -65,7 +67,8 @@ class Questionario {
         _aplicado = aplicado,
         _liderId = liderId,
         _senha = senha,
-        _meta = meta;
+        _meta = meta,
+        _liderNome = liderNome;
 
   // Métodos Getters e Setters
 
@@ -84,6 +87,7 @@ class Questionario {
   String? get senha => _senha;
   String get tipoAplicacao => _tipoAplicacao;
   int get meta => _meta;
+  String? get liderNome => _liderNome; // Novo getter
 
   set id(String value) => _id = value;
   set nome(String value) => _nome = value;
@@ -100,6 +104,7 @@ class Questionario {
   set senha(String? value) => _senha = value;
   set tipoAplicacao(String value) => _tipoAplicacao = value;
   set meta(int value) => _meta = value;
+  set liderNome(String? value) => _liderNome = value; // Novo setter
 
   // Método para converter para Map
   Map<String, dynamic> toMap() {
@@ -119,6 +124,7 @@ class Questionario {
       'senha': _senha,
       'tipoAplicacao': _tipoAplicacao,
       'meta': _meta,
+      'liderNome': _liderNome, // Adicionando o novo campo ao Map
     };
   }
 
@@ -142,6 +148,7 @@ class Questionario {
       liderId: map['liderId'],
       senha: map['senha'] ?? '',
       meta: map['meta'] ?? 0,
+      liderNome: map['liderNome'], // Pegando o nome do líder do Map
     );
   }
 }

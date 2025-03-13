@@ -1,67 +1,69 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:uesb_forms/Componentes/menu_lateral.dart';
-import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
-import 'package:uesb_forms/Utils/rotas.dart';
+import 'package:uesb_forms/Telas/Formulario/QuestionarioEntrevistadorPage.dart';
+import 'package:uesb_forms/Telas/Formulario/QuestionarioLiderPage.dart';
 
-class MeusFormularios extends StatelessWidget {
+class MeusFormularios extends StatefulWidget {
   const MeusFormularios({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final authUser = Provider.of<AuthList>(context, listen: false);
-    final screenSize = MediaQuery.of(context).size;
-    final screenHeight = screenSize.height;
+  _MeusFormulariosState createState() => _MeusFormulariosState();
+}
 
+class _MeusFormulariosState extends State<MeusFormularios> {
+  String _perfilSelecionado = "Líder"; // Perfil padrão
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Meus Formulários',
-          style: TextStyle(
-            color: Colors.white,
-          ),
+        title: Text(
+          '$_perfilSelecionado - Meus Formulários',
+          style: const TextStyle(color: Colors.white),
         ),
-        backgroundColor: const Color.fromARGB(255, 27, 7, 80),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center, // Centraliza os widgets
-        children: [
-          const Text(
-            'Você ainda não possui formulários',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 20), // Espaçamento entre os widgets
-          SizedBox(
-            height: screenHeight * 0.3,
-            child: Image.asset(
-              "images/form_roxo.png",
-              fit: BoxFit.fill,
-            ),
-          ),
-          const Spacer(), // Empurra o botão para baixo
+        backgroundColor: const Color.fromARGB(255, 45, 12, 68),
+        actions: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 40.0), // Distância do botão em relação ao rodapé
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed(Rotas.EDICAO_FORMULARIO_TELA);
+            padding: const EdgeInsets.only(right: 16.0),
+            child: PopupMenuButton<String>(
+              onSelected: (String perfil) {
+                setState(() {
+                  _perfilSelecionado = perfil;
+                });
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 27, 7, 80),
-                shape: const CircleBorder(),
-                padding: const EdgeInsets.all(20),
-              ),
-              child: const Icon(
-                Icons.add,
-                size: 30,
-                color: Colors.white,
+              itemBuilder: (BuildContext context) => [
+                const PopupMenuItem(
+                  value: "Líder",
+                  child: Text("Líder"),
+                ),
+                const PopupMenuItem(
+                  value: "Entrevistador",
+                  child: Text("Entrevistador"),
+                ),
+              ],
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white, // Fundo branco
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(8),
+                child: Icon(
+                  _perfilSelecionado == "Líder"
+                      ? Icons.person // Ícone para Líder
+                      : Icons.assignment_ind, // Ícone para Entrevistador
+                  color: const Color.fromARGB(255, 45, 12, 68), // Cor do ícone
+                  size: 30,
+                ),
               ),
             ),
           ),
         ],
       ),
       drawer: const MenuLateral(),
+      body: _perfilSelecionado == "Líder"
+          ? const QuestionariosLiderPage()
+          : const QuestionariosEntrevistadorPage()
     );
   }
 }
-

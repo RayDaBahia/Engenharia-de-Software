@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
+import 'package:uesb_forms/Controle_Modelo/resposta_list.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
 import 'package:uesb_forms/Modelo/Qustionario.g.dart';
 import 'package:uesb_forms/Modelo/questao.g.dart';
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthList()),
+         ChangeNotifierProvider(create: (_) => RespostasList()),
         ChangeNotifierProxyProvider<AuthList, BancoList>(
           create: (_) => BancoList(),
           update: (context, authList, previousBancoList) => BancoList(authList),

@@ -8,45 +8,24 @@ import 'package:uesb_forms/Utils/rotas.dart';
 import 'package:flutter/services.dart';
 
 class EdicaoQuestionario extends StatefulWidget {
-  final List<Questao>? questoesSelecionadas;
+ 
   final Banco? banco;
 
-  const EdicaoQuestionario({super.key, this.questoesSelecionadas, this.banco});
+  const EdicaoQuestionario({super.key,  this.banco});
 
   @override
   _EdicaoQuestionarioState createState() => _EdicaoQuestionarioState();
 }
 
 class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
-  late List<Questao> _questoesSelecionadas;
-  Banco? _banco;
+  late List<Questao> _questoesSelecionadas=[];
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _descricaoController = TextEditingController();
   final TextEditingController _metaController = TextEditingController();
   String? _preenchidoPor;
 
 
-
-
-  @override
-  void initState() {
-    super.initState();
-    _questoesSelecionadas = widget.questoesSelecionadas ?? [];
-    _banco = widget.banco;
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final args = ModalRoute.of(context)?.settings.arguments;
-    if (args is Map<String, dynamic>) {
-      setState(() {
-        _questoesSelecionadas = args['questoesSelecionadas'] ?? _questoesSelecionadas;
-        _banco = args['banco'] ?? _banco;
-      });
-    }
-  }
-
+ 
   @override
   void dispose() {
     _nomeController.dispose();
@@ -56,17 +35,17 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
   }
 
   void _adicionarMaisQuestoes(BuildContext context) {
-    Navigator.of(context).pushNamed(
-      Rotas.SELECAO_QUESTOES_BANCO,
-      arguments: {
-        'banco': _banco,
-        'isAlteracao': true
-      },
-    );
+  
+          Navigator.of(context).pushNamed(
+            Rotas.MEUS_BANCOS,
+            arguments: {'isFormulario': true},
+          );
   }
 
   @override
   Widget build(BuildContext context) {
+    _questoesSelecionadas= Provider.of<QuestionarioList>(context, listen: true).listaQuestoes;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -82,7 +61,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 27, 7, 80),
+        backgroundColor:const Color.fromARGB(255, 45, 12, 68),
       ),
       body: 
       Padding(
@@ -132,7 +111,6 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                         return ListTile(
                           title: QuestaoWidgetForm(
                             questao: questao,
-                            bancoId: _banco?.id ?? "",
                           ),
                           subtitle: CheckboxListTile(
                             title: const Text("Questão obrigatória"),
@@ -163,7 +141,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                
                 ElevatedButton(
                   onPressed: () {
-                   Provider.of<QuestionarioList>(context, listen: false).setDadosTemporarios(listaDeQuestoes: _questoesSelecionadas);
+                   Provider.of<QuestionarioList>(context, listen: false).setDadosTemporarios(listaDeQuestoes: _questoesSelecionadas, nome: _nomeController.text, descricao: _descricaoController.text, meta: _metaController.text, preenchido: _preenchidoPor); 
                     Navigator.pushNamed(context, Rotas.CONFIGURAR_ACESSO_FORMS);
                   },
                   style: ElevatedButton.styleFrom(

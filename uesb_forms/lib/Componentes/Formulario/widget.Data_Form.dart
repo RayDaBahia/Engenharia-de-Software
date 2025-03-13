@@ -17,9 +17,9 @@ class _WidgetDataFormState extends State<WidgetDataForm> {
   void initState() {
     super.initState();
     controleResposta = TextEditingController(
-      text: widget.questao.respostaData != null
-          ? "${widget.questao.respostaData!.toLocal()}".split(' ')[0]
-          : '',
+    //  text: widget.questao.respostaData != null
+     //     ? "${widget.questao.respostaData!.toLocal()}".split(' ')[0]
+          //: '',
     );
   }
 
@@ -38,7 +38,7 @@ class _WidgetDataFormState extends State<WidgetDataForm> {
     );
     if (selectedDate != null) {
       setState(() {
-        widget.questao.respostaData = selectedDate;
+       // widget.questao.respostaData = selectedDate;
         controleResposta.text = "${selectedDate.toLocal()}".split(' ')[0];
       });
     }

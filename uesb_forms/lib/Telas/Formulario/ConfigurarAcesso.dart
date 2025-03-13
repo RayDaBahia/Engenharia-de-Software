@@ -78,8 +78,8 @@ void _FinalizarQuestionario() async {
            _capturarInformacoes(true);
            _FinalizarQuestionario();
             _publicarQuestionario();
-          //    
-          //  Navigator.pushReplacementNamed(context, Rotas.QUESTIONARIO_LIST_SCREEN);
+            
+            Navigator.pushReplacementNamed(context, Rotas.MEUS_FORMULARIOS);
             },
             child: Text("Sim"),
           ),
@@ -87,7 +87,7 @@ void _FinalizarQuestionario() async {
             onPressed: () {
             _capturarInformacoes(false);
              _FinalizarQuestionario();
-           //  Navigator.pushReplacementNamed(context, Rotas.QUESTIONARIO_LIST_SCREEN);
+            Navigator.pushReplacementNamed(context, Rotas.MEUS_FORMULARIOS);
               
              
             },
@@ -157,7 +157,7 @@ void _FinalizarQuestionario() async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(30, 9, 66, 1),
+        backgroundColor:const Color.fromARGB(255, 45, 12, 68),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {

@@ -30,7 +30,6 @@ class QuestaoWidgetForm extends StatelessWidget {
       case QuestaoTipo.Email:
         return WidgetLinhaUnicaOremailForm(
           questao: questao,
-          idBanco: bancoId,
         );
 
       case QuestaoTipo.Numerica:

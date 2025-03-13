@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
+import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Modelo/Banco.dart';
 import 'package:uesb_forms/Componentes/Formulario/QuestaoWidgetForm.dart';
@@ -61,7 +62,7 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        backgroundColor: const Color.fromARGB(255, 27, 7, 80),
+        backgroundColor:  const Color.fromARGB(255, 45, 12, 68),
         title: const Text(
           'Seleção de Questões',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
@@ -119,12 +120,8 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushReplacementNamed(
-                      Rotas.EDICAO_FORMULARIO_TELA,
-                      arguments: {
-                        'questoesSelecionadas': _questoesSelecionadas.toList(),
-                      },
-                    );
+                    Provider.of<QuestionarioList>(context, listen: false).adicionarListaQuestoesSelecionadaas(_questoesSelecionadas.toList());
+                    Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
                   child: const Text('Confirmar'),

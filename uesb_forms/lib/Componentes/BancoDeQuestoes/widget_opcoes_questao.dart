@@ -44,7 +44,7 @@ class WidgetOpcoesQuestao extends StatelessWidget {
                     Questao(
                       textoQuestao: '',
                       tipoQuestao: QuestaoTipo.LinhaUnica,
-                      resposta: '',
+                 
                     ),
                   );
                   Navigator.pop(context);
@@ -185,7 +185,7 @@ class WidgetOpcoesQuestao extends StatelessWidget {
                     Questao(
                       textoQuestao: '',
                       tipoQuestao: QuestaoTipo.Email,
-                      resposta: '',
+                     
                     ),
                   );
                   Navigator.pop(context);

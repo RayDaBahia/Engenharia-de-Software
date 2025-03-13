@@ -24,6 +24,7 @@ class QuestionarioAdapter extends TypeAdapter<Questionario> {
       senha: reader.readBool() ? reader.readString() : null,
       tipoAplicacao: reader.readString(),
       meta: reader.readInt(),
+      liderNome: reader.readBool() ? reader.readString() : null, // Novo campo
     );
   }
 
@@ -59,5 +60,8 @@ class QuestionarioAdapter extends TypeAdapter<Questionario> {
 
     writer.writeString(obj.tipoAplicacao);
     writer.writeInt(obj.meta);
+
+    writer.writeBool(obj.liderNome != null);
+    if (obj.liderNome != null) writer.writeString(obj.liderNome!); // Novo campo
   }
 }

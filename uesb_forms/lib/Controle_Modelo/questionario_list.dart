@@ -11,7 +11,7 @@ class QuestionarioList extends ChangeNotifier {
   final AuthList? _authList;
 
   // Estado geral de questionários
-  List<Questionario> _questionariosLider = [];
+  List<Questionario> questionariosLider = [];
   List<Questionario> _filteredQuestionarios = [];
   String _filtroSelecionado = '';
 
@@ -22,6 +22,7 @@ class QuestionarioList extends ChangeNotifier {
   String? nome;
   String? preenchidoPor;
   String? descricao;
+  int tamQuestoesLista=0;
   
 
   QuestionarioList([this._authList]) {
@@ -59,6 +60,12 @@ void setDadosTemporarios({
 
   
 
+
+  void adicionarListaQuestoesSelecionadaas(List<Questao> questoes) {
+    listaQuestoes.addAll(questoes);
+    notifyListeners();
+  }
+
   // Adicionar questionário finalizado
   Future<void> adicionarQuestionario({
     required String senha,
@@ -72,10 +79,10 @@ void setDadosTemporarios({
       String meta = this.meta ?? '0';
       String preenchidoPor = this.preenchidoPor ?? '';
       String descricao= this.descricao??'Sem descricao';
-      List<Questao> listaDeQuestoes = this.listaQuestoes;
+      
 
       final dataPublicacao = DateTime.now();
-      final docRef = _firestore.collection('questionarios').doc(_authList!.usuario!.id);
+      final docRef = _firestore.collection('questionarios').doc();
 
       final questionario = Questionario(
         id: docRef.id,
@@ -93,15 +100,46 @@ void setDadosTemporarios({
         senha: senha,
         tipoAplicacao: preenchidoPor,
         meta: int.tryParse(meta) ?? 0,
+        liderNome: _authList?.usuario?.nome ?? '',
       );
 
+      _persistirQuestoes(listaQuestoes, questionario.id);
+   
+
       await docRef.set(questionario.toMap());
-      _questionariosLider.add(questionario);
+      questionariosLider.add(questionario);
       notifyListeners();
     } catch (e) {
       debugPrint('Erro ao adicionar questionário: $e');
     }
   }
+
+
+  Future<void>   _persistirQuestoes(List<Questao> questoes, String id) async {
+      final docRef = _firestore.collection('questionarios'). doc(id).collection('questoes');
+
+      for(int i=tamQuestoesLista; i<listaQuestoes.length; i++){
+      await  docRef.add(questoes[i].toMap());
+      }
+   
+   
+  }
+
+ Future<void>  _buscarQuestoesQuestionario(String id) async {
+    try {
+      final snapshot = await _firestore.collection('questionarios').doc(id).collection('questoes').get();
+      listaQuestoes = snapshot.docs.map((doc) {
+        return Questao.fromMap(doc.data() as Map<String, dynamic>,);
+      }).toList();
+
+      tamQuestoesLista=listaQuestoes.length;
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Erro ao buscar questões do questionário: $e');
+    }
+  }
+ 
 
 Future<void>  _carregarQuestionariosLider() async {
 
@@ -110,7 +148,7 @@ Future<void>  _carregarQuestionariosLider() async {
         .collection('questionarios')
         .where('liderId', isEqualTo: _authList!.usuario!.id)
         .get();
-        _questionariosLider= snapshot.docs.map((doc) {
+        questionariosLider= snapshot.docs.map((doc) {
       return Questionario.fromMap(doc.data() as Map<String, dynamic>, doc.id);
     }).toList();
 
