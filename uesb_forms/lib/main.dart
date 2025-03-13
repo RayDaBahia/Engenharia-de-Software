@@ -57,10 +57,11 @@ class MyApp extends StatelessWidget {
           create: (_) => BancoList(),
           update: (context, authList, previousBancoList) => BancoList(authList),
         ),
-        ChangeNotifierProxyProvider<AuthList, QuestionarioList>(
-          create: (_) => QuestionarioList(),
-          update: (context, authList, previousBancoList) => QuestionarioList(authList),
+       ChangeNotifierProxyProvider<AuthList, QuestionarioList>(
+              create: (_) => QuestionarioList(null), // Inicializa com `null` para evitar erro
+              update: (context, authList, previous) => QuestionarioList(authList),
         ),
+
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

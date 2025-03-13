@@ -15,9 +15,9 @@ class Questionario {
   @HiveField(5)
   bool _ativo;
   @HiveField(6)
-  DateTime? _prazo;
+  DateTime? _prazo; // O campo prazo agora é opcional (nullable)
   @HiveField(7)
-  DateTime? _dataPublicacao;
+  DateTime? _dataPublicacao; // O campo dataPublicacao agora é opcional (nullable)
   @HiveField(8)
   List<String> _entrevistadores;
   @HiveField(9)
@@ -34,6 +34,8 @@ class Questionario {
   int _meta;
   @HiveField(15)
   String? _liderNome; // Novo campo para o nome do líder
+  @HiveField(16)
+  DateTime _dataCriacao; // Novo campo para a data de criação
 
   // Tornando todos os parâmetros opcionais com valores padrão
   Questionario({
@@ -44,8 +46,8 @@ class Questionario {
     bool publicado = false,
     bool visivel = false,
     bool ativo = false,
-    DateTime? prazo,
-    DateTime? dataPublicacao,
+    DateTime? prazo, // Agora o prazo é opcional
+    DateTime? dataPublicacao, // Agora o dataPublicacao é opcional
     List<String> entrevistadores = const [],
     String? link,
     bool aplicado = false,
@@ -53,6 +55,7 @@ class Questionario {
     String? senha,
     int meta = 0,
     String? liderNome, // Novo campo no construtor
+    DateTime? dataCriacao, // Novo campo no construtor
   })  : _id = id,
         _nome = nome,
         _tipoAplicacao = tipoAplicacao,
@@ -68,7 +71,8 @@ class Questionario {
         _liderId = liderId,
         _senha = senha,
         _meta = meta,
-        _liderNome = liderNome;
+        _liderNome = liderNome,
+        _dataCriacao = dataCriacao ?? DateTime.now(); // Define dataCriacao como agora se não for fornecida
 
   // Método para copiar o objeto com novos valores
   Questionario copyWith({
@@ -88,6 +92,7 @@ class Questionario {
     String? senha,
     int? meta,
     String? liderNome,
+    DateTime? dataCriacao,
   }) {
     return Questionario(
       id: id ?? _id,
@@ -106,11 +111,11 @@ class Questionario {
       senha: senha ?? _senha,
       meta: meta ?? _meta,
       liderNome: liderNome ?? _liderNome,
+      dataCriacao: dataCriacao ?? _dataCriacao,
     );
   }
 
   // Métodos Getters e Setters
-
   String get id => _id;
   String get nome => _nome;
   String get descricao => _descricao;
@@ -126,7 +131,8 @@ class Questionario {
   String? get senha => _senha;
   String get tipoAplicacao => _tipoAplicacao;
   int get meta => _meta;
-  String? get liderNome => _liderNome; // Novo getter
+  String? get liderNome => _liderNome;
+  DateTime get dataCriacao => _dataCriacao; // Getter para dataCriacao
 
   set id(String value) => _id = value;
   set nome(String value) => _nome = value;
@@ -143,7 +149,8 @@ class Questionario {
   set senha(String? value) => _senha = value;
   set tipoAplicacao(String value) => _tipoAplicacao = value;
   set meta(int value) => _meta = value;
-  set liderNome(String? value) => _liderNome = value; // Novo setter
+  set liderNome(String? value) => _liderNome = value;
+  set dataCriacao(DateTime value) => _dataCriacao = value; // Setter para dataCriacao
 
   // Método para converter para Map
   Map<String, dynamic> toMap() {
@@ -163,7 +170,8 @@ class Questionario {
       'senha': _senha,
       'tipoAplicacao': _tipoAplicacao,
       'meta': _meta,
-      'liderNome': _liderNome, // Adicionando o novo campo ao Map
+      'liderNome': _liderNome,
+      'dataCriacao': _dataCriacao.toIso8601String(), // Adicionando a data de criação ao Map
     };
   }
 
@@ -187,7 +195,10 @@ class Questionario {
       liderId: map['liderId'],
       senha: map['senha'] ?? '',
       meta: map['meta'] ?? 0,
-      liderNome: map['liderNome'], // Pegando o nome do líder do Map
+      liderNome: map['liderNome'],
+      dataCriacao: map['dataCriacao'] != null
+          ? DateTime.parse(map['dataCriacao'])
+          : DateTime.now(), // Definir data de criação como agora se não existir
     );
   }
 }

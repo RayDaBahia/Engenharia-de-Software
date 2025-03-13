@@ -55,14 +55,16 @@ class _ConfigurarAcessoState extends State<ConfigurarAcesso> {
 void _FinalizarQuestionario() async {
   final questionarioProvider = Provider.of<QuestionarioList>(context, listen: false);
 
+    await questionarioProvider.adicionarQuestionario(
 
-  await questionarioProvider.adicionarQuestionario(
-    senha: dadosQuestionario['senha'], 
-    entrevistadores: dadosQuestionario['entrevistadores'], 
-    prazo: dadosQuestionario['prazo'], 
-    publicado: dadosQuestionario['publicado']
-  );
+      senha: dadosQuestionario['senha'].isEmpty ? '' : dadosQuestionario['senha'], 
+      entrevistadores: dadosQuestionario['entrevistadores'], 
+      prazo: dadosQuestionario['prazo'], 
+      publicado: dadosQuestionario['publicado']
+    );
+
   questionarioProvider.limparQuestoesSelecionadas();
+  
 }
 
 
@@ -140,7 +142,7 @@ void _FinalizarQuestionario() async {
     setState(() {
       dadosQuestionario['senha'] = _senhaController.text.isNotEmpty
           ? _senhaController.text
-          : null; // Senha (se fornecida)
+          : ''; // Senha (se fornecida)
       dadosQuestionario['entrevistadores'] = entrevistadores
           .where((e) => e['selecionado'] == true)
           .map((e) => e['email'] as String)

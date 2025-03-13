@@ -15,8 +15,7 @@ class QuestionarioAdapter extends TypeAdapter<Questionario> {
       visivel: reader.readBool(),
       ativo: reader.readBool(),
       prazo: reader.readBool() ? DateTime.parse(reader.readString()) : null,
-      dataPublicacao:
-          reader.readBool() ? DateTime.parse(reader.readString()) : null,
+      dataPublicacao: reader.readBool() ? DateTime.parse(reader.readString()) : null,
       entrevistadores: List<String>.from(reader.readList()),
       link: reader.readBool() ? reader.readString() : null,
       aplicado: reader.readBool(),
@@ -25,6 +24,7 @@ class QuestionarioAdapter extends TypeAdapter<Questionario> {
       tipoAplicacao: reader.readString(),
       meta: reader.readInt(),
       liderNome: reader.readBool() ? reader.readString() : null, // Novo campo
+      dataCriacao: DateTime.parse(reader.readString()), // Adicionando o novo campo
     );
   }
 
@@ -37,10 +37,10 @@ class QuestionarioAdapter extends TypeAdapter<Questionario> {
     writer.writeBool(obj.visivel);
     writer.writeBool(obj.ativo);
 
-    writer.writeBool(obj.prazo != null);
+    writer.writeBool(obj.prazo != null); // Verificando se 'prazo' é nulo
     if (obj.prazo != null) writer.writeString(obj.prazo!.toIso8601String());
 
-    writer.writeBool(obj.dataPublicacao != null);
+    writer.writeBool(obj.dataPublicacao != null); // Verificando se 'dataPublicacao' é nulo
     if (obj.dataPublicacao != null) {
       writer.writeString(obj.dataPublicacao!.toIso8601String());
     }
@@ -61,7 +61,9 @@ class QuestionarioAdapter extends TypeAdapter<Questionario> {
     writer.writeString(obj.tipoAplicacao);
     writer.writeInt(obj.meta);
 
-    writer.writeBool(obj.liderNome != null);
-    if (obj.liderNome != null) writer.writeString(obj.liderNome!); // Novo campo
+    writer.writeBool(obj.liderNome != null); // Verificando se 'liderNome' é nulo
+    if (obj.liderNome != null) writer.writeString(obj.liderNome!);
+
+    writer.writeString(obj.dataCriacao.toIso8601String()); // Adicionando o novo campo
   }
 }

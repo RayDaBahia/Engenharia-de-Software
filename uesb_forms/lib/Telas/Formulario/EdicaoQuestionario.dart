@@ -1,31 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 import 'package:uesb_forms/Componentes/Formulario/QuestaoWidgetForm.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Modelo/Banco.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
-import 'package:flutter/services.dart';
 
 class EdicaoQuestionario extends StatefulWidget {
- 
   final Banco? banco;
 
-  const EdicaoQuestionario({super.key,  this.banco});
+  const EdicaoQuestionario({super.key, this.banco});
 
   @override
   _EdicaoQuestionarioState createState() => _EdicaoQuestionarioState();
 }
 
 class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
-  late List<Questao> _questoesSelecionadas=[];
+  late List<Questao> _questoesSelecionadas = [];
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _descricaoController = TextEditingController();
   final TextEditingController _metaController = TextEditingController();
   String? _preenchidoPor;
 
-
- 
   @override
   void dispose() {
     _nomeController.dispose();
@@ -35,74 +32,54 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
   }
 
   void _adicionarMaisQuestoes(BuildContext context) {
-  
-          Navigator.of(context).pushNamed(
-            Rotas.MEUS_BANCOS,
-            arguments: {'isFormulario': true},
-          );
+    Navigator.of(context).pushNamed(
+      Rotas.MEUS_BANCOS,
+      arguments: {'isFormulario': true},
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    _questoesSelecionadas= Provider.of<QuestionarioList>(context, listen: true).listaQuestoes;
+    _questoesSelecionadas = Provider.of<QuestionarioList>(context, listen: true).listaQuestoes;
 
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-              _questoesSelecionadas.clear();
+            _questoesSelecionadas.clear();
             Navigator.of(context).pop();
           },
         ),
         title: const Text(
           'Edição do Questionário',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
-        backgroundColor:const Color.fromARGB(255, 45, 12, 68),
+        backgroundColor: const Color.fromARGB(255, 45, 12, 68),
       ),
-      body: 
-      Padding(
+      body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
             Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CampoTexto(
-              controller: _nomeController,
-              label: "Titulo",
-              maxLength: 60, // Limite de 60 caracteres
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CampoTexto(controller: _nomeController, label: "Título", maxLength: 60),
+                  const SizedBox(height: 10),
+                  CampoTexto(controller: _descricaoController, label: "Descrição", maxLength: 160),
+                  const SizedBox(height: 10),
+                  CampoDropdown(
+                    label: "Preenchido por",
+                    onChanged: (value) => setState(() => _preenchidoPor = value),
+                  ),
+                  const SizedBox(height: 10),
+                  CampoNumero(controller: _metaController, label: "Meta"),
+                ],
+              ),
             ),
-            const SizedBox(height: 10),
-            CampoTexto(
-              controller: _descricaoController,
-              label: "Descrição",
-              maxLength: 160, // Limite de 160 caracteres
-            ),
-            const SizedBox(height: 10),
-            CampoDropdown(
-              label: "Preenchido por",
-              onChanged: (value) {
-                setState(() {
-                  _preenchidoPor = value;
-                });
-              },
-            ),
-            const SizedBox(height: 10),
-            CampoNumero(
-              controller: _metaController,
-              label: "Meta",
-            ),
-          ],
-        ),
-      ), 
-       Expanded(
+            Expanded(
               child: _questoesSelecionadas.isEmpty
                   ? const Center(child: Text("Nenhuma questão selecionada"))
                   : ListView.builder(
@@ -110,9 +87,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                       itemBuilder: (context, index) {
                         final questao = _questoesSelecionadas[index];
                         return ListTile(
-                          title: QuestaoWidgetForm(
-                            questao: questao,
-                          ),
+                          title: QuestaoWidgetForm(questao: questao),
                           subtitle: CheckboxListTile(
                             title: const Text("Questão obrigatória"),
                             value: questao.obrigatoria,
@@ -139,45 +114,42 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-               
                 ElevatedButton(
                   onPressed: () {
+                    if (_preenchidoPor == null || _preenchidoPor!.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('É necessário informar quem irá preencher o questionário')),
+                      );
+                      return;
+                    }
+                    if (_nomeController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content : Text('é necessário definir um título para o questionario')),
+                      );
+                      return;
+                    }
 
-                if (_preenchidoPor == null ) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                   const SnackBar(content: Text('É necessário informar quem irá preencher o quetionário')),
-                   );
-                    return;
-                  }
-
-
-                   Provider.of<QuestionarioList>(context, listen: false).setDadosTemporarios(listaDeQuestoes: _questoesSelecionadas, nome: _nomeController.text, descricao: _descricaoController.text, meta: _metaController.text, preenchido: _preenchidoPor); 
+                    Provider.of<QuestionarioList>(context, listen: false).setDadosTemporarios(
+                      listaDeQuestoes: _questoesSelecionadas,
+                      nome: _nomeController.text.isEmpty ? 'Sem título' : _nomeController.text,
+                      descricao: _descricaoController.text.isEmpty ? 'Sem descrição' : _descricaoController.text,
+                      meta: _metaController.text.isEmpty ? '0' : _metaController.text,
+                      preenchido: _preenchidoPor,
+                    );
                     Navigator.pushNamed(context, Rotas.CONFIGURAR_ACESSO_FORMS);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 1, 21, 37),
                   ),
-                  child: const Text(
-                    'Próximo',
-                    style: TextStyle(color: Color.fromRGBO(250, 250, 250, 1)),
-                  ),
+                  child: const Text('Próximo', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
           ],
         ),
       ),
-       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-           _adicionarMaisQuestoes(context);
-       
-
-          Navigator.of(context).pushNamed(
-            Rotas.MEUS_BANCOS,
-            arguments: {'isFormulario': true},
-          );
-        },
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _adicionarMaisQuestoes(context),
         backgroundColor: const Color.fromARGB(255, 21, 3, 44),
         child: const Icon(Icons.add, color: Colors.white),
       ),
@@ -185,14 +157,12 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
   }
 }
 
-
-
 class CampoTexto extends StatelessWidget {
   final String label;
-  final TextEditingController? controller;
+  final TextEditingController controller;
   final int? maxLength;
 
-  const CampoTexto({super.key, required this.label, this.controller, this.maxLength});
+  const CampoTexto({super.key, required this.label, required this.controller, this.maxLength});
 
   @override
   Widget build(BuildContext context) {
@@ -203,15 +173,12 @@ class CampoTexto extends StatelessWidget {
         const SizedBox(height: 4),
         TextField(
           controller: controller,
-          maxLength: maxLength, // Aplica a limitação de caracteres
+          maxLength: maxLength,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey.shade200,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide.none,
-            ),
-            counterText: "", // Remove a exibição do contador padrão
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide.none),
+            counterText: "",
           ),
         ),
       ],
@@ -221,9 +188,9 @@ class CampoTexto extends StatelessWidget {
 
 class CampoNumero extends StatelessWidget {
   final String label;
-  final TextEditingController? controller;
+  final TextEditingController controller;
 
-  const CampoNumero({super.key, required this.label, this.controller});
+  const CampoNumero({super.key, required this.label, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -235,14 +202,11 @@ class CampoNumero extends StatelessWidget {
         TextField(
           controller: controller,
           keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Permite apenas números
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey.shade200,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide.none,
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: BorderSide.none),
           ),
         ),
       ],
@@ -252,34 +216,16 @@ class CampoNumero extends StatelessWidget {
 
 class CampoDropdown extends StatelessWidget {
   final String label;
-  final ValueChanged<String?>? onChanged;
+  final ValueChanged<String?> onChanged;
 
-  const CampoDropdown({super.key, required this.label, this.onChanged});
+  const CampoDropdown({super.key, required this.label, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
-        DropdownButtonFormField<String>(
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.grey.shade200,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide.none,
-            ),
-          ),
-          items: ['Entrevistador', 'Entrevistado', 'Ambos']
-              .map(
-                (opcao) => DropdownMenuItem(value: opcao, child: Text(opcao)),
-              )
-              .toList(),
-          onChanged: onChanged,
-        ),
-      ],
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(filled: true, fillColor: Colors.grey.shade200, border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+      items: ['Entrevistador', 'Entrevistado', 'Ambos'].map((opcao) => DropdownMenuItem(value: opcao, child: Text(opcao))).toList(),
+      onChanged: onChanged,
     );
   }
 }
