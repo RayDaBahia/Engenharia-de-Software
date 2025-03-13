@@ -83,12 +83,12 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 27, 7, 80),
+        backgroundColor: const Color.fromARGB(255, 45, 12, 68),
         title: TextField(
           controller: _questaoFiltro,
           decoration: InputDecoration(
             filled: true,
-            fillColor: const Color.fromARGB(249, 0, 16, 81),
+            fillColor: const Color.fromARGB(255, 45, 12, 68),
             labelText: '',
             labelStyle:
                 TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),

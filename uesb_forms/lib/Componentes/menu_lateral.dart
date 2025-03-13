@@ -36,7 +36,7 @@ class MenuLateral extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            backgroundColor: const Color.fromARGB(255, 27, 7, 80),
+            backgroundColor:const Color.fromARGB(255, 45, 12, 68),
           ),
           ListTile(
             leading: const Icon(Icons.description),

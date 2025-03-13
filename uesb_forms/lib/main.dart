@@ -58,7 +58,7 @@ class MyApp extends StatelessWidget {
           update: (context, authList, previousBancoList) => BancoList(authList),
         ),
        ChangeNotifierProxyProvider<AuthList, QuestionarioList>(
-              create: (_) => QuestionarioList(null), // Inicializa com `null` para evitar erro
+              create: (_) => QuestionarioList(), 
               update: (context, authList, previous) => QuestionarioList(authList),
         ),
 

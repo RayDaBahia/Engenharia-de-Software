@@ -48,7 +48,7 @@ class _MeusBancosState extends State<MeusBancos> {
       drawer: isFormulario ? null : MenuLateral(),
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: const Color.fromARGB(255, 27, 7, 80),
+        backgroundColor: const Color.fromARGB(255, 45, 12, 68),
         leading: isFormulario
             ? IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
