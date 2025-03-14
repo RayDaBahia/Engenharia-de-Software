@@ -28,7 +28,7 @@ class FormularioCard extends StatelessWidget {
           Stack(
             children: [
               Container(
-                height: 40,
+                height: 50,
                 width: double.infinity,
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
@@ -100,6 +100,7 @@ class FormularioCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 14, color: Colors.grey),
                 ),
                 const SizedBox(height: 10),
+              
                 Text(
                   "Respostas: $numRespostas / ${questionario.meta}",
                   style: const TextStyle(fontSize: 14, color: Colors.black),
