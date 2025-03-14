@@ -140,6 +140,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 1, 21, 37),
+                  
                   ),
                   child: const Text('Próximo', style: TextStyle(color: Colors.white)),
                 ),
@@ -152,6 +153,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
         onPressed: () => _adicionarMaisQuestoes(context),
         backgroundColor: const Color.fromARGB(255, 21, 3, 44),
         child: const Icon(Icons.add, color: Colors.white),
+        shape: CircleBorder(),
       ),
     );
   }

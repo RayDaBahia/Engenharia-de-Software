@@ -72,13 +72,19 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            TextField(
-              controller: _questaoFiltro,
-              decoration: const InputDecoration(
-                labelText: 'Filtrar questões',
-                prefixIcon: Icon(Icons.search),
+                 Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: _questaoFiltro,
+                  decoration: InputDecoration(
+                    labelText: 'Pesquisar por nome',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                ),
               ),
-            ),
             const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
@@ -111,21 +117,32 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-                  child: const Text('Voltar'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Provider.of<QuestionarioList>(context, listen: false).adicionarListaQuestoesSelecionadas(_questoesSelecionadas.toList());
-                    Navigator.of(context).pop();
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                  child: const Text('Confirmar'),
-                ),
+                /*
+                    ElevatedButton(
+                    onPressed: () {
+                    
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:  const Color.fromARGB(255, 255, 255, 255), // Fundo roxo
+                      foregroundColor:  const Color.fromARGB(255, 45, 12, 68)            ),
+                    child: const Text('Voltar',style: TextStyle(fontWeight: FontWeight.bold), ),
+                  ),*/
+
+                  Center( child:    ElevatedButton(
+                    onPressed: () {
+                      Provider.of<QuestionarioList>(context, listen: false)
+                          .adicionarListaQuestoesSelecionadas(_questoesSelecionadas.toList());
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:  const Color.fromARGB(255, 45, 12, 68), // Fundo roxo
+                      foregroundColor: Colors.white, // Texto branco
+                    ),
+                    child: const Text('Confirmar'),
+                  )),
+                  
+
               ],
             ),
             const SizedBox(height: 10),
