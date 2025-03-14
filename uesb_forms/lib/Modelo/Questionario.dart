@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive/hive.dart';
 
 @HiveType(typeId: 0)
@@ -176,29 +177,33 @@ class Questionario {
   }
 
   // Método para converter de Map para objeto Questionario
-  factory Questionario.fromMap(Map<String, dynamic> map, String documentId) {
-    return Questionario(
-      id: documentId,
-      nome: map['nome'] ?? '',
-      tipoAplicacao: map['tipoAplicacao'] ?? '',
-      descricao: map['descricao'] ?? '',
-      publicado: map['publicado'] ?? false,
-      visivel: map['visivel'] ?? false,
-      ativo: map['ativo'] ?? false,
-      prazo: map['prazo'] != null ? DateTime.parse(map['prazo']) : null,
-      dataPublicacao: map['dataPublicacao'] != null
-          ? DateTime.parse(map['dataPublicacao'])
-          : null,
-      entrevistadores: List<String>.from(map['entrevistadores'] ?? []),
-      link: map['link'],
-      aplicado: map['aplicado'] ?? false,
-      liderId: map['liderId'],
-      senha: map['senha'] ?? '',
-      meta: map['meta'] ?? 0,
-      liderNome: map['liderNome'],
-      dataCriacao: map['dataCriacao'] != null
-          ? DateTime.parse(map['dataCriacao'])
-          : DateTime.now(), // Definir data de criação como agora se não existir
-    );
-  }
+ factory Questionario.fromMap(Map<String, dynamic> map, String documentId) {
+  return Questionario(
+    id: documentId,
+    nome: map['nome'] ?? '',
+    tipoAplicacao: map['tipoAplicacao'] ?? '',
+    descricao: map['descricao'] ?? '',
+    publicado: map['publicado'] ?? false,
+    visivel: map['visivel'] ?? false,
+    ativo: map['ativo'] ?? false,
+    prazo: map['prazo'] != null
+        ? (map['prazo'] is Timestamp ? map['prazo'].toDate() : DateTime.parse(map['prazo']))
+        : null,
+    dataPublicacao: map['dataPublicacao'] != null
+        ? (map['dataPublicacao'] is Timestamp ? map['dataPublicacao'].toDate() : DateTime.parse(map['dataPublicacao']))
+        : null,
+    entrevistadores: List<String>.from(map['entrevistadores'] ?? []),
+    link: map['link'],
+    aplicado: map['aplicado'] ?? false,
+    liderId: map['liderId'],
+    senha: map['senha'] ?? '',
+    meta: map['meta'] ?? 0,
+    liderNome: map['liderNome'],
+    dataCriacao: map['dataCriacao'] != null
+        ? (map['dataCriacao'] is Timestamp ? map['dataCriacao'].toDate() : DateTime.parse(map['dataCriacao']))
+        : DateTime.now(), // Definir data de criação como agora se não existir
+  );
 }
+
+  }
+

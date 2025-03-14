@@ -41,68 +41,64 @@ class QuestionarioList extends ChangeNotifier {
     listaQuestoes.addAll(questoes);
     notifyListeners();
   }
-Future<void> adicionarQuestionario({
-  required String senha,
-  required List<String> entrevistadores,
-  DateTime? prazo,  // Mudado para opcional
-  required bool publicado,
-  DateTime? dataPublicacao, // Parâmetro opcional
-}) async {
-  try {
-    // Valores default
-    String nome = this.nome ?? 'Sem nome';
-    String meta = this.meta ?? '0';
-    String preenchidoPor = this.preenchidoPor ?? '';
-    String descricao = this.descricao ?? 'Sem descrição';
 
-    DateTime? dataPublicacao;
-
-    if(publicado){
-      dataPublicacao = DateTime.now();
-    }
-
-    // Se dataPublicacao não for fornecida, ela será null
-    dataPublicacao ??= null;
-
-    // Se prazo não for fornecido, será null
-    prazo ??= null;
-
-    // Criando a referência para o Firestore
-    final docRef = _firestore.collection('questionarios').doc();
-    DateTime dataCriacao = DateTime.now();
-
-    // Criando o objeto Questionario
-    final questionario = Questionario(
-      id: docRef.id,
-      nome: nome,
-      descricao: descricao,
-      publicado: publicado,
-      visivel: true,
-      ativo: false,
-      prazo: prazo,  // Pode ser null
-      dataPublicacao: dataPublicacao, // Pode ser null
-      entrevistadores: entrevistadores,
-      link: '',
-      aplicado: false,
-      liderId: _authList?.usuario?.id ?? '',
-      senha: senha.isEmpty ? '' : senha,
-      tipoAplicacao: preenchidoPor,
-      meta: int.tryParse(meta) ?? 0,
-      liderNome: _authList?.usuario?.nome ?? '',
-      dataCriacao: dataCriacao,
-    );
-
-    // Persistir questões e adicionar o questionário
-    _persistirQuestoes(listaQuestoes, questionario.id);
-    await docRef.set(questionario.toMap());
-    questionariosLider.add(questionario);
+  void limparQuestoes() {
+    listaQuestoes.clear();
     notifyListeners();
-  } catch (e) {
-    debugPrint('Erro ao adicionar questionário: $e');
   }
-}
 
+  Future<void> adicionarQuestionario({
+    required String senha,
+    required List<String> entrevistadores,
+    DateTime? prazo,  // Mudado para opcional
+    required bool publicado,
+    DateTime? dataPublicacao, // Parâmetro opcional
+  }) async {
+    try {
+      // Valores default
+      String nome = this.nome ?? 'Sem nome';
+      String meta = this.meta ?? '0';
+      String preenchidoPor = this.preenchidoPor ?? '';
+      String descricao = this.descricao ?? 'Sem descrição';
 
+      if (publicado) {
+        dataPublicacao = DateTime.now();
+      }
+
+      // Criando a referência para o Firestore
+      final docRef = _firestore.collection('questionarios').doc();
+      DateTime dataCriacao = DateTime.now();
+
+      // Criando o objeto Questionario
+      final questionario = Questionario(
+        id: docRef.id,
+        nome: nome,
+        descricao: descricao,
+        publicado: publicado,
+        visivel: true,
+        ativo: false,
+        prazo: prazo,  // Pode ser null
+        dataPublicacao: dataPublicacao, // Pode ser null
+        entrevistadores: entrevistadores,
+        link: '',
+        aplicado: false,
+        liderId: _authList?.usuario?.id ?? '',
+        senha: senha.isEmpty ? '' : senha,
+        tipoAplicacao: preenchidoPor,
+        meta: int.tryParse(meta) ?? 0,
+        liderNome: _authList?.usuario?.nome ?? '',
+        dataCriacao: dataCriacao,
+      );
+
+      // Persistir questões e adicionar o questionário
+      await _persistirQuestoes(listaQuestoes, questionario.id);
+      await docRef.set(questionario.toMap());
+      questionariosLider.add(questionario);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Erro ao adicionar questionário: $e');
+    }
+  }
 
   Future<void> _persistirQuestoes(List<Questao> questoes, String id) async {
     final docRef = _firestore.collection('questionarios').doc(id).collection('questoes');
@@ -139,7 +135,7 @@ Future<void> adicionarQuestionario({
     }
   }
 
- Future<void> _carregarQuestionariosLider() async {
+  Future<void> _carregarQuestionariosLider() async {
     if (_authList?.usuario?.id == null) {
       debugPrint('Usuário não autenticado. Não carregando questionários.');
       return;
@@ -152,8 +148,11 @@ Future<void> adicionarQuestionario({
           .get();
 
       questionariosLider = snapshot.docs.map((doc) {
-        return Questionario.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+        final data = doc.data() as Map<String, dynamic>;
+        return Questionario.fromMap(data, doc.id);
       }).toList();
+
+      debugPrint('Questionários carregados: ${questionariosLider.length}');
       
       notifyListeners();
     } catch (e) {
@@ -167,51 +166,46 @@ Future<void> adicionarQuestionario({
   }
 
   Future<void> ativarQuestionario(String id) async {
-  try {
-    await _firestore.collection('questionarios').doc(id).update({'ativo': true});
-    final index = questionariosLider.indexWhere((q) => q.id == id);
-    if (index != -1) {
-      questionariosLider[index] = questionariosLider[index].copyWith(ativo: true);
-      notifyListeners();
+    try {
+      await _firestore.collection('questionarios').doc(id).update({'ativo': true});
+      final index = questionariosLider.indexWhere((q) => q.id == id);
+      if (index != -1) {
+        questionariosLider[index] = questionariosLider[index].copyWith(ativo: true);
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Erro ao ativar questionário: $e');
     }
-  } catch (e) {
-    debugPrint('Erro ao ativar questionário: $e');
   }
-}
 
-Future<void> desativarQuestionario(String id) async {
-  try {
-    await _firestore.collection('questionarios').doc(id).update({'ativo': false});
-    final index = questionariosLider.indexWhere((q) => q.id == id);
-    if (index != -1) {
-      questionariosLider[index] = questionariosLider[index].copyWith(ativo: false);
-      notifyListeners();
+  Future<void> desativarQuestionario(String id) async {
+    try {
+      await _firestore.collection('questionarios').doc(id).update({'ativo': false});
+      final index = questionariosLider.indexWhere((q) => q.id == id);
+      if (index != -1) {
+        questionariosLider[index] = questionariosLider[index].copyWith(ativo: false);
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Erro ao desativar questionário: $e');
     }
-  } catch (e) {
-    debugPrint('Erro ao desativar questionário: $e');
   }
-}
 
-Future<void> publicarQuestionario(String id) async {
-  try {
+  Future<void> publicarQuestionario(String id) async {
+    try {
+      DateTime dataPublicacao = DateTime.now();
 
-    DateTime  dataPublicacao = DateTime.now();
-
-    await _firestore.collection('questionarios').doc(id).update({'publicado': true, 'dataPublicacao': Timestamp.fromDate(dataPublicacao)});
-    final index = questionariosLider.indexWhere((q) => q.id == id);
-     if (index != -1) {
-      questionariosLider[index] = questionariosLider[index].copyWith(
-        publicado: true,
-        dataPublicacao: dataPublicacao, // Atualiza a data de publicação localmente
-      );
-      notifyListeners();
+      await _firestore.collection('questionarios').doc(id).update({'publicado': true, 'dataPublicacao': Timestamp.fromDate(dataPublicacao)});
+      final index = questionariosLider.indexWhere((q) => q.id == id);
+      if (index != -1) {
+        questionariosLider[index] = questionariosLider[index].copyWith(
+          publicado: true,
+          dataPublicacao: dataPublicacao, // Atualiza a data de publicação localmente
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Erro ao publicar questionário: $e');
     }
-  } catch (e) {
-    debugPrint('Erro ao publicar questionário: $e');
   }
-}
-
-
-
-
 }

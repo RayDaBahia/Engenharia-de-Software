@@ -43,16 +43,16 @@ class _MeusFormulariosState extends State<MeusFormularios> {
                 ),
               ],
               child: Container(
-                decoration: const BoxDecoration(
+                /*decoration: const BoxDecoration(
                   color: Colors.white, // Fundo branco
                   shape: BoxShape.circle,
-                ),
+                ),*/
                 padding: const EdgeInsets.all(8),
                 child: Icon(
                   _perfilSelecionado == "Líder"
                       ? Icons.person // Ícone para Líder
                       : Icons.assignment_ind, // Ícone para Entrevistador
-                  color: const Color.fromARGB(255, 45, 12, 68), // Cor do ícone
+                  color: const Color.fromARGB(255, 233, 233, 234), // Cor do ícone
                   size: 30,
                 ),
               ),

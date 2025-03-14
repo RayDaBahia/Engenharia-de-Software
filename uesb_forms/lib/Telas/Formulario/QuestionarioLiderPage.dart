@@ -24,97 +24,101 @@ class _QuestionariosLiderPageState extends State<QuestionariosLiderPage> {
                 questionario.nome.toLowerCase().contains(_searchQuery.toLowerCase()))
             .toList(); // Filtra os questionários pela pesquisa
 
-    return Column(
-      children: [
-        // Barra de pesquisa
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            onChanged: (query) {
-              setState(() {
-                _searchQuery = query;
-              });
-            },
-            decoration: InputDecoration(
-              labelText: 'Pesquisar por nome',
-              prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-            ),
-          ),
-        ),
-
-        // Faixa de categoria com diferentes status
-        // Faixa de categoria com diferentes status
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              
-              child: Row(
-                 mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
-                children: [
-                  _CategoriaChip('Visível Ativo', Icons.visibility),
-                  _CategoriaChip('Visível Inativo', Icons.visibility_outlined),
-                  _CategoriaChip('Não Visível', Icons.visibility_off),
-                  _CategoriaChip('Encerrado', Icons.check),
-                  _CategoriaChip('Não Publicado', Icons.hourglass_empty)
-
-                ],
-              ),
-            ),
-          ),
-
-        // Lista de questionários (envolver com Expanded)
-        Expanded(
-          child: questionariosLider.isEmpty
-              ? const Center(
-                  child: Text(
-                    'Sem Formulário a Exibir',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                )
-              : Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ListView.builder(
-                    itemCount: questionariosLider.length,
-                    itemBuilder: (ctx, index) {
-                      final questionario = questionariosLider[index];
-
-                      return FutureBuilder<int>(
-                        future: Provider.of<RespostasList>(context, listen: false)
-                            .contarRespostas(questionario.id),
-                        builder: (ctx, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator());
-                          }
-
-                          final respostas = snapshot.data ?? 0;
-
-                          return FormularioCard(
-                            questionario: questionario,
-                            numRespostas: respostas,
-                            isLider: true,
-                          );
-                        },
-                      );
-                    },
+    return Scaffold(
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              // Barra de pesquisa
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  onChanged: (query) {
+                    setState(() {
+                      _searchQuery = query;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Pesquisar por nome',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
                   ),
                 ),
-        ),
-        Positioned(
-          bottom: 40, // Distância do fundo da tela
-          right: 20, // Distância da borda direita
-          child: _botaoAdicionarFormulario(context),
-        ),
-      ],
+              ),
+
+              // Faixa de categoria com diferentes status
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _CategoriaChip('Visível Ativo', Icons.visibility),
+                      _CategoriaChip('Visível Inativo', Icons.visibility_outlined),
+                      _CategoriaChip('Não Visível', Icons.visibility_off),
+                      _CategoriaChip('Encerrado', Icons.check),
+                      _CategoriaChip('Não Publicado', Icons.hourglass_empty)
+                    ],
+                  ),
+                ),
+              ),
+
+              // Lista de questionários (envolver com Expanded)
+              Expanded(
+                child: questionariosLider.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'Sem Formulário a Exibir',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: ListView.builder(
+                          itemCount: questionariosLider.length,
+                          itemBuilder: (ctx, index) {
+                            final questionario = questionariosLider[index];
+
+                            return FutureBuilder<int>(
+                              future: Provider.of<RespostasList>(context, listen: false)
+                                  .contarRespostas(questionario.id),
+                              builder: (ctx, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const Center(child: CircularProgressIndicator());
+                                }
+
+                                final respostas = snapshot.data ?? 0;
+
+                                return FormularioCard(
+                                  questionario: questionario,
+                                  numRespostas: respostas,
+                                  isLider: true,
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+              ),
+            ],
+          ),
+
+          // Botão flutuante dentro do Stack
+          Positioned(
+            bottom: 40, // Distância do fundo da tela
+            right: 20, // Distância da borda direita
+            child: _botaoAdicionarFormulario(context),
+          ),
+        ],
+      ),
     );
   }
-  
+
   Widget _botaoAdicionarFormulario(BuildContext context) {
     return Padding(
-      
       padding: const EdgeInsets.only(bottom: 40.0),
       child: ElevatedButton(
         onPressed: () {
@@ -133,6 +137,7 @@ class _QuestionariosLiderPageState extends State<QuestionariosLiderPage> {
       ),
     );
   }
+
   Widget _CategoriaChip(String categoria, IconData icon) {
     return Chip(
       label: Row(

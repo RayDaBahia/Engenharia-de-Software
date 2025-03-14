@@ -58,7 +58,8 @@ class FormularioCard extends StatelessWidget {
                         await questionarioProvider.ativarQuestionario(questionario.id);
                       } else if (value == 'desativar') {
                         await questionarioProvider.desativarQuestionario(questionario.id);
-                      } 
+                      }
+
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Ação "$value" realizada com sucesso!')),
@@ -67,19 +68,20 @@ class FormularioCard extends StatelessWidget {
                     },
                     itemBuilder: (context) {
                       List<PopupMenuEntry<String>> opcoes = [];
+
                       if (!questionario.publicado) {
                         opcoes.add(const PopupMenuItem(value: 'publicar', child: Text('Publicar')));
                       }
-                      else{
-                      if (!questionario.ativo) {
-                        opcoes.add(const PopupMenuItem(value: 'ativar', child: Text('Ativar')));
-                      } else {
-                        opcoes.add(const PopupMenuItem(value: 'desativar', child: Text('Desativar')));
-                       
+                      if (questionario.publicado) {
+                        if (!questionario.ativo) {
+                          opcoes.add(const PopupMenuItem(value: 'ativar', child: Text('Ativar')));
+                        } else {
+                          opcoes.add(const PopupMenuItem(value: 'desativar', child: Text('Desativar')));
+                        }
                       }
-                    }
-                        return opcoes;
-                    }
+
+                      return opcoes;
+                    },
                   ),
                 ),
             ],
