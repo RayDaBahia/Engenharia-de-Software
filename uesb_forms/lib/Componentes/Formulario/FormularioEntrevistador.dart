@@ -6,12 +6,12 @@ import 'package:uesb_forms/Modelo/Questionario.dart';
 
 class FormularioEntrevistador extends StatelessWidget {
   final Questionario questionario;
- // final int numRespostas;
+  // final int numRespostas;
 
   const FormularioEntrevistador({
     super.key,
     required this.questionario,
-   // required this.numRespostas,
+    // required this.numRespostas,
   });
 
   @override
@@ -60,30 +60,31 @@ class FormularioEntrevistador extends StatelessWidget {
                   icon: const Icon(Icons.more_vert, color: Colors.white),
                   onSelected: (value) async {
                     if (value == 'Notificar líder') {
-                      await questionarioProvider
-                          .publicarQuestionario(questionario.id);
+
+                      // Lógica para notificar o líder
+                      // Você pode enviar uma notificação ou e-mail para o líder aqui.
+                    
+                     
                     } else if (value == 'Responder') {
+                      if (questionario.senha == null ||
+                          questionario.senha!.isEmpty) {
+                        String senhaDigitada =
+                            await _mostrarDialogoSenha(context);
 
-
-                      if(questionario.senha==null || questionario.senha!.isEmpty){
-                                String senhaDigitada = await _mostrarDialogoSenha(context);
-
-                                  // Verificar se a senha fornecida é igual à senha do questionário
-                                  if (senhaDigitada == questionario.senha) {
-                                    // Lógica para responder ao questionário
-                                    // Você pode abrir uma nova tela ou permitir que o usuário complete o questionário aqui.
-                                    print('Senha correta! O questionário pode ser respondido.');
-                                  } else {
-                                    // Exibir um alerta caso a senha esteja incorreta
-                                   await _exibirAlertaSenhaIncorreta(context);
-                                  }
-                      }else{
+                        // Verificar se a senha fornecida é igual à senha do questionário
+                        if (senhaDigitada == questionario.senha) {
+                          // Lógica para responder ao questionário
+                          // Você pode abrir uma nova tela ou permitir que o usuário complete o questionário aqui.
+  
+                        } else {
+                          // Exibir um alerta caso a senha esteja incorreta
+                          await _exibirAlertaSenhaIncorreta(context);
+                        }
+                      } else {
 
                       }
                       // Adicione a lógica necessária
-                    } else if (value == 'Simular') {
-                      // Adicione a lógica necessária
-                    }
+                    } 
 
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -142,17 +143,15 @@ class FormularioEntrevistador extends StatelessWidget {
                             const TextStyle(fontSize: 14, color: Colors.black),
                       ),
                     ]),
-
               ],
             ),
           ),
         ],
       ),
     );
-
-    
   }
- Future<String> _mostrarDialogoSenha(BuildContext context) async {
+
+  Future<String> _mostrarDialogoSenha(BuildContext context) async {
     String senha = '';
     await showDialog<String>(
       context: context,
@@ -182,8 +181,7 @@ class FormularioEntrevistador extends StatelessWidget {
   }
 
   // Função para exibir um alerta se a senha for incorreta
- Future<void>  _exibirAlertaSenhaIncorreta (BuildContext context) async{
-
+  Future<void> _exibirAlertaSenhaIncorreta(BuildContext context) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -203,8 +201,3 @@ class FormularioEntrevistador extends StatelessWidget {
     );
   }
 }
-
-
-
-  
-

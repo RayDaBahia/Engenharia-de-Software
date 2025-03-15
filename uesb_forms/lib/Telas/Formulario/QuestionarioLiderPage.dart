@@ -89,7 +89,7 @@ class _QuestionariosLiderPageState extends State<QuestionariosLiderPage> {
                 child: questionariosLider.isEmpty
                     ? const Center(
                         child: Text(
-                          'Sem Formulário a Exibir',
+                          "Nenhum questionário encontrado",
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       )

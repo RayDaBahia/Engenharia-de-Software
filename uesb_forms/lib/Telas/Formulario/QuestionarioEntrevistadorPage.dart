@@ -16,9 +16,24 @@ class _QuestionariosEntrevistadorPageState extends State<QuestionariosEntrevista
   String _searchQuery = ""; // Armazena o termo de pesquisa
   String _filtroSelecionado = "Todos"; // Filtro atual (padrão: mostrar todos)
 
+
+
+
+@override
+
+  // Carrega os questionários quando a tela é inicializada
+  @override
+void initState() {
+  super.initState();
+  Future.microtask(() {
+    Provider.of<QuestionarioList>(context, listen: false).carregarQuestionariosEntrevistador();
+  });
+}
+
+
   @override
   Widget build(BuildContext context) {
-    Provider.of<QuestionarioList>(context, listen: true).carregarQuestionariosEntrevistador();
+  
     final questionariosEntrevistador = context.watch<QuestionarioList>().questionariosEntrevistador.where((questionario) {
       bool matchesSearch = questionario.nome.toLowerCase().contains(_searchQuery.toLowerCase());
       switch (_filtroSelecionado) {
@@ -35,14 +50,7 @@ class _QuestionariosEntrevistadorPageState extends State<QuestionariosEntrevista
       }
     }).toList();
 
-    return questionariosEntrevistador.isEmpty
-        ? const Center(
-            child: Text(
-              'Você ainda não possui questionários como Entrevistador',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          )
-        : Column(
+    return Column(
             children: [
               // Barra de pesquisa
               Padding(
@@ -81,23 +89,35 @@ class _QuestionariosEntrevistadorPageState extends State<QuestionariosEntrevista
                 ),
               ),
 
+              questionariosEntrevistador.isEmpty
+                  ?  const Center(
+                        child: Text(
+                          "Nenhum questionário encontrado",
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                  :
+
               // Lista de questionários
               Expanded(
-                child: ListView.builder(
-                  itemCount: questionariosEntrevistador.length,
-                  itemBuilder: (ctx, index) {
-                    final questionario = questionariosEntrevistador[index];
-
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ListView.builder(
+                    itemCount: questionariosEntrevistador.length,
+                    itemBuilder: (ctx, index) {
+                      final questionario = questionariosEntrevistador[index];
                   
-
-                        return FormularioEntrevistador(
-                          questionario: questionario,
-                          //numRespostas: respostas,
-                        
-                        );
-                     
                     
-                  },
+                  
+                          return FormularioEntrevistador(
+                            questionario: questionario,
+                            //numRespostas: respostas,
+                          
+                          );
+                       
+                      
+                    },
+                  ),
                 ),
               ),
             ],

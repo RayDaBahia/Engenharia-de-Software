@@ -247,7 +247,7 @@ Future<void> carregarQuestionariosEntrevistador() async {
   try {
     QuerySnapshot snapshot = await _firestore
         .collection('questionarios')
-        .where('entrevistadores', arrayContains: _authList!.usuario!.id)
+        .where('entrevistadores', arrayContains: _authList!.usuario!.email)
         .get();
 
     questionariosEntrevistador = snapshot.docs.map((doc) {
