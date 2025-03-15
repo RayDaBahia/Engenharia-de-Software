@@ -16,6 +16,19 @@ class Questao {
   List<String>? opcoes;
 
   @HiveField(6)
+
+  //  Funcionará da seguinte forma:  { 'opcao1': 'idQuestao1', 'opcao2': 'idQuestao2' }
+  // pega o id da questão que será direcionada a partir da opção selecionada
+  // quando tiver nessa questão objetiva ao responder ela deverá receber por parametro uma função do tipo calback a ser chamada 
+  // na tela de exibição do fomulário para ser respondido. Essa função definirá o id da próxima questão a ser exibida que deverá ser 
+  // buscada na lista que a tela de exibição do formulário 
+  // caso não tenha direcionamento a questão seguinte será a próxima da lista
+  
+  //  deverá ser criada uma coleção chamada de aplicação  que terá o id do formulario, lider, entrevistador e um map com o id da questão e a resposta
+
+  // crie um aplicação list para gerenciar isso e todos os outros métodos que forem necessários
+
+
   Map<String, String?>? direcionamento;
 
   @HiveField(7)

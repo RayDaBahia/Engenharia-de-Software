@@ -18,7 +18,8 @@ class _QuestionariosEntrevistadorPageState extends State<QuestionariosEntrevista
 
   @override
   Widget build(BuildContext context) {
-    final questionariosEntrevistador = context.watch<QuestionarioList>().questionariosLider.where((questionario) {
+    Provider.of<QuestionarioList>(context, listen: true).carregarQuestionariosEntrevistador();
+    final questionariosEntrevistador = context.watch<QuestionarioList>().questionariosEntrevistador.where((questionario) {
       bool matchesSearch = questionario.nome.toLowerCase().contains(_searchQuery.toLowerCase());
       switch (_filtroSelecionado) {
         case "Inativos":

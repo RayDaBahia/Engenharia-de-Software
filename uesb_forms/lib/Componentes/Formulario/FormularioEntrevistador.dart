@@ -63,6 +63,23 @@ class FormularioEntrevistador extends StatelessWidget {
                       await questionarioProvider
                           .publicarQuestionario(questionario.id);
                     } else if (value == 'Responder') {
+
+
+                      if(questionario.senha==null || questionario.senha!.isEmpty){
+                                String senhaDigitada = await _mostrarDialogoSenha(context);
+
+                                  // Verificar se a senha fornecida é igual à senha do questionário
+                                  if (senhaDigitada == questionario.senha) {
+                                    // Lógica para responder ao questionário
+                                    // Você pode abrir uma nova tela ou permitir que o usuário complete o questionário aqui.
+                                    print('Senha correta! O questionário pode ser respondido.');
+                                  } else {
+                                    // Exibir um alerta caso a senha esteja incorreta
+                                   await _exibirAlertaSenhaIncorreta(context);
+                                  }
+                      }else{
+
+                      }
                       // Adicione a lógica necessária
                     } else if (value == 'Simular') {
                       // Adicione a lógica necessária
@@ -125,11 +142,69 @@ class FormularioEntrevistador extends StatelessWidget {
                             const TextStyle(fontSize: 14, color: Colors.black),
                       ),
                     ]),
+
               ],
             ),
           ),
         ],
       ),
     );
+
+    
+  }
+ Future<String> _mostrarDialogoSenha(BuildContext context) async {
+    String senha = '';
+    await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        TextEditingController _senhaController = TextEditingController();
+
+        return AlertDialog(
+          title: Text("Digite a senha"),
+          content: TextField(
+            controller: _senhaController,
+            obscureText: true,
+            decoration: InputDecoration(hintText: "Senha"),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                senha = _senhaController.text;
+                Navigator.of(context).pop(senha); // Retorna a senha digitada
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+    return senha; // Retorna a senha digitada
+  }
+
+  // Função para exibir um alerta se a senha for incorreta
+ Future<void>  _exibirAlertaSenhaIncorreta (BuildContext context) async{
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Erro"),
+          content: Text("A senha digitada está incorreta."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Fecha o diálogo
+              },
+              child: Text("Fechar"),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
+
+
+
+  
+

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
@@ -8,6 +10,7 @@ class QuestionarioList extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final AuthList? _authList;
 
+  List<Questionario> questionariosEntrevistador = [];
   List<Questionario> questionariosLider = [];
   List<Questao> listaQuestoes = [];
   String? meta;
@@ -15,12 +18,48 @@ class QuestionarioList extends ChangeNotifier {
   String? preenchidoPor;
   String? descricao;
   int tamQuestoesLista = 0;
-
+  // Inicia o timer para verificar o prazo a cada 10 minutos
+  Timer? _timer;
 
 
   QuestionarioList([this._authList]) {
     _carregarQuestionariosLider();
+    _iniciarVerificacaoDePrazo();
   }
+
+
+  void _iniciarVerificacaoDePrazo() {
+    _timer = Timer.periodic(Duration(minutes: 10), (timer) {
+      _verificarEAtualizarPrazo();
+    });
+  }
+
+
+ Future<void> _verificarEAtualizarPrazo() async {
+    final now = DateTime.now();
+    
+    for (var questionario in questionariosLider) {
+      if (questionario.prazo != null && questionario.prazo!.isBefore(now) && !questionario.ativo) {
+        // Se o prazo passou e o questionário não está ativo, atualize o status
+        try {
+          await _firestore.collection('questionarios').doc(questionario.id).update({
+            'ativo': false,  // Define como inativo quando o prazo passou
+          });
+
+          // Atualize a lista localmente
+          questionario.ativo = false;
+
+          notifyListeners();
+          debugPrint('Questionário ${questionario.id} atualizado para inativo.');
+        } catch (e) {
+          debugPrint('Erro ao atualizar status do questionário: $e');
+        }
+      }
+    }
+  }
+
+
+
 
   void setDadosTemporarios({
     String? meta,
@@ -199,6 +238,32 @@ Future<void> _persistirQuestoes(List<Questao> questoes, String id) async {
     }
   }
 
+Future<void> carregarQuestionariosEntrevistador() async {
+  if (_authList?.usuario?.id == null) {
+    debugPrint('Usuário não autenticado. Não carregando questionários.');
+    return;
+  }
+
+  try {
+    QuerySnapshot snapshot = await _firestore
+        .collection('questionarios')
+        .where('entrevistadores', arrayContains: _authList!.usuario!.id)
+        .get();
+
+    questionariosEntrevistador = snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return Questionario.fromMap(data, doc.id);
+    }).toList();
+
+    debugPrint('Questionários do entrevistador carregados: ${questionariosEntrevistador.length}');
+    notifyListeners();
+  } catch (e) {
+    debugPrint('Erro ao carregar questionários do entrevistador: $e');
+  }
+}
+
+
+
   void limparQuestoesSelecionadas() {
     listaQuestoes.clear();
     notifyListeners();
@@ -307,6 +372,12 @@ Future<void> atualizarQuestionario(Questionario questionario) async {
   }
 }
 
+@override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+
+  }
 
 
 
