@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:uesb_forms/Componentes/Formulario/FormularioCard.dart';
+import 'package:uesb_forms/Componentes/Formulario/FormularioEntrevistador.dart';
+import 'package:uesb_forms/Componentes/Formulario/FormularioLider.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
-import 'package:uesb_forms/Controle_Modelo/resposta_list.dart';
+
 
 class QuestionariosEntrevistadorPage extends StatefulWidget {
   const QuestionariosEntrevistadorPage({super.key});
@@ -86,23 +87,15 @@ class _QuestionariosEntrevistadorPageState extends State<QuestionariosEntrevista
                   itemBuilder: (ctx, index) {
                     final questionario = questionariosEntrevistador[index];
 
-                    return FutureBuilder<int>(
-                      future: Provider.of<RespostasList>(context, listen: false)
-                          .contarRespostas(questionario.id),
-                      builder: (ctx, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
-                        }
+                  
 
-                        final respostas = snapshot.data ?? 0;
-
-                        return FormularioCard(
+                        return FormularioEntrevistador(
                           questionario: questionario,
-                          numRespostas: respostas,
-                          isLider: false,
+                          //numRespostas: respostas,
+                        
                         );
-                      },
-                    );
+                     
+                    
                   },
                 ),
               ),

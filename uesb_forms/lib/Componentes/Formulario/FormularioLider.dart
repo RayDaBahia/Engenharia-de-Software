@@ -2,24 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
+import 'package:uesb_forms/Utils/rotas.dart';
 
-class FormularioCard extends StatelessWidget {
+class FormularioLider extends StatelessWidget {
   final Questionario questionario;
-  final int numRespostas;
-  final bool isLider;
+//  final int numRespostas;
 
-  const FormularioCard({
+
+  const FormularioLider({
     super.key,
     required this.questionario,
-    required this.numRespostas,
-    required this.isLider,
+   // required this.numRespostas,
+ 
   });
 
   @override
   Widget build(BuildContext context) {
-    final questionarioProvider = Provider.of<QuestionarioList>(context, listen: false);
+    final questionarioProvider = Provider.of<QuestionarioList>(context, listen: true);
 
-    return Card(
+    return 
+    
+    Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -45,7 +48,7 @@ class FormularioCard extends StatelessWidget {
                   top: 10,
                   child: Icon(Icons.lock, color: Colors.white, size: 20),
                 ),
-              if (isLider)
+              
                 Positioned(
                   left: 10,
                   top: 10,
@@ -58,8 +61,12 @@ class FormularioCard extends StatelessWidget {
                         await questionarioProvider.ativarQuestionario(questionario.id);
                       } else if (value == 'desativar') {
                         await questionarioProvider.desativarQuestionario(questionario.id);
-                      }
-
+                      }else if (value == 'editar') {
+                      Navigator.of(context).pushNamed(Rotas.EDICAO_FORMULARIO_TELA, arguments: questionario);
+                      
+                    }else if(value== 'editar configurações'){
+                      Navigator.of(context).pushNamed(Rotas.CONFIGURAR_ACESSO_FORMS, arguments: questionario);
+                    }
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Ação "$value" realizada com sucesso!')),
@@ -71,6 +78,8 @@ class FormularioCard extends StatelessWidget {
 
                       if (!questionario.publicado) {
                         opcoes.add(const PopupMenuItem(value: 'publicar', child: Text('Publicar')));
+                         opcoes.add(const PopupMenuItem(value: 'editar', child: Text('Editar')));
+                         opcoes.add(const PopupMenuItem(value: 'editar configurações', child: Text('Editar configuracoes')));
                       }
                       if (questionario.publicado) {
                         if (!questionario.ativo) {
@@ -100,11 +109,11 @@ class FormularioCard extends StatelessWidget {
                   style: const TextStyle(fontSize: 14, color: Colors.grey),
                 ),
                 const SizedBox(height: 10),
-              
+             /* 
                 Text(
                   "Respostas: $numRespostas / ${questionario.meta}",
                   style: const TextStyle(fontSize: 14, color: Colors.black),
-                ),
+                ),*/
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

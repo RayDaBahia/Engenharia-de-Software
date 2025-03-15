@@ -17,7 +17,7 @@ class _ConfigurarAcessoState extends State<ConfigurarAcesso> {
   bool _senhaVisivel = false;
   List<Map<String, dynamic>> entrevistadores = [];
 
-  late Questionario questionario;
+  Questionario? questionario;
   DateTime? _prazoSelecionado;
 
   // Variável para armazenar os dados do questionário
@@ -28,10 +28,26 @@ class _ConfigurarAcessoState extends State<ConfigurarAcesso> {
     'publicado': false
   };
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  
+    // Agora podemos acessar o ModalRoute
+    questionario = ModalRoute.of(context)!.settings.arguments as Questionario?;
+  
+    if (questionario != null) {
+      _senhaController.text = questionario!.senha ?? '';
+      _prazoSelecionado = questionario!.prazo;
+      entrevistadores = questionario!.entrevistadores
+          .map((e) => {"email": e, "selecionado": true})
+          .toList();
+    }
+  }
+
   void _adicionarEntrevistador(String email) {
     if (email.isNotEmpty && !entrevistadores.any((e) => e["email"] == email)) {
       setState(() {
-        entrevistadores.add({"email": email, "selecionado": false});
+        entrevistadores.add({"email": email, "selecionado": true});
       });
       _emailController.clear();
     }
@@ -52,60 +68,54 @@ class _ConfigurarAcessoState extends State<ConfigurarAcesso> {
       }
     });
   }
-void _FinalizarQuestionario() async {
-  final questionarioProvider = Provider.of<QuestionarioList>(context, listen: false);
+
+  void _FinalizarQuestionario() async {
+    final questionarioProvider =
+        Provider.of<QuestionarioList>(context, listen: false);
 
     await questionarioProvider.adicionarQuestionario(
+        senha: dadosQuestionario['senha'].isEmpty
+            ? ''
+            : dadosQuestionario['senha'],
+        entrevistadores: dadosQuestionario['entrevistadores'],
+        prazo: dadosQuestionario['prazo'],
+        publicado: dadosQuestionario['publicado']);
 
-      senha: dadosQuestionario['senha'].isEmpty ? '' : dadosQuestionario['senha'], 
-      entrevistadores: dadosQuestionario['entrevistadores'], 
-      prazo: dadosQuestionario['prazo'], 
-      publicado: dadosQuestionario['publicado']
-    );
-
-  questionarioProvider.limparQuestoesSelecionadas();
-  
-}
-
+    questionarioProvider.limparQuestoesSelecionadas();
+  }
 
   // Método para exibir o diálogo de confirmação
- void _showPublishDialog() {
-  showDialog(
-    context: context,
-    builder: (BuildContext dialogContext) { // Novo contexto específico do diálogo
-      return AlertDialog(
-        title: Text("Publicar Questionário?"),
-        content: Text("Deseja publicar o questionário agora?"),
-        actions: [
-          TextButton(
-            onPressed: () {
+  void _showPublishDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        // Novo contexto específico do diálogo
+        return AlertDialog(
+          title: Text("Publicar Questionário?"),
+          content: Text("Deseja publicar o questionário agora?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _capturarInformacoes(true);
+                _FinalizarQuestionario();
 
-           _capturarInformacoes(true);
-           _FinalizarQuestionario();
-
-      
-            Navigator.pushReplacementNamed(context, Rotas.MEUS_FORMULARIOS);
-            },
-            child: Text("Sim"),
-          ),
-          TextButton(
-            onPressed: () {
-            _capturarInformacoes(false);
-             _FinalizarQuestionario();
-            Navigator.pushReplacementNamed(context, Rotas.MEUS_FORMULARIOS);
-              
-             
-            },
-            child: Text("Não"),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-
-
+                Navigator.pushReplacementNamed(context, Rotas.MEUS_FORMULARIOS);
+              },
+              child: Text("Sim"),
+            ),
+            TextButton(
+              onPressed: () {
+                _capturarInformacoes(false);
+                _FinalizarQuestionario();
+                Navigator.pushReplacementNamed(context, Rotas.MEUS_FORMULARIOS);
+              },
+              child: Text("Não"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   // Função para escolher a data e hora do prazo
   Future<void> _selecionarPrazo() async {
@@ -148,7 +158,7 @@ void _FinalizarQuestionario() async {
           .map((e) => e['email'] as String)
           .toList(); // Lista de entrevistadores selecionados
       dadosQuestionario['prazo'] = _prazoSelecionado; // Prazo selecionado
-      dadosQuestionario['publicado']=publicado;
+      dadosQuestionario['publicado'] = publicado;
     });
   }
 
@@ -156,7 +166,7 @@ void _FinalizarQuestionario() async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor:const Color.fromARGB(255, 45, 12, 68),
+        backgroundColor: const Color.fromARGB(255, 45, 12, 68),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
@@ -175,15 +185,18 @@ void _FinalizarQuestionario() async {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Campo de senha
-            Text("Senha de acesso (Opcional)", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text("Senha de acesso (Opcional)",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             SizedBox(height: 5),
             TextField(
               controller: _senhaController,
               obscureText: !_senhaVisivel,
               decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 suffixIcon: IconButton(
-                  icon: Icon(_senhaVisivel ? Icons.visibility : Icons.visibility_off),
+                  icon: Icon(
+                      _senhaVisivel ? Icons.visibility : Icons.visibility_off),
                   onPressed: () {
                     setState(() {
                       _senhaVisivel = !_senhaVisivel;
@@ -195,7 +208,8 @@ void _FinalizarQuestionario() async {
             SizedBox(height: 20),
 
             // Campo de pesquisa de e-mail
-            Text("Adicionar entrevistadores", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text("Adicionar entrevistadores",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             SizedBox(height: 5),
             Row(
               children: [
@@ -204,10 +218,12 @@ void _FinalizarQuestionario() async {
                     controller: _emailController,
                     decoration: InputDecoration(
                       hintText: "Pesquisar e-mail",
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
                     ),
                     onChanged: (value) {
-                      setState(() {}); // Atualiza a tela para recarregar a pesquisa
+                      setState(
+                          () {}); // Atualiza a tela para recarregar a pesquisa
                     },
                   ),
                 ),
@@ -217,8 +233,8 @@ void _FinalizarQuestionario() async {
 
             // StreamBuilder para realizar a busca conforme a digitação
             StreamBuilder<List<Usuario>>(
-              stream: Provider.of<AuthList>(context)
-                  .buscarUsuariosPorEmail(_emailController.text), // Passa o texto da pesquisa
+              stream: Provider.of<AuthList>(context).buscarUsuariosPorEmail(
+                  _emailController.text), // Passa o texto da pesquisa
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -233,7 +249,8 @@ void _FinalizarQuestionario() async {
                       subtitle: Text(usuario.email ?? "Email não disponível"),
                       trailing: IconButton(
                         icon: Icon(Icons.add, color: Colors.green),
-                        onPressed: () => _adicionarEntrevistador(usuario.email ?? ""),
+                        onPressed: () =>
+                            _adicionarEntrevistador(usuario.email ?? ""),
                       ),
                     );
                   }).toList(),
@@ -244,7 +261,8 @@ void _FinalizarQuestionario() async {
             SizedBox(height: 20),
 
             // Lista de entrevistadores adicionados
-            Text("Entrevistadores adicionados", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text("Entrevistadores adicionados",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             SizedBox(height: 5),
             Expanded(
               child: ListView.builder(
@@ -255,12 +273,14 @@ void _FinalizarQuestionario() async {
                     child: ListTile(
                       leading: Checkbox(
                         value: entrevistador["selecionado"],
-                        onChanged: (value) => _alternarSelecao(entrevistador["email"]),
+                        onChanged: (value) =>
+                            _alternarSelecao(entrevistador["email"]),
                       ),
                       title: Text(entrevistador["email"]),
                       trailing: IconButton(
                         icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _removerEntrevistador(entrevistador["email"]),
+                        onPressed: () =>
+                            _removerEntrevistador(entrevistador["email"]),
                       ),
                     ),
                   );
@@ -269,7 +289,8 @@ void _FinalizarQuestionario() async {
             ),
 
             // Campo de seleção de prazo
-            Text("Selecionar prazo para o questionário", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text("Selecionar prazo para o questionário",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             SizedBox(height: 5),
             Row(
               children: [
@@ -297,13 +318,28 @@ void _FinalizarQuestionario() async {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 24, 4, 57),
                   padding: EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
                 onPressed: () {
-                  
-                  _showPublishDialog(); // Exibe o diálogo ao pressionar "Finalizar"
+                  if (questionario != null) {
+                    _capturarInformacoes(questionario!.publicado);
+                    questionario!.senha = dadosQuestionario['senha'];
+                    questionario!.entrevistadores =
+                        dadosQuestionario['entrevistadores'];
+                    questionario!.prazo = dadosQuestionario['prazo'];
+                    questionario!.publicado = dadosQuestionario['publicado'];
+                    Provider.of<QuestionarioList>(context, listen: false)
+                        .atualizarQuestionario(questionario!);
+
+                    Navigator.of(context).pop();
+                  } else {
+                    _showPublishDialog();
+                  }
+                  // Exibe o diálogo ao pressionar "Finalizar"
                 },
-                child: Text("Finalizar", style: TextStyle(color: Colors.white, fontSize: 18)),
+                child: Text("Finalizar",
+                    style: TextStyle(color: Colors.white, fontSize: 18)),
               ),
             ),
           ],

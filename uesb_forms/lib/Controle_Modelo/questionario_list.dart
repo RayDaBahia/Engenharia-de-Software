@@ -16,6 +16,8 @@ class QuestionarioList extends ChangeNotifier {
   String? descricao;
   int tamQuestoesLista = 0;
 
+
+
   QuestionarioList([this._authList]) {
     _carregarQuestionariosLider();
   }
@@ -37,10 +39,36 @@ class QuestionarioList extends ChangeNotifier {
     notifyListeners();
   }
 
-  void adicionarListaQuestoesSelecionadas(List<Questao> questoes) {
-    listaQuestoes.addAll(questoes);
+ void adicionarListaQuestoesSelecionadas(List<Questao> questoes) {
+  final Set<String> questoesExistentes = listaQuestoes.map(_gerarHash).toSet();
+
+  List<Questao> questoesParaAdicionar = questoes.where((questao) {
+    return !questoesExistentes.contains(_gerarHash(questao));
+  }).toList();
+
+  if (questoesParaAdicionar.isNotEmpty) {
+    listaQuestoes.addAll(questoesParaAdicionar);
     notifyListeners();
   }
+}
+
+// Gera um hash único para cada questão
+String _gerarHash(Questao questao) {
+  return '${questao.textoQuestao}|'
+         '${questao.tipoQuestao.index}|'
+         '${questao.opcoes?.join(",") ?? ""}|'
+         '${_mapaParaString(questao.direcionamento)}|'
+         '${questao.obrigatoria}|'
+         '${questao.bancoId ?? ""}';
+}
+
+// Converte um mapa para uma string ordenada
+String _mapaParaString(Map<String, String?>? mapa) {
+  if (mapa == null) return "";
+  final sortedKeys = mapa.keys.toList()..sort(); // Ordena para garantir consistência
+  return sortedKeys.map((key) => '$key:${mapa[key] ?? ""}').join(",");
+}
+
 
   void limparQuestoes() {
     listaQuestoes.clear();
@@ -99,13 +127,24 @@ class QuestionarioList extends ChangeNotifier {
       debugPrint('Erro ao adicionar questionário: $e');
     }
   }
+Future<void> _persistirQuestoes(List<Questao> questoes, String id) async {
+  final docRef = _firestore.collection('questionarios').doc(id).collection('questoes');
 
-  Future<void> _persistirQuestoes(List<Questao> questoes, String id) async {
-    final docRef = _firestore.collection('questionarios').doc(id).collection('questoes');
-    for (int i = tamQuestoesLista; i < listaQuestoes.length; i++) {
-      await docRef.add(questoes[i].toMap());
+
+  for (var questao in questoes) {
+    if (questao.id != null && questao.id!.isNotEmpty) {
+      // Atualiza se a questão já tem um ID
+      await docRef.doc(questao.id).set(questao.toMap(), SetOptions(merge: true));
+    } else {
+      // Adiciona uma nova questão se não tiver um ID
+      final newDoc = await docRef.add(questao.toMap());
+      questao.id = newDoc.id; // Atualiza o ID da questão localmente
     }
   }
+}
+
+
+
 
   Future<void> excluirQuestionario(String id) async {
     try {
@@ -207,5 +246,68 @@ class QuestionarioList extends ChangeNotifier {
     } catch (e) {
       debugPrint('Erro ao publicar questionário: $e');
     }
+
+
+    
   }
+
+  Future buscarQuestoes(String questionarioId) async {
+  try {
+    final querySnapshot = await _firestore
+        .collection('questionarios')
+        .doc(questionarioId)
+        .collection('questoes')
+        .get();
+
+    List<Questao> questoes = querySnapshot.docs.map((doc) {
+      final data = doc.data();
+      return Questao.fromMap(data);
+    }).toList();
+
+    listaQuestoes = questoes;
+    tamQuestoesLista = questoes.length;
+     notifyListeners();
+
+   
+  } catch (e) {
+    debugPrint('Erro ao buscar questões: $e');
+  }
+}
+
+
+Future<void> atualizarQuestionario(Questionario questionario) async {
+  try {
+    await _firestore.collection('questionarios').doc(questionario.id).update({
+      'nome': questionario.nome,
+      'descricao': questionario.descricao,
+      'publicado': questionario.publicado,
+      'visivel': questionario.visivel,
+      'ativo': questionario.ativo,
+      'prazo': questionario.prazo, // Pode ser null
+      'dataPublicacao': questionario.dataPublicacao, // Pode ser null
+      'entrevistadores': questionario.entrevistadores,
+      'link': questionario.link,
+      'aplicado': questionario.aplicado,
+      'liderId': questionario.liderId,
+      'senha': questionario.senha,
+      'tipoAplicacao': questionario.tipoAplicacao,
+      'meta': questionario.meta,
+      'liderNome': questionario.liderNome,
+      'dataCriacao': questionario.dataCriacao,
+    });
+
+    _persistirQuestoes(listaQuestoes, questionario.id);
+
+    notifyListeners();
+    
+
+    debugPrint('Questionário atualizado com sucesso!');
+  } catch (e) {
+    debugPrint('Erro ao atualizar questionário: $e');
+  }
+}
+
+
+
+
 }
