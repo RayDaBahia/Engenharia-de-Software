@@ -182,6 +182,8 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                                   : _metaController.text,
                               preenchido: _preenchidoPor,
                             );
+                              Navigator.pushNamed(
+                            context, Rotas.CONFIGURAR_ACESSO_FORMS);
 
                       }
 

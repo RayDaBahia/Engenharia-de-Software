@@ -45,6 +45,7 @@ class _ConfigurarAcessoState extends State<ConfigurarAcesso> {
   }
 
   void _adicionarEntrevistador(String email) {
+      print("Tentando adicionar entrevistador: $email");
     if (email.isNotEmpty && !entrevistadores.any((e) => e["email"] == email)) {
       setState(() {
         entrevistadores.add({"email": email, "selecionado": true});
@@ -250,6 +251,7 @@ class _ConfigurarAcessoState extends State<ConfigurarAcesso> {
                       trailing: IconButton(
                         icon: Icon(Icons.add, color: Colors.green),
                         onPressed: () =>
+                  
                             _adicionarEntrevistador(usuario.email ?? ""),
                       ),
                     );
