@@ -70,19 +70,80 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            _questoesSelecionadas.clear();
+  leading: IconButton(
+    icon: const Icon(Icons.arrow_back),
+    onPressed: () {
+      _questoesSelecionadas.clear();
+      Navigator.of(context).pop();
+    },
+  ),
+  title: const Text(
+    'Edição do Questionário',
+    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+  ),
+  backgroundColor: const Color.fromARGB(255, 45, 12, 68),
+  actions: [
+    Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: ElevatedButton(
+        onPressed: () {
+          if (_preenchidoPor == null || _preenchidoPor!.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text(
+                      'É necessário informar quem irá preencher o questionário')),
+            );
+            return;
+          }
+          if (_nomeController.text.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text(
+                      'É necessário definir um título para o questionário')),
+            );
+            return;
+          }
+
+          if (!isEdicaoQuestionario) {
+            Provider.of<QuestionarioList>(context, listen: false)
+                .setDadosTemporarios(
+              listaDeQuestoes: _questoesSelecionadas,
+              nome: _nomeController.text.isEmpty
+                  ? 'Sem título'
+                  : _nomeController.text,
+              descricao: _descricaoController.text.isEmpty
+                  ? 'Sem descrição'
+                  : _descricaoController.text,
+              meta: _metaController.text.isEmpty
+                  ? '0'
+                  : _metaController.text,
+              preenchido: _preenchidoPor,
+            );
+            Navigator.pushNamed(
+                context, Rotas.CONFIGURAR_ACESSO_FORMS);
+          } else {
+            questionario!.nome = _nomeController.text;
+            questionario!.descricao = _descricaoController.text;
+            questionario!.meta = int.parse(_metaController.text);
+            questionario!.tipoAplicacao = _preenchidoPor!;
+            Provider.of<QuestionarioList>(context, listen: false)
+                .atualizarQuestionario(questionario!);
             Navigator.of(context).pop();
-          },
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 1, 21, 37),
         ),
-        title: const Text(
-          'Edição do Questionário',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        backgroundColor: const Color.fromARGB(255, 45, 12, 68),
+        child: isEdicaoQuestionario
+            ? const Text('Concluir',
+                style: TextStyle(color: Colors.white))
+            : const Text('Próximo',
+                style: TextStyle(color: Colors.white)),
       ),
+    ),
+  ],
+),
+
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -144,74 +205,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                     ),
             ),
             const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton(
-                    onPressed: () {
-                      if (_preenchidoPor == null || _preenchidoPor!.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text(
-                                  'É necessário informar quem irá preencher o questionário')),
-                        );
-                        return;
-                      }
-                      if (_nomeController.text.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text(
-                                  'é necessário definir um título para o questionario')),
-                        );
-                        return;
-                      }
-
-                     else if(!isEdicaoQuestionario){
-                        
-                            Provider.of<QuestionarioList>(context, listen: false)
-                                .setDadosTemporarios(
-                              listaDeQuestoes: _questoesSelecionadas,
-                              nome: _nomeController.text.isEmpty
-                                  ? 'Sem título'
-                                  : _nomeController.text,
-                              descricao: _descricaoController.text.isEmpty
-                                  ? 'Sem descrição'
-                                  : _descricaoController.text,
-                              meta: _metaController.text.isEmpty
-                                  ? '0'
-                                  : _metaController.text,
-                              preenchido: _preenchidoPor,
-                            );
-                              Navigator.pushNamed(
-                            context, Rotas.CONFIGURAR_ACESSO_FORMS);
-
-                      }
-
-                     else if (isEdicaoQuestionario) {
-                        
-                        questionario!.nome = _nomeController.text;
-                        questionario!.descricao = _descricaoController.text;
-                        questionario!.meta = int.parse(_metaController.text);
-                        questionario!.tipoAplicacao = _preenchidoPor!;
-                        Provider.of<QuestionarioList>(context, listen: false).atualizarQuestionario(questionario!);
-                 
-                        Navigator.of(context).pop();
-                      } else {
-                        Navigator.pushNamed(
-                            context, Rotas.CONFIGURAR_ACESSO_FORMS);
-                      }
-                     
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 1, 21, 37),
-                    ),
-                    child: isEdicaoQuestionario
-                        ? const Text('Concluir',
-                            style: TextStyle(color: Colors.white))
-                        : const Text('Próximo',
-                            style: TextStyle(color: Colors.white))),
-              ],
-            ),
+         
           ],
         ),
       ),
@@ -224,6 +218,8 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
     );
   }
 }
+
+
 
 class CampoTexto extends StatelessWidget {
   final String label;
@@ -259,6 +255,10 @@ class CampoTexto extends StatelessWidget {
     );
   }
 }
+
+
+
+
 
 class CampoNumero extends StatelessWidget {
   final String label;
