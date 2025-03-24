@@ -66,7 +66,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
   @override
   Widget build(BuildContext context) {
     _questoesSelecionadas =
-        Provider.of<QuestionarioList>(context).listaQuestoes;
+        Provider.of<QuestionarioList>(context, listen: true).listaQuestoes;
 
     return Scaffold(
       appBar: AppBar(
@@ -196,7 +196,8 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                             icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () {
                               setState(() {
-                                _questoesSelecionadas.removeAt(index);
+                                 Provider.of<QuestionarioList>(context, listen: false)
+                                    .excluirQuestaoSelecionada(index, questionario!.id);
                               });
                             },
                           ),

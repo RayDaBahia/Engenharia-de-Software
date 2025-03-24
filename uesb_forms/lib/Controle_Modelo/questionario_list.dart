@@ -28,6 +28,32 @@ class QuestionarioList extends ChangeNotifier {
   }
 
 
+
+void excluirQuestaoSelecionada(int index, String questionarioId) async {
+  if (index >= 0 && index < listaQuestoes.length) {
+    String? questaoId = listaQuestoes[index].id; // Pegando o ID da questão
+    listaQuestoes.removeAt(index);
+    notifyListeners();
+    debugPrint('Questão removida localmente. Restantes: ${listaQuestoes.length}');
+
+    if (questaoId != null) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('questionarios')
+            .doc(questionarioId)
+            .collection('questoes')
+            .doc(questaoId)
+            .delete();
+        debugPrint('Questão excluída do Firestore com sucesso.');
+      } catch (e) {
+        debugPrint('Erro ao excluir questão do Firestore: $e');
+      }
+    }
+  } else {
+    debugPrint('Erro: Índice fora do alcance.');
+  }
+}
+
   void _iniciarVerificacaoDePrazo() {
     _timer = Timer.periodic(Duration(minutes: 10), (timer) {
       _verificarEAtualizarPrazo();
