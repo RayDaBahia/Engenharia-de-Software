@@ -192,7 +192,8 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                             },
                             controlAffinity: ListTileControlAffinity.leading,
                           ),
-                          trailing: IconButton(
+                          trailing:
+                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () {
                               setState(() {
