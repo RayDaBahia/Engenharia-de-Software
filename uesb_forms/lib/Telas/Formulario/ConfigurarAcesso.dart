@@ -187,6 +187,36 @@ class _ConfigurarAcessoState extends State<ConfigurarAcesso> {
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         centerTitle: true,
+        actions: [
+          Padding(padding: 
+          const EdgeInsets.symmetric(horizontal: 8.0),
+          child: ElevatedButton(
+                   style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+              ),
+                onPressed: () {
+                  if (questionario != null) {
+                    _capturarInformacoes(questionario!.publicado);
+                    questionario!.senha = dadosQuestionario['senha'];
+                    questionario!.entrevistadores =
+                        dadosQuestionario['entrevistadores'];
+                    questionario!.prazo = dadosQuestionario['prazo'];
+                    questionario!.publicado = dadosQuestionario['publicado'];
+                    Provider.of<QuestionarioList>(context, listen: false)
+                        .atualizarQuestionario(questionario!);
+
+                    Navigator.of(context).pop();
+                  } else {
+                    _showPublishDialog();
+                  }
+                  // Exibe o diálogo ao pressionar "Finalizar"
+                },
+                child: Text("Finalizar",
+                    style: TextStyle(
+                          color: const Color.fromARGB(255, 1, 21, 37),
+                          fontWeight: FontWeight.bold)),
+              ),)
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -322,36 +352,7 @@ class _ConfigurarAcessoState extends State<ConfigurarAcesso> {
             SizedBox(height: 20),
 
             // Botão Finalizar
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 24, 4, 57),
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                ),
-                onPressed: () {
-                  if (questionario != null) {
-                    _capturarInformacoes(questionario!.publicado);
-                    questionario!.senha = dadosQuestionario['senha'];
-                    questionario!.entrevistadores =
-                        dadosQuestionario['entrevistadores'];
-                    questionario!.prazo = dadosQuestionario['prazo'];
-                    questionario!.publicado = dadosQuestionario['publicado'];
-                    Provider.of<QuestionarioList>(context, listen: false)
-                        .atualizarQuestionario(questionario!);
-
-                    Navigator.of(context).pop();
-                  } else {
-                    _showPublishDialog();
-                  }
-                  // Exibe o diálogo ao pressionar "Finalizar"
-                },
-                child: Text("Finalizar",
-                    style: TextStyle(color: Colors.white, fontSize: 18)),
-              ),
-            ),
+           
           ],
         ),
       ),
