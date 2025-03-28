@@ -13,7 +13,7 @@ class BancoList with ChangeNotifier {
 
   List<Questao> questoesLista = []; // Lista para armazenar questões
   List<Questao> questoesFiltro = []; // lista de questões filtrados
-  List<Banco> bancosLista = [];
+  List<Banco> bancosLista = []; // Banco de questões
   List<Banco> bancosFiltro = []; // lista de bancos filtrados
 
   BancoList([this._authList]);
