@@ -29,30 +29,39 @@ class _ConfigurarAcessoState extends State<ConfigurarAcesso> {
   };
 
   @override
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
   
-    // Agora podemos acessar o ModalRoute
     questionario = ModalRoute.of(context)!.settings.arguments as Questionario?;
-  
+
     if (questionario != null) {
       _senhaController.text = questionario!.senha ?? '';
       _prazoSelecionado = questionario!.prazo;
-      entrevistadores = questionario!.entrevistadores
-          .map((e) => {"email": e, "selecionado": true})
-          .toList();
+      
+      // Verificar o tipo de 'entrevistadores' no questionário
+      if (questionario!.entrevistadores is List<String>) {
+        entrevistadores = questionario!.entrevistadores
+            .map((e) => {"email": e, "selecionado": true})
+            .toList();
+      } else if (questionario!.entrevistadores is List<Map<String, dynamic>>) {
+        entrevistadores = List<Map<String, dynamic>>.from(questionario!.entrevistadores);
+      } else {
+        entrevistadores = [];
+      }
     }
   }
 
   void _adicionarEntrevistador(String email) {
-      print("Tentando adicionar entrevistador: $email");
-    if (email.isNotEmpty && !entrevistadores.any((e) => e["email"] == email)) {
-      setState(() {
-        entrevistadores.add({"email": email, "selecionado": true});
-      });
-      _emailController.clear();
-    }
+  print("Tentando adicionar entrevistador: $email");
+  if (email.isNotEmpty && !entrevistadores.any((e) => e["email"] == email)) {
+    setState(() {
+      // Garantir que o tipo é List<Map<String, dynamic>>.
+      entrevistadores.add({"email": email, "selecionado": true} as Map<String, dynamic>);
+    });
+    _emailController.clear();
   }
+}
 
   void _removerEntrevistador(String email) {
     setState(() {
