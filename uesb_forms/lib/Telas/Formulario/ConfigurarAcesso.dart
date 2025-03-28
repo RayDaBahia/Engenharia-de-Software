@@ -29,7 +29,6 @@ class _ConfigurarAcessoState extends State<ConfigurarAcesso> {
   };
 
   @override
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
   
