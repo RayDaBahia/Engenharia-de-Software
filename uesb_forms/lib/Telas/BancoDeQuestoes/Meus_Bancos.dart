@@ -24,19 +24,23 @@ class _MeusBancosState extends State<MeusBancos> {
 
  
   bool isFormulario = false; // Valor padrão
+bool _bancosCarregados = false; // Controle de carregamento
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+@override
+void didChangeDependencies() {
+  super.didChangeDependencies();
 
-    final argumentos =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+  final argumentos =
+      ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    // Se o argumento não existir, assume false
-    isFormulario = argumentos?['isFormulario'] ?? false;
+  isFormulario = argumentos?['isFormulario'] ?? false;
 
+  if (!_bancosCarregados) { // Impede chamadas múltiplas
     Provider.of<BancoList>(context, listen: false).getBanco();
+    _bancosCarregados = true;
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
