@@ -132,13 +132,13 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
           }
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color.fromARGB(255, 1, 21, 37),
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         ),
         child: isEdicaoQuestionario
             ? const Text('Concluir',
-                style: TextStyle(color: Colors.white))
+                style: TextStyle(color:const Color.fromARGB(255, 1, 21, 37), fontWeight:FontWeight.bold))
             : const Text('Próximo',
-                style: TextStyle(color: Colors.white)),
+                style: TextStyle(color:const Color.fromARGB(255, 1, 21, 37), fontWeight:FontWeight.bold)),
       ),
     ),
   ],
