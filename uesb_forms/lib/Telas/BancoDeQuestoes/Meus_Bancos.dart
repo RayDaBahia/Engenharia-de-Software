@@ -51,6 +51,11 @@ void didChangeDependencies() {
     return Scaffold(
       drawer: isFormulario ? null : MenuLateral(),
       appBar: AppBar(
+        title: Text(
+          isFormulario ? 'Meus Bancos' : 'Selecione o banco',        
+          style: TextStyle(color: Colors.white),
+        ),
+        
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: const Color.fromARGB(255, 45, 12, 68),
         leading: isFormulario

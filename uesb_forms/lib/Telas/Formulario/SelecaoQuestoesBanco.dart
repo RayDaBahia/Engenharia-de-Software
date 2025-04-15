@@ -133,7 +133,9 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
                     onPressed: () {
                       Provider.of<QuestionarioList>(context, listen: false)
                           .adicionarListaQuestoesSelecionadas(_questoesSelecionadas.toList());
-                      Navigator.of(context).pop();
+
+                        showSuccessMessage(context, 'Questões selecionadas com sucesso!');
+
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:  const Color.fromARGB(255, 45, 12, 68), // Fundo roxo
@@ -151,6 +153,27 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
       ),
     );
   }
+
+
+void showSuccessMessage(BuildContext context, String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Sucesso'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
 
   @override
   void dispose() {
