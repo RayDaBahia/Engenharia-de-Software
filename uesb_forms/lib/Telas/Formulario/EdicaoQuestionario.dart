@@ -26,6 +26,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
   String? _preenchidoPor;
   bool isEdicaoQuestionario = false;
   Questionario? questionario;
+  bool expandido = false;
 
   @override
   void initState() {
@@ -156,22 +157,39 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CampoTexto(
-                      controller: _nomeController,
-                      label: "Título",
-                      maxLength: 60),
-                  const SizedBox(height: 10),
-                  CampoTexto(
-                      controller: _descricaoController,
-                      label: "Descrição",
-                      maxLength: 160),
-                  const SizedBox(height: 10),
-                  CampoDropdown(
-                    label: "Preenchido por",
-                    onChanged: (value) =>
-                        setState(() => _preenchidoPor = value),
+                    controller: _nomeController,
+                    label: "Título",
+                    maxLength: 60,
                   ),
                   const SizedBox(height: 10),
-                  CampoNumero(controller: _metaController, label: "Meta"),
+                  ExpansionTile(
+                    onExpansionChanged: (bool expanded) {
+                      setState(() {
+                        expandido = expanded;
+                      });
+                    },
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(expandido ? 'Menos detalhes' : 'Mais detalhes'),
+                      ],
+                    ),
+                    children: [
+                      CampoTexto(
+                        controller: _descricaoController,
+                        label: "Descrição",
+                        maxLength: 160,
+                      ),
+                      const SizedBox(height: 10),
+                      CampoDropdown(
+                        label: "Preenchido por",
+                        onChanged: (value) =>
+                            setState(() => _preenchidoPor = value),
+                      ),
+                      const SizedBox(height: 10),
+                      CampoNumero(controller: _metaController, label: "Meta"),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -183,7 +201,110 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                       itemBuilder: (context, index) {
                         final questao = _questoesSelecionadas[index];
                         return ListTile(
-                          title: QuestaoWidgetForm(questao: questao),
+                          title: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Coluna da esquerda (texto e widget)
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Questão ${index + 1}',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    QuestaoWidgetForm(questao: questao),
+                                  ],
+                                ),
+                              ),
+                              // Coluna da direita (ícones e dropdown)
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red),
+                                    onPressed: () {
+                                      setState(() {
+                                        Provider.of<QuestionarioList>(context,
+                                                listen: false)
+                                            .excluirQuestaoSelecionada(
+                                                index, questionario!.id);
+                                      });
+                                    },
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Seta para cima
+                                      IconButton(
+                                        icon: const Icon(Icons.arrow_upward,
+                                            color: Colors.blue),
+                                        onPressed: () {
+                                          if (index > 0) {
+                                            // Garantir que não está no topo
+                                            setState(() {
+                                              final questao =
+                                                  _questoesSelecionadas
+                                                      .removeAt(index);
+                                              _questoesSelecionadas.insert(
+                                                  index - 1, questao);
+                                            });
+                                          }
+                                        },
+                                      ),
+                                      // Seta para baixo
+                                      IconButton(
+                                        icon: const Icon(Icons.arrow_downward,
+                                            color: Colors.blue),
+                                        onPressed: () {
+                                          if (index <
+                                              _questoesSelecionadas.length -
+                                                  1) {
+                                            // Garantir que não está no final
+                                            setState(() {
+                                              final questao =
+                                                  _questoesSelecionadas
+                                                      .removeAt(index);
+                                              _questoesSelecionadas.insert(
+                                                  index + 1, questao);
+                                            });
+                                          }
+                                        },
+                                      ),
+                                      const SizedBox(height: 5),
+                                      // Dropdown para selecionar a próxima questão
+                                      DropdownButton<int>(
+                                        hint: const Text("."),
+                                        //value: questao.proximaQuestao, // Aqui você usa o valor da próxima questão
+                                        onChanged: (int? novaProxima) {
+                                          if (novaProxima != null) {
+                                            setState(() {
+                                              // Aqui você atribui o valor da próxima questão
+                                              //questao.proximaQuestao =novaProxima;
+                                            });
+                                          }
+                                        },
+                                        items: List.generate(
+                                                _questoesSelecionadas.length,
+                                                (i) => i)
+                                            .where((i) =>
+                                                i !=
+                                                index) // Exclui a própria questão
+                                            .map<DropdownMenuItem<int>>(
+                                                (int i) {
+                                          return DropdownMenuItem<int>(
+                                            value: i,
+                                            child: Text('Questão ${i + 1}'),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
                           subtitle: CheckboxListTile(
                             title: const Text("Questão obrigatória"),
                             value: questao.obrigatoria,
@@ -193,17 +314,6 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                               });
                             },
                             controlAffinity: ListTileControlAffinity.leading,
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () {
-                              setState(() {
-                                Provider.of<QuestionarioList>(context,
-                                        listen: false)
-                                    .excluirQuestaoSelecionada(
-                                        index, questionario!.id);
-                              });
-                            },
                           ),
                         );
                       },
