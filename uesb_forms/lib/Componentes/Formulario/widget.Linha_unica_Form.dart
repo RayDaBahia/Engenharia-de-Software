@@ -8,7 +8,7 @@ import 'package:uesb_forms/Componentes/WidgetOpcoesImagem.dart';
 
 class WidgetLinhaUnicaOremailForm extends StatefulWidget {
   final Questao questao;
-  final bool isFormulario; // 🔥 Define se está preenchendo o formulário
+  final bool isFormulario; //  Define se está preenchendo o formulário
 
   const WidgetLinhaUnicaOremailForm({
     super.key,
@@ -21,21 +21,24 @@ class WidgetLinhaUnicaOremailForm extends StatefulWidget {
       _WidgetLinhaUnicaOremailFormState();
 }
 
-class _WidgetLinhaUnicaOremailFormState extends State<WidgetLinhaUnicaOremailForm> {
-
+class _WidgetLinhaUnicaOremailFormState
+    extends State<WidgetLinhaUnicaOremailForm> {
   late TextEditingController controleResposta;
-  
 
   @override
   void initState() {
     super.initState();
-
+    controleResposta = TextEditingController();
   }
 
+  @override
+  void dispose() {
+    controleResposta.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
- 
     return Card(
       elevation: 5,
       shadowColor: Colors.black,
@@ -44,23 +47,20 @@ class _WidgetLinhaUnicaOremailFormState extends State<WidgetLinhaUnicaOremailFor
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-         
-              Text(widget.questao.textoQuestao),
+            Text(widget.questao.textoQuestao),
 
-                 const SizedBox(height: 10), // Caso contrário, não exibe nada
+            const SizedBox(height: 10), // Caso contrário, não exibe nada
             TextField(
               controller: controleResposta,
               decoration: InputDecoration(
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 labelText: widget.questao.tipoQuestao == QuestaoTipo.LinhaUnica
                     ? 'Resposta'
                     : 'Digite seu e-mail',
               ),
               maxLines: 1,
               maxLength: (MediaQuery.of(context).size.width / 11).floor(),
-    
-                   
             ),
           ],
         ),
