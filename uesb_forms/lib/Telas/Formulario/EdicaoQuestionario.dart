@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:uesb_forms/Componentes/Formulario/QuestaoWidgetForm.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
-import 'package:uesb_forms/Modelo/Banco.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
+import 'package:uesb_forms/Modelo/questao_tipo.dart';
+import 'package:uesb_forms/Telas/Formulario/TelaDinamizarQuestao.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 
 class EdicaoQuestionario extends StatefulWidget {
@@ -220,6 +221,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                               Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  const SizedBox(height: 30),
                                   IconButton(
                                     icon: const Icon(Icons.delete,
                                         color: Colors.red),
@@ -232,77 +234,67 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                                       });
                                     },
                                   ),
-                                  const SizedBox(height: 5),
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      // Seta para cima
-                                      IconButton(
-                                        icon: const Icon(Icons.arrow_upward,
-                                            color: Colors.blue),
-                                        onPressed: () {
-                                          if (index > 0) {
-                                            // Garantir que não está no topo
-                                            setState(() {
-                                              final questao =
-                                                  _questoesSelecionadas
-                                                      .removeAt(index);
-                                              _questoesSelecionadas.insert(
-                                                  index - 1, questao);
-                                            });
-                                          }
-                                        },
-                                      ),
-                                      // Seta para baixo
-                                      IconButton(
-                                        icon: const Icon(Icons.arrow_downward,
-                                            color: Colors.blue),
-                                        onPressed: () {
-                                          if (index <
-                                              _questoesSelecionadas.length -
-                                                  1) {
-                                            // Garantir que não está no final
-                                            setState(() {
-                                              final questao =
-                                                  _questoesSelecionadas
-                                                      .removeAt(index);
-                                              _questoesSelecionadas.insert(
-                                                  index + 1, questao);
-                                            });
-                                          }
-                                        },
-                                      ),
-                                      const SizedBox(height: 5),
-                                      // Dropdown para selecionar a próxima questão
-                                      DropdownButton<int>(
-                                        hint: const Text("."),
-                                        //value: questao.proximaQuestao, // Aqui você usa o valor da próxima questão
-                                        onChanged: (int? novaProxima) {
-                                          if (novaProxima != null) {
-                                            setState(() {
-                                              // Aqui você atribui o valor da próxima questão
-                                              //questao.proximaQuestao =novaProxima;
-                                            });
-                                          }
-                                        },
-                                        items: List.generate(
-                                                _questoesSelecionadas.length,
-                                                (i) => i)
-                                            .where((i) =>
-                                                i !=
-                                                index) // Exclui a própria questão
-                                            .map<DropdownMenuItem<int>>(
-                                                (int i) {
-                                          return DropdownMenuItem<int>(
-                                            value: i,
-                                            child: Text('Questão ${i + 1}'),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ],
+
+                                  // Seta para cima
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_upward,
+                                        color: Colors.blue),
+                                    onPressed: () {
+                                      if (index > 0) {
+                                        // Garantir que não está no topo
+                                        setState(() {
+                                          final questao = _questoesSelecionadas
+                                              .removeAt(index);
+                                          _questoesSelecionadas.insert(
+                                              index - 1, questao);
+                                        });
+                                      }
+                                    },
                                   ),
+
+                                  // Seta para baixo
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_downward,
+                                        color: Colors.blue),
+                                    onPressed: () {
+                                      if (index <
+                                          _questoesSelecionadas.length - 1) {
+                                        // Garantir que não está no final
+                                        setState(() {
+                                          final questao = _questoesSelecionadas
+                                              .removeAt(index);
+                                          _questoesSelecionadas.insert(
+                                              index + 1, questao);
+                                        });
+                                      }
+                                    },
+                                  ),
+
+                                  if ([
+                                    QuestaoTipo.MultiPlaEscolha,
+                                    QuestaoTipo.Objetiva,
+                                    QuestaoTipo.ListaSuspensa,
+                                    QuestaoTipo.Ranking,
+                                    QuestaoTipo.Numerica,
+                                  ].map((e) => e.toString()).contains(questao.tipoQuestao.toString())) ...[
+                                    IconButton(
+                                      icon: const Icon(Icons.visibility,
+                                          color: Colors.green),
+                                      tooltip: "Dinamizar alternativas",
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                Teladinamizarquestao(
+                                                    questaoSelecionada: questao),
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  ]
                                 ],
-                              )
+                              ),
                             ],
                           ),
                           subtitle: CheckboxListTile(
@@ -420,3 +412,31 @@ class CampoDropdown extends StatelessWidget {
     );
   }
 }
+/*
+  // Dropdown para selecionar a próxima questão
+                                      DropdownButton<int>(
+                                        hint: const Text("."),
+                                        //value: questao.proximaQuestao, // Aqui você usa o valor da próxima questão
+                                        onChanged: (int? novaProxima) {
+                                          if (novaProxima != null) {
+                                            setState(() {
+                                              // Aqui você atribui o valor da próxima questão
+                                              //questao.proximaQuestao =novaProxima;
+                                            });
+                                          }
+                                        },
+                                        items: List.generate(
+                                                _questoesSelecionadas.length,
+                                                (i) => i)
+                                            .where((i) =>
+                                                i !=
+                                                index) // Exclui a própria questão
+                                            .map<DropdownMenuItem<int>>(
+                                                (int i) {
+                                          return DropdownMenuItem<int>(
+                                            value: i,
+                                            child: Text('Questão ${i + 1}'),
+                                          );
+                                        }).toList(),
+                                      ),
+ */

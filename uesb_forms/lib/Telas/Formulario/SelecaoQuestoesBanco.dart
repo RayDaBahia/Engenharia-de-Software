@@ -8,6 +8,8 @@ import 'package:uesb_forms/Componentes/Formulario/QuestaoWidgetForm.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 
 class SelecaoQuestoesBanco extends StatefulWidget {
+  const SelecaoQuestoesBanco({super.key});
+
   @override
   _SelecaoQuestoesBancoState createState() => _SelecaoQuestoesBancoState();
 }
@@ -31,7 +33,8 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     if (args != null) {
       final bancoArg = args['banco'] as Banco?;
@@ -43,7 +46,8 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
 
         if (banco != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            Provider.of<BancoList>(context, listen: false).buscarQuestoesBancoNoBd(banco!.id);
+            Provider.of<BancoList>(context, listen: false)
+                .buscarQuestoesBancoNoBd(banco!.id);
           });
         }
       }
@@ -62,7 +66,7 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        backgroundColor:  const Color.fromARGB(255, 45, 12, 68),
+        backgroundColor: const Color.fromARGB(255, 45, 12, 68),
         title: const Text(
           'Seleção de Questões',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
@@ -72,19 +76,19 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-                 Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: _questaoFiltro,
-                  decoration: InputDecoration(
-                    labelText: 'Pesquisar por nome',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: _questaoFiltro,
+                decoration: InputDecoration(
+                  labelText: 'Pesquisar por nome',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
               ),
+            ),
             const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
@@ -129,22 +133,24 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
                     child: const Text('Voltar',style: TextStyle(fontWeight: FontWeight.bold), ),
                   ),*/
 
-                  Center( child:    ElevatedButton(
-                    onPressed: () {
-                      Provider.of<QuestionarioList>(context, listen: false)
-                          .adicionarListaQuestoesSelecionadas(_questoesSelecionadas.toList());
+                Center(
+                    child: ElevatedButton(
+                  onPressed: () {
+                    Provider.of<QuestionarioList>(context, listen: false)
+                        .adicionarListaQuestoesSelecionadas(
+                            _questoesSelecionadas.toList());
 
-                        showSuccessMessage(context, 'Questões selecionadas com sucesso!');
-
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:  const Color.fromARGB(255, 45, 12, 68), // Fundo roxo
-                      foregroundColor: Colors.white, // Texto branco
-                    ),
-                    child: const Text('Confirmar'),
-                  )),
-                  
-
+                    showSuccessMessage(
+                        context, 'Questões selecionadas com sucesso!');
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        const Color.fromARGB(255, 45, 12, 68), // Fundo roxo
+                    foregroundColor: Colors.white, // Texto branco
+                  ),
+                  child: const Text('Confirmar'),
+                )),
               ],
             ),
             const SizedBox(height: 10),
@@ -154,26 +160,17 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
     );
   }
 
-
-void showSuccessMessage(BuildContext context, String message) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Sucesso'),
+  void showSuccessMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
         content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-
+        backgroundColor: Colors.green, // Cor de fundo verde para sucesso
+        behavior: SnackBarBehavior.floating, // Faz ele "flutuar" acima da UI
+        margin: const EdgeInsets.all(16), // Margem nas bordas
+        duration: const Duration(seconds: 3), // Tempo que ele fica visível
+      ),
+    );
+  }
 
   @override
   void dispose() {
