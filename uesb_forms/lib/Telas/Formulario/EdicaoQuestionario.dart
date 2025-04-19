@@ -412,31 +412,3 @@ class CampoDropdown extends StatelessWidget {
     );
   }
 }
-/*
-  // Dropdown para selecionar a próxima questão
-                                      DropdownButton<int>(
-                                        hint: const Text("."),
-                                        //value: questao.proximaQuestao, // Aqui você usa o valor da próxima questão
-                                        onChanged: (int? novaProxima) {
-                                          if (novaProxima != null) {
-                                            setState(() {
-                                              // Aqui você atribui o valor da próxima questão
-                                              //questao.proximaQuestao =novaProxima;
-                                            });
-                                          }
-                                        },
-                                        items: List.generate(
-                                                _questoesSelecionadas.length,
-                                                (i) => i)
-                                            .where((i) =>
-                                                i !=
-                                                index) // Exclui a própria questão
-                                            .map<DropdownMenuItem<int>>(
-                                                (int i) {
-                                          return DropdownMenuItem<int>(
-                                            value: i,
-                                            child: Text('Questão ${i + 1}'),
-                                          );
-                                        }).toList(),
-                                      ),
- */

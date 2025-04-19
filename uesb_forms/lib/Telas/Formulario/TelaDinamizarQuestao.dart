@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:uesb_forms/Componentes/Formulario/QuestaoWidgetForm.dart';
+import 'package:uesb_forms/Componentes/Formulario/Dinamizar/QuestaoDinamicaWidget.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 
 class Teladinamizarquestao extends StatefulWidget {
   final Questao questaoSelecionada;
+  late List<Questao> _questoesSelecionadas = [];
 
-  const Teladinamizarquestao({Key? key, required this.questaoSelecionada})
+  Teladinamizarquestao({Key? key, required this.questaoSelecionada,})
       : super(key: key);
 
   @override
@@ -78,10 +79,12 @@ class _TeladinamizarquestaoState extends State<Teladinamizarquestao> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Questão ${index + 1}',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                    QuestaoWidgetForm(questao: questao),
+                                    Text(
+                                      'Questão ${index + 1}',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    QuestaoDinamicaWidget(questao: questao),
                                   ],
                                 ),
                               ),
