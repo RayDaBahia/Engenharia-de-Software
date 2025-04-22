@@ -1,18 +1,21 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
-import 'package:uesb_forms/Componentes/WidgetOpcoesImagem.dart';
+import 'package:uesb_forms/Componentes/widget_opcoes_imagem.dart';
 
 class WidgetListaSuspensa extends StatefulWidget {
   final Questao questao;
   final String? bancoId;
+  final bool isFormulario;
 
-
-  const WidgetListaSuspensa({super.key, required this.questao, this.bancoId});
+  const WidgetListaSuspensa({
+    super.key,
+    required this.questao,
+    this.bancoId,
+    this.isFormulario = false,
+  });
 
   @override
   State<WidgetListaSuspensa> createState() => _WidgetListaSuspensaState();
@@ -21,12 +24,12 @@ class WidgetListaSuspensa extends StatefulWidget {
 class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
   late TextEditingController _perguntaController;
   final List<TextEditingController> _optionControllers = [];
-  Uint8List? selectedImage;
 
   @override
   void initState() {
     super.initState();
-    _perguntaController = TextEditingController(text: widget.questao.textoQuestao);
+    _perguntaController =
+        TextEditingController(text: widget.questao.textoQuestao);
     _initializeOptionControllers();
   }
 
@@ -35,6 +38,54 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
     for (var resposta in widget.questao.opcoes!) {
       _optionControllers.add(TextEditingController(text: resposta));
     }
+  }
+
+  void _handleImageSelected(Uint8List? image) {
+    setState(() {
+      widget.questao.imagemLocal = image;
+      if (image == null && widget.questao.imagemUrl != null) {
+        widget.questao.imagemUrl = null;
+      }
+    });
+  }
+
+  Widget _buildImagePreview() {
+    if (widget.questao.imagemLocal != null) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Image.memory(
+          widget.questao.imagemLocal!,
+          height: 500,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        ),
+      );
+    } else if (widget.questao.imagemUrl != null) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Image.network(
+          widget.questao.imagemUrl!,
+          height: 500,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return const Icon(Icons.broken_image, size: 50);
+          },
+        ),
+      );
+    }
+    return const SizedBox.shrink();
   }
 
   @override
@@ -46,12 +97,6 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
     super.dispose();
   }
 
-  void _handleImageSelected(Uint8List? image) {
-    setState(() {
-      selectedImage = image; // Atualiza a imagem selecionada
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final bancoList = Provider.of<BancoList>(context, listen: true);
@@ -61,35 +106,45 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
       child: Card(
         elevation: 5,
         shadowColor: Colors.black,
-        color: Colors.white, // Cor de fundo do card
+        color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      bancoList.removerQuestao(widget.bancoId, widget.questao);
-                    },
-                    icon: const Icon(Icons.delete),
-                  ),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
-                ],
-              ),
-              // Exibir a imagem selecionada, se houver
-              if (selectedImage != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Image.memory(
-                    selectedImage!,
-                    height: 500,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+              if (!widget.isFormulario) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        bancoList.removerQuestao(
+                            widget.bancoId, widget.questao);
+                      },
+                      icon: const Icon(Icons.delete),
+                    ),
+                    IconButton(
+                        onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
+                    IconButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return Dialog(
+                              child: WidgetOpcoesImagem(
+                                onImageSelected: _handleImageSelected,
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      icon: const Icon(Icons.image),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 8),
+              ],
+              _buildImagePreview(),
               TextField(
                 controller: _perguntaController,
                 maxLines: null,
@@ -99,82 +154,83 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   labelText: 'Digite sua pergunta aqui',
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 12,
+                  ),
                 ),
                 onChanged: (value) {
                   widget.questao.textoQuestao = value;
                   bancoList.adicionarQuestaoNaLista(widget.questao);
                 },
+                readOnly: widget.isFormulario,
               ),
-             dropDown(), 
-             
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
+              if (!widget.isFormulario) dropDown(),
+              const SizedBox(height: 16),
               Column(
                 children: List.generate(
                   _optionControllers.length,
-                  (index) => Row(
-                    children: [
-                      Text('${index + 1}.'),
-                      Expanded(
-                        child: TextField(
-                          controller: _optionControllers[index],
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                          ),
-                          onChanged: (value) {
-                            widget.questao.opcoes![index] = value;
-                            bancoList.adicionarQuestaoNaLista(widget.questao);
-                          },
+                  (index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Text(
+                          '${index + 1}.',
+                          style: const TextStyle(fontSize: 16),
                         ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _optionControllers.removeAt(index);
-                            widget.questao.opcoes!.removeAt(index);
-                            bancoList.adicionarQuestaoNaLista(widget.questao);
-                          });
-                        },
-                        icon: const Icon(Icons.close),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return Dialog(
-                                child: WidgetOpcoesImagem(
-                                  onImageSelected: (image) {
-                                    _handleImageSelected(image); // Atualiza a imagem selecionada
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              );
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: _optionControllers[index],
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 12,
+                              ),
+                            ),
+                            onChanged: (value) {
+                              widget.questao.opcoes![index] = value;
+                              bancoList.adicionarQuestaoNaLista(widget.questao);
                             },
-                          );
-                        },
-                        icon: const Icon(Icons.image),
-                      ),
-                    ],
+                            enabled: !widget.isFormulario,
+                          ),
+                        ),
+                        if (!widget.isFormulario) ...[
+                          const SizedBox(width: 8),
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _optionControllers.removeAt(index);
+                                widget.questao.opcoes!.removeAt(index);
+                                bancoList
+                                    .adicionarQuestaoNaLista(widget.questao);
+                              });
+                            },
+                            icon: const Icon(Icons.close),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 18),
-         
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _optionControllers.add(TextEditingController(text: ''));
-                        widget.questao.opcoes!.add("");
-                      });
-                    },
-                    child: const Text("Adicionar outra opção"),
+              if (!widget.isFormulario) ...[
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _optionControllers.add(TextEditingController(text: ''));
+                      widget.questao.opcoes!.add("");
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 48),
                   ),
-                ],
-              ),
+                  child: const Text("Adicionar outra opção"),
+                ),
+              ],
             ],
           ),
         ),
@@ -182,29 +238,26 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
     );
   }
 
-Widget dropDown() {
-  return DropdownButton<String>(
-    hint: const Text('Selecione uma opção'), // Texto exibido quando nada está selecionado
-    items: widget.questao.opcoes!.map((String item) {
-      return DropdownMenuItem<String>(
-        value: item,
-        child: Text(item),
-      );
-    }).toList(),
-    onChanged: (String? newValue) {
-      setState(() {
-        // Atualizar a questão com a nova opção selecionada
-        if (newValue != null) {
-          // Encontrar o índice da opção selecionada
-          int index = widget.questao.opcoes!.indexOf(newValue);
-          if (index != -1) {
-            widget.questao.opcoes![index] = newValue;
+  Widget dropDown() {
+    return DropdownButton<String>(
+      isExpanded: true,
+      hint: const Text('Selecione uma opção'),
+      items: widget.questao.opcoes!.map((String item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {
+        setState(() {
+          if (newValue != null) {
+            int index = widget.questao.opcoes!.indexOf(newValue);
+            if (index != -1) {
+              widget.questao.opcoes![index] = newValue;
+            }
           }
-        }
-      });
-    },
-  );
+        });
+      },
+    );
+  }
 }
-
-}
-

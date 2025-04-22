@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
@@ -108,22 +109,58 @@ class CloudinaryService {
     return ['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(ext);
   }
 
-  Future<void> deleteImage(String publicId) async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    final signature = _generateSignature(timestamp, publicId);
+  Future<void> deleteImage(String imageUrlOrPublicId) async {
+    try {
+      // 1. Determina se é uma URL ou public_id direto
+      final publicId = imageUrlOrPublicId.contains('cloudinary.com')
+          ? _extractPublicIdFromUrl(imageUrlOrPublicId)
+          : imageUrlOrPublicId;
 
-    final url =
-        Uri.parse('https://api.cloudinary.com/v1_1/$_cloudName/image/destroy');
+      final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
 
-    final response = await http.post(url, body: {
-      'api_key': _apiKey,
-      'timestamp': timestamp,
-      'signature': signature,
-      'public_id': publicId,
-    });
+      // 2. Gera a assinatura corretamente
+      final signatureData =
+          'public_id=$publicId&timestamp=$timestamp$_apiSecret';
+      final signature = sha1.convert(utf8.encode(signatureData)).toString();
 
-    if (response.statusCode != 200) {
-      throw Exception('Falha ao deletar imagem: ${response.body}');
+      // 3. Faz a requisição
+      final response = await http.post(
+        Uri.parse('https://api.cloudinary.com/v1_1/$_cloudName/image/destroy'),
+        body: {
+          'public_id': publicId,
+          'timestamp': timestamp,
+          'api_key': _apiKey,
+          'signature': signature,
+        },
+      );
+
+      // 4. Verifica a resposta
+      if (response.statusCode != 200) {
+        final error =
+            jsonDecode(response.body)['error']?['message'] ?? response.body;
+        throw Exception('Falha ao deletar imagem: $error');
+      }
+    } catch (e) {
+      debugPrint('Erro ao deletar imagem $imageUrlOrPublicId: $e');
+      rethrow;
     }
+  }
+
+// Método interno para extrair public_id de URLs do Cloudinary
+  String _extractPublicIdFromUrl(String imageUrl) {
+    final uri = Uri.parse(imageUrl);
+    final pathSegments = uri.pathSegments;
+
+    // Encontra o índice do segmento 'upload'
+    final uploadIndex = pathSegments.indexWhere((seg) => seg == 'upload');
+
+    if (uploadIndex == -1 || uploadIndex >= pathSegments.length - 1) {
+      throw ArgumentError(
+          'URL do Cloudinary inválida - padrão não reconhecido');
+    }
+
+    // Pega todos os segmentos após 'upload' e remove a extensão do arquivo
+    final publicIdWithVersion = pathSegments.sublist(uploadIndex + 1).join('/');
+    return publicIdWithVersion.split('.').first;
   }
 }

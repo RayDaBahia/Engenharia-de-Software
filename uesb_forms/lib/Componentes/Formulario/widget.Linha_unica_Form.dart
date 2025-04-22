@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Modelo/questao_tipo.dart';
-import 'package:uesb_forms/Componentes/WidgetOpcoesImagem.dart';
+import 'package:uesb_forms/Componentes/widget_opcoes_imagem.dart';
 
 class WidgetLinhaUnicaOremailForm extends StatefulWidget {
   final Questao questao;

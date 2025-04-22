@@ -1,6 +1,5 @@
 import 'package:hive/hive.dart';
 
-
 @HiveType(typeId: 1) // Use um typeId diferente de 0
 enum QuestaoTipo {
   @HiveField(0)
@@ -21,4 +20,6 @@ enum QuestaoTipo {
   Ranking,
   @HiveField(8)
   MultiplasLinhas,
+  @HiveField(9)
+  Captura,
 }
