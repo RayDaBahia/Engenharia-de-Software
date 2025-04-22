@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:hive/hive.dart';
 import 'questao_tipo.dart'; // Importação da enumeração QuestaoTipo
 
@@ -19,15 +21,14 @@ class Questao {
 
   //  Funcionará da seguinte forma:  { 'opcao1': 'idQuestao1', 'opcao2': 'idQuestao2' }
   // pega o id da questão que será direcionada a partir da opção selecionada
-  // quando tiver nessa questão objetiva ao responder ela deverá receber por parametro uma função do tipo calback a ser chamada 
-  // na tela de exibição do fomulário para ser respondido. Essa função definirá o id da próxima questão a ser exibida que deverá ser 
-  // buscada na lista que a tela de exibição do formulário 
+  // quando tiver nessa questão objetiva ao responder ela deverá receber por parametro uma função do tipo calback a ser chamada
+  // na tela de exibição do fomulário para ser respondido. Essa função definirá o id da próxima questão a ser exibida que deverá ser
+  // buscada na lista que a tela de exibição do formulário
   // caso não tenha direcionamento a questão seguinte será a próxima da lista
-  
+
   //  deverá ser criada uma coleção chamada de aplicação  que terá o id do formulario, lider, entrevistador e um map com o id da questão e a resposta
 
   // crie um aplicação list para gerenciar isso e todos os outros métodos que forem necessários
-
 
   Map<String, String?>? direcionamento;
 
@@ -37,6 +38,12 @@ class Questao {
   @HiveField(8)
   String? bancoId;
 
+  @HiveField(9) // Usando o próximo fieldId disponível
+  String? imagemUrl; // URL da imagem no Cloudinary
+
+  @HiveField(10) // Field para armazenar temporariamente a imagem local
+  Uint8List? imagemLocal; // Para web e mobile
+
   Questao({
     required this.textoQuestao,
     required this.tipoQuestao,
@@ -45,6 +52,8 @@ class Questao {
     this.direcionamento,
     this.obrigatoria = false,
     this.bancoId,
+    this.imagemUrl,
+    this.imagemLocal,
   });
 
   // Método toMap para Firestore
@@ -57,17 +66,17 @@ class Questao {
       'direcionamento': direcionamento ?? {},
       'obrigatoria': obrigatoria,
       'bancoId': bancoId,
+      'imagemUrl': imagemUrl,
     };
   }
 
-  // Método fromMap para Firestore
   factory Questao.fromMap(Map<String, dynamic> map) {
     return Questao(
       id: map['id'],
       textoQuestao: map['textoQuestao'] ?? '',
       tipoQuestao: QuestaoTipo.values.firstWhere(
         (tipo) => tipo.name == map['tipoQuestao'],
-        orElse: () => QuestaoTipo.LinhaUnica, // Valor padrão
+        orElse: () => QuestaoTipo.LinhaUnica,
       ),
       opcoes: map['opcoes'] != null ? List<String>.from(map['opcoes']) : [],
       direcionamento: map['direcionamento'] != null
@@ -75,6 +84,7 @@ class Questao {
           : {},
       obrigatoria: map['obrigatoria'] ?? false,
       bancoId: map['bancoId'],
+      imagemUrl: map['imagemUrl'],
     );
   }
 }

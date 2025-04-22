@@ -3,10 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:uesb_forms/Modelo/Banco.dart';
 import 'package:uesb_forms/Modelo/questao.dart'; // importando modelo de questão
+import 'package:uesb_forms/Utils/cloudinary_service.dart'; // ADICIONADO - Import do Cloudinary
 import 'auth_list.dart';
 
 class BancoList with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final CloudinaryService _cloudinaryService =
+      CloudinaryService(); // ADICIONADO - Instância do Cloudinary
   int tamQuestoesBanco = 0;
   // Pega o usuário logado
   final AuthList? _authList;
@@ -17,6 +20,69 @@ class BancoList with ChangeNotifier {
   List<Banco> bancosFiltro = []; // lista de bancos filtrados
 
   BancoList([this._authList]);
+
+  // =======================================================================
+  // MÉTODOS ADICIONADOS PARA CLOUDINARY (INÍCIO)
+  // =======================================================================
+
+  Future<void> _processarImagensQuestoes(
+      String userId, String bancoId, List<Questao> questoes) async {
+    final batch = _firestore.batch();
+    final bancoRef = _firestore
+        .collection('usuarios')
+        .doc(userId)
+        .collection('bancos')
+        .doc(bancoId);
+
+    for (final questao in questoes) {
+      final questaoRef = bancoRef.collection('questoes').doc(questao.id);
+
+      // Se tem imagem local mas não tem URL, faz upload
+      if (questao.imagemLocal != null && questao.imagemUrl == null) {
+        try {
+          final result = await _cloudinaryService.uploadImage(
+            imageBytes: questao.imagemLocal!,
+            fileName: 'questao_${questao.id}.jpg',
+            questionId: questao.id!,
+          );
+
+          if (result != null) {
+            questao.imagemUrl = result.url;
+            questao.imagemLocal = null;
+          }
+        } catch (e) {
+          debugPrint(
+              'Erro ao fazer upload da imagem da questão ${questao.id}: $e');
+        }
+      }
+
+      batch.set(questaoRef, questao.toMap());
+    }
+    await batch.commit();
+  }
+
+  Future<void> _deletarImagemSeExistir(String? imageUrl) async {
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      try {
+        final publicId = _extrairPublicId(imageUrl);
+        if (publicId != null) {
+          await _cloudinaryService.deleteImage(publicId);
+        }
+      } catch (e) {
+        debugPrint('Erro ao deletar imagem do Cloudinary: $e');
+      }
+    }
+  }
+
+  String? _extrairPublicId(String url) {
+    final regex = RegExp(r'upload/(?:v\d+/)?([^\.]+)');
+    final match = regex.firstMatch(url);
+    return match?.group(1);
+  }
+
+  // =======================================================================
+  // MÉTODOS ADICIONADOS PARA CLOUDINARY (FIM)
+  // =======================================================================
 
   // metodo para adicionar a questao na lista
   void adicionarQuestaoNaLista(Questao questao) {
@@ -53,16 +119,24 @@ class BancoList with ChangeNotifier {
         'descricao': banco.descricao,
       });
 
+      // ADICIONADO: Atribui IDs temporários para questões novas
+      for (var questao in questoes) {
+        questao.id ??= Random().nextInt(1000000).toString();
+        questao.bancoId = bancoRef.id;
+      }
+
+      // ADICIONADO: Processa upload de imagens antes de salvar
+      await _processarImagensQuestoes(user.id!, bancoRef.id, questoes);
+
+      banco.id = bancoRef.id;
+
       // Usando WriteBatch para adicionar as questões
       WriteBatch batch = _firestore.batch(); // Inicia o batch
 
       for (var questao in questoes) {
-        questao.bancoId = bancoRef.id; // Adiciona o ID do banco à questão
-        final questaoRef = bancoRef.collection('questoes').doc();
+        final questaoRef = bancoRef.collection('questoes').doc(questao.id);
         batch.set(questaoRef, questao.toMap());
       }
-
-      banco.id = bancoRef.id;
 
       await batch.commit(); // Executa todas as operações em um único commit
       bancosLista.add(banco);
@@ -88,6 +162,9 @@ class BancoList with ChangeNotifier {
     int index = bancosLista.indexWhere((b) => b.id == banco.id);
 
     bancosLista[index] = banco;
+
+    // ADICIONADO: Processa imagens antes de atualizar
+    await _processarImagensQuestoes(user.id!, banco.id!, questoesLista);
 
     // Usando WriteBatch para atualizar as questões
     WriteBatch batch = _firestore.batch(); // Inicia o batch
@@ -179,6 +256,24 @@ class BancoList with ChangeNotifier {
   Future<void> adicionarQuestao(String bancoId, Questao questao) async {
     final user = _authList?.usuario;
     if (user != null) {
+      // ADICIONADO: Upload de imagem se necessário
+      if (questao.imagemLocal != null && questao.imagemUrl == null) {
+        try {
+          final result = await _cloudinaryService.uploadImage(
+            imageBytes: questao.imagemLocal!,
+            fileName: 'questao_${questao.id}.jpg',
+            questionId: questao.id!,
+          );
+
+          if (result != null) {
+            questao.imagemUrl = result.url;
+            questao.imagemLocal = null;
+          }
+        } catch (e) {
+          debugPrint('Erro ao fazer upload da imagem: $e');
+        }
+      }
+
       await _firestore
           .collection('usuarios')
           .doc(user.id)
@@ -222,6 +317,11 @@ class BancoList with ChangeNotifier {
     final user = _authList?.usuario;
     if (user != null) {
       if (bancoId != null) {
+        // ADICIONADO: Remover imagem do Cloudinary se existir
+        if (questao.imagemUrl != null) {
+          await _deletarImagemSeExistir(questao.imagemUrl);
+        }
+
         final questaoRef = _firestore
             .collection('usuarios')
             .doc(user.id)
@@ -242,7 +342,6 @@ class BancoList with ChangeNotifier {
   List<Questao> filtrarQuestoes(String texto) {
     if (texto.isEmpty) {
       questoesFiltro.clear();
- 
     }
 
     questoesFiltro = questoesLista
@@ -284,11 +383,27 @@ class BancoList with ChangeNotifier {
           .collection('bancos')
           .doc(bancoId);
 
-      // Exclui todas as questões associadas ao banco
+      // ADICIONADO: Primeiro obtém as questões para deletar imagens
       final questoesSnapshot = await bancoRef.collection('questoes').get();
-      for (var doc in questoesSnapshot.docs) {
-        await doc.reference.delete();
+      final questoes = questoesSnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return Questao.fromMap(data);
+      }).toList();
+
+      // ADICIONADO: Deleta todas as imagens associadas
+      for (final questao in questoes) {
+        if (questao.imagemUrl != null) {
+          await _deletarImagemSeExistir(questao.imagemUrl);
+        }
       }
+
+      // Exclui todas as questões associadas ao banco
+      final batch = _firestore.batch();
+      for (var doc in questoesSnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
 
       // Exclui o próprio banco
       await bancoRef.delete();
@@ -348,7 +463,6 @@ class BancoList with ChangeNotifier {
 
     // 4. Adicionar o novo banco e as questões duplicadas ao Firestore
     await addBanco(bancoDuplicado, questoesParaDuplicar);
-    
   }
 
   // Método para filtrar bancos pelo nome
@@ -377,36 +491,32 @@ class BancoList with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<Questao?> buscarQuestaoEspecifica(
+      String bancoId, String questaoId) async {
+    final user = _authList?.usuario;
+    if (user == null) {
+      throw Exception('Usuário não autenticado');
+    }
 
+    final questaoDoc = await _firestore
+        .collection('usuarios')
+        .doc(user.id)
+        .collection('bancos')
+        .doc(bancoId)
+        .collection('questoes')
+        .doc(questaoId)
+        .get();
 
-Future<Questao?> buscarQuestaoEspecifica(String bancoId, String questaoId) async {
-  final user = _authList?.usuario;
-  if (user == null) {
-    throw Exception('Usuário não autenticado');
+    if (!questaoDoc.exists) {
+      return null; // Retorna null se a questão não existir
+    }
+
+    final data = questaoDoc.data();
+    if (data != null) {
+      data['id'] = questaoDoc.id; // Adiciona o ID da questão
+      return Questao.fromMap(data); // Converte os dados para um objeto Questao
+    }
+
+    return null;
   }
-
-  final questaoDoc = await _firestore
-      .collection('usuarios')
-      .doc(user.id)
-      .collection('bancos')
-      .doc(bancoId)
-      .collection('questoes')
-      .doc(questaoId)
-      .get();
-
-  if (!questaoDoc.exists) {
-    return null; // Retorna null se a questão não existir
-  }
-
-  final data = questaoDoc.data();
-  if (data != null) {
-    data['id'] = questaoDoc.id; // Adiciona o ID da questão
-    return Questao.fromMap(data); // Converte os dados para um objeto Questao
-  }
-
-  return null;
-}
-
-
-
 }
