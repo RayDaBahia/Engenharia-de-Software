@@ -32,7 +32,8 @@ class _WidgetOpcoesImagemState extends State<WidgetOpcoesImagem> {
           final img.Image resizedImage = img.copyResize(
             originalImage,
             width: 1024, // Largura máxima de 1024 pixels
-            maintainAspect: true, // Mantém a proporção da imagem
+            height: (originalImage.height * (1024 / originalImage.width))
+                .toInt(), // Mantém a proporção da imagem
           );
 
           // Codificar de volta para PNG com qualidade máxima

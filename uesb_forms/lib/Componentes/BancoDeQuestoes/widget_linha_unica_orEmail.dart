@@ -4,19 +4,19 @@ import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Modelo/questao_tipo.dart';
-import 'package:uesb_forms/Componentes/WidgetOpcoesImagem.dart';
+import 'package:uesb_forms/Componentes/widget_opcoes_imagem.dart';
 
 class WidgetLinhaUnicaOremail extends StatefulWidget {
   final String? idBanco;
   final Questao questao;
-  final bool isFormulario; // 🔥 Define se está preenchendo o formulário
+  final bool isFormulario; // Indica se está no modo de preenchimento
 
   const WidgetLinhaUnicaOremail({
-    super.key,
+    Key? key,
     required this.questao,
     this.idBanco,
-    this.isFormulario = true, // Padrão: não está preenchendo o formulário
-  });
+    this.isFormulario = false, // Padrão: modo edição
+  }) : super(key: key);
 
   @override
   State<WidgetLinhaUnicaOremail> createState() =>
@@ -25,20 +25,58 @@ class WidgetLinhaUnicaOremail extends StatefulWidget {
 
 class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
   late TextEditingController controlePergunta;
-
-  Uint8List? selectedImage; // Variável para armazenar a imagem selecionada
+  late TextEditingController controleResposta;
 
   @override
   void initState() {
     super.initState();
     controlePergunta = TextEditingController(text: widget.questao.textoQuestao);
-  
+    controleResposta = TextEditingController(text: '');
   }
 
   void _handleImageSelected(Uint8List? image) {
     setState(() {
-      selectedImage = image; // Atualiza a imagem selecionada
+      // Armazena a imagem localmente na questão
+      widget.questao.imagemLocal = image;
+      // Se estava usando uma imagem remota, marca para remoção
+      if (image == null && widget.questao.imagemUrl != null) {
+        widget.questao.imagemUrl = null;
+      }
     });
+  }
+
+  Widget _buildImagePreview() {
+    // Prioridade para imagem local (se estiver sendo editada)
+    if (widget.questao.imagemLocal != null) {
+      return Image.memory(
+        widget.questao.imagemLocal!,
+        width: double.infinity,
+        fit: BoxFit.contain,
+      );
+    }
+    // Se tem URL remota
+    else if (widget.questao.imagemUrl != null) {
+      return Image.network(
+        widget.questao.imagemUrl!,
+        width: double.infinity,
+        fit: BoxFit.contain,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(Icons.broken_image);
+        },
+      );
+    }
+    return Container(); // Nenhuma imagem
   }
 
   @override
@@ -48,7 +86,6 @@ class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
     return Card(
       elevation: 5,
       shadowColor: Colors.black,
-      color: Colors.white, // Cor de fundo do card
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -56,81 +93,76 @@ class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(
-                  onPressed: () {
-                    bancoList.removerQuestao(widget.idBanco, widget.questao);
-                  },
-                  icon: const Icon(Icons.delete),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.copy_sharp),
-                ),
-                IconButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return Dialog(
-                          child: WidgetOpcoesImagem(
-                            onImageSelected: (image) {
-                              _handleImageSelected(image);
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  icon: const Icon(Icons.image),
-                ),
+                if (!widget.isFormulario) ...[
+                  IconButton(
+                    onPressed: () {
+                      bancoList.removerQuestao(widget.idBanco, widget.questao);
+                    },
+                    icon: const Icon(Icons.delete),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.copy_sharp),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return Dialog(
+                            child: WidgetOpcoesImagem(
+                              onImageSelected: _handleImageSelected,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    icon: const Icon(Icons.image),
+                  ),
+                ],
               ],
             ),
-            if (selectedImage != null)
+            if (widget.questao.imagemLocal != null ||
+                widget.questao.imagemUrl != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-                child: Image.memory(
-                  selectedImage!,
-                  height: 500,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+                child: _buildImagePreview(),
               ),
-            // Verifica o tipo da questão
-
-                  if (widget.questao.tipoQuestao == QuestaoTipo.LinhaUnica) 
-                    TextField(
-                      controller: controlePergunta,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)
-                        ),
-                        labelText: 'Digite sua pergunta',
-                      ),
-                      onChanged: (value) {
-                        widget.questao.textoQuestao = value;
-                        bancoList.adicionarQuestaoNaLista(widget.questao);
-                      },
-                    ),
-
-                 const SizedBox(height: 10), // Caso contrário, não exibe nada
             TextField(
-            
+              controller: controlePergunta,
               decoration: InputDecoration(
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                labelText: 'Digite a pergunta',
+              ),
+              onChanged: (value) {
+                widget.questao.textoQuestao = value;
+                bancoList.adicionarQuestaoNaLista(widget.questao);
+              },
+              readOnly: widget.isFormulario, // Só edita se não for formulário
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: controleResposta,
+              decoration: InputDecoration(
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 labelText: widget.questao.tipoQuestao == QuestaoTipo.LinhaUnica
                     ? 'Resposta'
                     : 'Digite seu e-mail',
               ),
-              maxLines: 1,
-              maxLength: (MediaQuery.of(context).size.width / 11).floor(),
-              enabled: widget.isFormulario, // 🔥 Só ativa se estiver preenchendo o formulário
-            
+              enabled: widget.isFormulario, // Só habilita no formulário
             ),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    controlePergunta.dispose();
+    controleResposta.dispose();
+    super.dispose();
   }
 }
