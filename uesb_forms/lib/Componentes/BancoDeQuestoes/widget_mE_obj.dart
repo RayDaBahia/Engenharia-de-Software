@@ -9,14 +9,8 @@ import 'package:uesb_forms/Componentes/widget_opcoes_imagem.dart';
 class WidgetMultiplaEscolha extends StatefulWidget {
   final Questao questao;
   final String? bancoId;
-  final bool isFormulario;
 
-  const WidgetMultiplaEscolha({
-    super.key,
-    required this.questao,
-    this.bancoId,
-    this.isFormulario = false,
-  });
+  const WidgetMultiplaEscolha({super.key, required this.questao, this.bancoId});
 
   @override
   State<WidgetMultiplaEscolha> createState() => _WidgetMultiplaEscolhaState();
@@ -43,7 +37,9 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
 
   void _handleImageSelected(Uint8List? image) {
     setState(() {
+      // Armazena a imagem localmente na questão
       widget.questao.imagemLocal = image;
+      // Se estava usando uma imagem remota, marca para remoção
       if (image == null && widget.questao.imagemUrl != null) {
         widget.questao.imagemUrl = null;
       }
@@ -51,6 +47,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
   }
 
   Widget _buildImagePreview() {
+    // Prioridade para imagem local (se estiver sendo editada)
     if (widget.questao.imagemLocal != null) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 10),
@@ -61,7 +58,9 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
           fit: BoxFit.cover,
         ),
       );
-    } else if (widget.questao.imagemUrl != null) {
+    }
+    // Se tem URL remota
+    else if (widget.questao.imagemUrl != null) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 10),
         child: Image.network(
@@ -86,7 +85,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
         ),
       );
     }
-    return const SizedBox.shrink();
+    return const SizedBox.shrink(); // Nenhuma imagem
   }
 
   @override
@@ -113,39 +112,38 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!widget.isFormulario) ...[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        bancoList.removerQuestao(
-                            widget.bancoId, widget.questao);
-                      },
-                      icon: const Icon(Icons.delete),
-                    ),
-                    IconButton(
-                        onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
-                    IconButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return Dialog(
-                              child: WidgetOpcoesImagem(
-                                onImageSelected: _handleImageSelected,
-                              ),
-                            );
-                          },
-                        );
-                      },
-                      icon: const Icon(Icons.image),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-              ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      bancoList.removerQuestao(widget.bancoId, widget.questao);
+                    },
+                    icon: const Icon(Icons.delete),
+                  ),
+                  IconButton(
+                      onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
+                  IconButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return Dialog(
+                            child: WidgetOpcoesImagem(
+                              onImageSelected: _handleImageSelected,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    icon: const Icon(Icons.image),
+                  ),
+                ],
+              ),
+
+              // Exibição da imagem (local ou remota)
               _buildImagePreview(),
+
               TextField(
                 controller: _perguntaController,
                 maxLines: null,
@@ -160,75 +158,64 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                   widget.questao.textoQuestao = value;
                   bancoList.adicionarQuestaoNaLista(widget.questao);
                 },
-                readOnly: widget.isFormulario,
               ),
+
               const SizedBox(height: 20),
               Column(
                 children: List.generate(
                   _optionControllers.length,
-                  (index) => Padding(
-                    padding: const EdgeInsets.only(
-                        bottom: 12), // Espaço entre opções
-                    child: Row(
-                      children: [
-                        IconButton(
-                          onPressed: () {},
-                          icon: widget.questao.tipoQuestao ==
-                                  QuestaoTipo.MultiPlaEscolha
-                              ? const Icon(Icons.check_box_outline_blank)
-                              : const Icon(Icons.radio_button_unchecked),
-                        ),
-                        const SizedBox(width: 8), // Espaço entre ícone e campo
-                        Expanded(
-                          child: TextField(
-                            controller: _optionControllers[index],
-                            decoration: InputDecoration(
-                              labelText: 'Opção ${index + 1}',
-                              border: const OutlineInputBorder(),
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                                horizontal: 10,
-                              ),
-                            ),
-                            onChanged: (value) {
-                              widget.questao.opcoes![index] = value;
-                              bancoList.adicionarQuestaoNaLista(widget.questao);
-                            },
-                            enabled: !widget.isFormulario,
+                  (index) => Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: widget.questao.tipoQuestao ==
+                                QuestaoTipo.MultiPlaEscolha
+                            ? const Icon(Icons.check_box)
+                            : const Icon(Icons.check_circle),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: _optionControllers[index],
+                          decoration: InputDecoration(
+                            labelText: 'Opção ${index + 1}',
+                            border: const OutlineInputBorder(),
                           ),
+                          onChanged: (value) {
+                            widget.questao.opcoes![index] = value;
+                            bancoList.adicionarQuestaoNaLista(widget.questao);
+                          },
                         ),
-                        if (!widget.isFormulario) ...[
-                          const SizedBox(
-                              width: 8), // Espaço entre campo e botão
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _optionControllers.removeAt(index);
-                                widget.questao.opcoes!.removeAt(index);
-                                bancoList
-                                    .adicionarQuestaoNaLista(widget.questao);
-                              });
-                            },
-                            icon: const Icon(Icons.close),
-                          ),
-                        ],
-                      ],
-                    ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _optionControllers.removeAt(index);
+                            widget.questao.opcoes!.removeAt(index);
+                            bancoList.adicionarQuestaoNaLista(widget.questao);
+                          });
+                        },
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              if (!widget.isFormulario) ...[
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _optionControllers.add(TextEditingController(text: ''));
-                      widget.questao.opcoes!.add("");
-                    });
-                  },
-                  child: const Text("Adicionar outra opção"),
-                ),
-              ],
+
+              const SizedBox(height: 18),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _optionControllers.add(TextEditingController(text: ''));
+                        widget.questao.opcoes!.add("");
+                      });
+                    },
+                    child: const Text("Adicionar outra opção"),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

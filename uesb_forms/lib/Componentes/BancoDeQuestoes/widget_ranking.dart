@@ -8,13 +8,13 @@ import 'package:uesb_forms/Componentes/widget_opcoes_imagem.dart';
 class WidgetRanking extends StatefulWidget {
   final Questao questao;
   final String? bancoId;
-  final bool isFormulario;
+  final bool isFormulario; // Novo parâmetro para modo formulário
 
   const WidgetRanking({
     super.key,
     required this.questao,
     this.bancoId,
-    this.isFormulario = false,
+    this.isFormulario = false, // Padrão: modo edição
   });
 
   @override
@@ -36,7 +36,9 @@ class _WidgetRankingState extends State<WidgetRanking> {
 
   void _handleImageSelected(Uint8List? image) {
     setState(() {
+      // Armazena a imagem localmente na questão
       widget.questao.imagemLocal = image;
+      // Se estava usando uma imagem remota e substituiu por nenhuma, marca para remoção
       if (image == null && widget.questao.imagemUrl != null) {
         widget.questao.imagemUrl = null;
       }
@@ -45,6 +47,7 @@ class _WidgetRankingState extends State<WidgetRanking> {
   }
 
   Widget _buildImagePreview() {
+    // Prioridade para imagem local (se estiver sendo editada)
     if (widget.questao.imagemLocal != null) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 16),
@@ -54,7 +57,9 @@ class _WidgetRankingState extends State<WidgetRanking> {
           fit: BoxFit.cover,
         ),
       );
-    } else if (widget.questao.imagemUrl != null) {
+    }
+    // Se tem URL remota
+    else if (widget.questao.imagemUrl != null) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 16),
         child: Image.network(
@@ -78,7 +83,7 @@ class _WidgetRankingState extends State<WidgetRanking> {
         ),
       );
     }
-    return const SizedBox.shrink();
+    return const SizedBox.shrink(); // Nenhuma imagem
   }
 
   @override
@@ -106,6 +111,7 @@ class _WidgetRankingState extends State<WidgetRanking> {
 
   void _atualizarQuestao() {
     widget.questao.opcoes = _controleAlternativas.map((c) => c.text).toList();
+
     final bancoList = Provider.of<BancoList>(context, listen: false);
     bancoList.adicionarQuestaoNaLista(widget.questao);
   }
@@ -123,6 +129,7 @@ class _WidgetRankingState extends State<WidgetRanking> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Botões de ação (só no modo edição)
               if (!widget.isFormulario)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -149,126 +156,101 @@ class _WidgetRankingState extends State<WidgetRanking> {
                     ),
                   ],
                 ),
+
+              // Exibição da imagem
               _buildImagePreview(),
+
+              // Campo de pergunta
               TextField(
                 controller: _perguntaController,
                 maxLines: null,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Digite sua pergunta aqui',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 14,
-                  ),
                 ),
                 onChanged: (value) {
                   widget.questao.textoQuestao = value;
                   _atualizarQuestao();
                 },
-                readOnly: widget.isFormulario,
+                readOnly: widget.isFormulario, // Só edita no modo edição
               ),
+
               const SizedBox(height: 20),
+
+              // Opções de ranking
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Coluna de alternativas
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ...List.generate(
                           _controleAlternativas.length,
-                          (index) => Padding(
-                            padding: const EdgeInsets.only(
-                                bottom: 12), // Espaço entre opções
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: _controleAlternativas[index],
-                                    decoration: InputDecoration(
-                                      labelText: 'Opção ${index + 1}',
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 14,
-                                      ),
-                                    ),
-                                    onChanged: (value) => _atualizarQuestao(),
-                                    readOnly: widget.isFormulario,
+                          (index) => Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _controleAlternativas[index],
+                                  decoration: InputDecoration(
+                                    labelText: 'Opção ${index + 1}',
                                   ),
+                                  onChanged: (value) => _atualizarQuestao(),
+                                  readOnly: widget.isFormulario,
                                 ),
-                                if (!widget.isFormulario)
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8),
-                                    child: IconButton(
-                                      icon: const Icon(Icons.close),
-                                      onPressed: () {
-                                        setState(() {
-                                          _controleAlternativas.removeAt(index);
-                                          widget.questao.opcoes
-                                              ?.removeAt(index);
-                                          _atualizarQuestao();
-                                        });
-                                      },
-                                    ),
-                                  ),
-                              ],
-                            ),
+                              ),
+                              if (!widget
+                                  .isFormulario) // Só mostra botão de remover no modo edição
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () {
+                                    setState(() {
+                                      _controleAlternativas.removeAt(index);
+                                      widget.questao.opcoes?.removeAt(index);
+                                      _atualizarQuestao();
+                                    });
+                                  },
+                                ),
+                            ],
                           ),
                         ),
-                        if (!widget.isFormulario)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _controleAlternativas
-                                      .add(TextEditingController(text: ''));
-                                  widget.questao.opcoes?.add('');
-                                });
-                                _atualizarQuestao();
-                              },
-                              child: const Text("Adicionar outra opção"),
-                            ),
+                        if (!widget
+                            .isFormulario) // Só mostra botão de adicionar no modo edição
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _controleAlternativas
+                                    .add(TextEditingController(text: ''));
+                                widget.questao.opcoes?.add('');
+                              });
+                              _atualizarQuestao();
+                            },
+                            child: const Text("Adicionar outra opção"),
                           ),
                       ],
                     ),
                   ),
-                  if (!widget.isFormulario) ...[
-                    const SizedBox(width: 20),
+                  const SizedBox(width: 20),
+
+                  // Coluna de níveis (classificação)
+                  if (!widget.isFormulario) // Só mostra no modo edição
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           ...List.generate(
                             _controleNiveis.length,
-                            (index) => Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: TextField(
-                                controller: _controleNiveis[index],
-                                decoration: InputDecoration(
-                                  labelText: 'Classificação',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 14,
-                                  ),
-                                ),
-                                onChanged: (value) => _atualizarQuestao(),
+                            (index) => TextField(
+                              controller: _controleNiveis[index],
+                              decoration: const InputDecoration(
+                                labelText: 'Classificação',
                               ),
+                              onChanged: (value) => _atualizarQuestao(),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
                 ],
               ),
             ],

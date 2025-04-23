@@ -18,10 +18,10 @@ class WidgetRespostaNumerica extends StatefulWidget {
   });
 
   @override
-  State<WidgetRespostaNumerica> createState() => _WidgetRespostaNumericaState();
+  State<WidgetRespostaNumerica> createState() => _WidgetMultiplaEscolhaState();
 }
 
-class _WidgetRespostaNumericaState extends State<WidgetRespostaNumerica> {
+class _WidgetMultiplaEscolhaState extends State<WidgetRespostaNumerica> {
   late TextEditingController _perguntaController;
   final List<TextEditingController> _optionControllers = [];
 
@@ -52,20 +52,20 @@ class _WidgetRespostaNumericaState extends State<WidgetRespostaNumerica> {
   Widget _buildImagePreview() {
     if (widget.questao.imagemLocal != null) {
       return Padding(
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.only(bottom: 10),
         child: Image.memory(
           widget.questao.imagemLocal!,
-          height: 180,
+          height: 500,
           width: double.infinity,
           fit: BoxFit.cover,
         ),
       );
     } else if (widget.questao.imagemUrl != null) {
       return Padding(
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.only(bottom: 10),
         child: Image.network(
           widget.questao.imagemUrl!,
-          height: 180,
+          height: 500,
           width: double.infinity,
           fit: BoxFit.cover,
           loadingBuilder: (context, child, loadingProgress) {
@@ -80,12 +80,7 @@ class _WidgetRespostaNumericaState extends State<WidgetRespostaNumerica> {
             );
           },
           errorBuilder: (context, error, stackTrace) {
-            return Container(
-              height: 180,
-              color: Colors.grey[200],
-              child:
-                  const Icon(Icons.broken_image, size: 50, color: Colors.grey),
-            );
+            return const Icon(Icons.broken_image, size: 50);
           },
         ),
       );
@@ -109,11 +104,8 @@ class _WidgetRespostaNumericaState extends State<WidgetRespostaNumerica> {
     return SizedBox(
       width: 300,
       child: Card(
-        elevation: 4,
-        shadowColor: Colors.black.withOpacity(0.2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        elevation: 5,
+        shadowColor: Colors.black,
         color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -129,26 +121,16 @@ class _WidgetRespostaNumericaState extends State<WidgetRespostaNumerica> {
                         bancoList.removerQuestao(
                             widget.bancoId, widget.questao);
                       },
-                      icon: const Icon(Icons.delete_outline, size: 24),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
+                      icon: const Icon(Icons.delete),
                     ),
-                    const SizedBox(width: 16),
                     IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.content_copy, size: 22),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                    const SizedBox(width: 16),
+                        onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
                     IconButton(
                       onPressed: () {
                         showDialog(
                           context: context,
                           builder: (context) {
                             return Dialog(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16)),
                               child: WidgetOpcoesImagem(
                                 onImageSelected: _handleImageSelected,
                               ),
@@ -156,36 +138,21 @@ class _WidgetRespostaNumericaState extends State<WidgetRespostaNumerica> {
                           },
                         );
                       },
-                      icon: const Icon(Icons.image_outlined, size: 24),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
+                      icon: const Icon(Icons.image),
                     ),
                   ],
                 ),
-              if (!widget.isFormulario) const SizedBox(height: 12),
               _buildImagePreview(),
-              const SizedBox(height: 16),
               TextField(
                 controller: _perguntaController,
                 maxLines: null,
                 keyboardType: TextInputType.multiline,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Colors.grey[400]!),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: Colors.grey[400]!),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   labelText: 'Digite sua pergunta aqui',
-                  labelStyle: TextStyle(color: Colors.grey[600]),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 14,
-                  ),
                 ),
-                style: const TextStyle(fontSize: 15),
                 onChanged: (value) {
                   widget.questao.textoQuestao = value;
                   bancoList.adicionarQuestaoNaLista(widget.questao);
@@ -196,89 +163,59 @@ class _WidgetRespostaNumericaState extends State<WidgetRespostaNumerica> {
               Column(
                 children: List.generate(
                   _optionControllers.length,
-                  (index) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            inputFormatters: <TextInputFormatter>[
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
-                            keyboardType: TextInputType.number,
-                            controller: _optionControllers[index],
-                            decoration: InputDecoration(
-                              labelText: 'Opção ${index + 1}',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide:
-                                    BorderSide(color: Colors.grey[400]!),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide:
-                                    BorderSide(color: Colors.grey[400]!),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 14,
-                              ),
-                            ),
-                            style: const TextStyle(fontSize: 15),
-                            onChanged: (value) {
-                              widget.questao.opcoes![index] = value;
-                              bancoList.adicionarQuestaoNaLista(widget.questao);
-                            },
-                            enabled: !widget.isFormulario,
+                  (index) => Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          keyboardType: TextInputType.number,
+                          controller: _optionControllers[index],
+                          decoration: InputDecoration(
+                            labelText: 'Opção ${index + 1}',
+                            border: const OutlineInputBorder(),
                           ),
+                          onChanged: (value) {
+                            widget.questao.opcoes![index] = value;
+                            bancoList.adicionarQuestaoNaLista(widget.questao);
+                          },
+                          enabled: !widget.isFormulario,
                         ),
-                        if (!widget.isFormulario) ...[
-                          const SizedBox(width: 8),
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _optionControllers.removeAt(index);
-                                widget.questao.opcoes!.removeAt(index);
-                                bancoList
-                                    .adicionarQuestaoNaLista(widget.questao);
-                              });
-                            },
-                            icon: const Icon(Icons.close, size: 22),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                          ),
-                        ],
+                      ),
+                      if (!widget.isFormulario) ...[
+                        const SizedBox(height: 10),
+                        IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _optionControllers.removeAt(index);
+                              widget.questao.opcoes!.removeAt(index);
+                              bancoList.adicionarQuestaoNaLista(widget.questao);
+                            });
+                          },
+                          icon: const Icon(Icons.close),
+                        ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
               ),
               if (!widget.isFormulario) ...[
                 const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _optionControllers.add(TextEditingController(text: ''));
-                        widget.questao.opcoes!.add('');
-                      });
-                    },
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _optionControllers
+                              .add(TextEditingController(text: ''));
+                          widget.questao.opcoes!.add('');
+                        });
+                      },
+                      child: const Text("Adicionar outra opção"),
                     ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.add, size: 18),
-                        SizedBox(width: 6),
-                        Text("Adicionar opção"),
-                      ],
-                    ),
-                  ),
+                  ],
                 ),
               ],
             ],
