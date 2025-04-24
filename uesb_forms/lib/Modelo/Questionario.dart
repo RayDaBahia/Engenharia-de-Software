@@ -3,39 +3,39 @@ import 'package:hive/hive.dart';
 
 @HiveType(typeId: 0)
 class Questionario {
-  @HiveField(0)
+
   String _id;
-  @HiveField(1)
+
   String _nome;
-  @HiveField(2)
+
   String _descricao;
-  @HiveField(3)
+
   bool _publicado;
-  @HiveField(4)
+
   bool _visivel;
-  @HiveField(5)
+  
   bool _ativo;
-  @HiveField(6)
+ 
   DateTime? _prazo; // O campo prazo agora é opcional (nullable)
-  @HiveField(7)
+
   DateTime? _dataPublicacao; // O campo dataPublicacao agora é opcional (nullable)
-  @HiveField(8)
+ 
   List<String> _entrevistadores;
-  @HiveField(9)
+
   String? _link;
-  @HiveField(10)
+ 
   bool _aplicado;
-  @HiveField(11)
+  
   String? _liderId;
-  @HiveField(12)
+  
   String? _senha;
-  @HiveField(13)
+  
   String _tipoAplicacao;
-  @HiveField(14)
+
   int _meta;
-  @HiveField(15)
+ 
   String? _liderNome; // Novo campo para o nome do líder
-  @HiveField(16)
+
   DateTime _dataCriacao; // Novo campo para a data de criação
 
   // Tornando todos os parâmetros opcionais com valores padrão

@@ -106,16 +106,10 @@ void initState() {
                     itemCount: questionariosEntrevistador.length,
                     itemBuilder: (ctx, index) {
                       final questionario = questionariosEntrevistador[index];
-                  
-                    
-                  
-                          return FormularioEntrevistador(
+                           return FormularioEntrevistador(
                             questionario: questionario,
                             //numRespostas: respostas,
-                          
                           );
-                       
-                      
                     },
                   ),
                 ),

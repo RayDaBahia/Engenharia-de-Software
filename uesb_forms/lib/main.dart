@@ -6,8 +6,6 @@ import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
-import 'package:uesb_forms/Modelo/Qustionario.g.dart';
-import 'package:uesb_forms/Modelo/questao.g.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Bancos.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/crud_Banco_Questoes.dart';
 import 'package:uesb_forms/Telas/Formulario/ConfigurarAcesso.dart';
@@ -28,18 +26,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Inicializando o Hive
-  await Hive.initFlutter();
 
-  // Registrando os adaptadores
-  
-  Hive.registerAdapter(QuestionarioAdapter());
-  Hive.registerAdapter(QuestaoAdapter());
-  Hive.registerAdapter(QuestaoTipoAdapter());
-
-  
-  await Hive.openBox('questionarioBox');
-
+ 
   runApp(const MyApp());
 }
 

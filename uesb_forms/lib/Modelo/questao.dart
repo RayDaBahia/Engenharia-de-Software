@@ -3,19 +3,19 @@ import 'questao_tipo.dart'; // Importação da enumeração QuestaoTipo
 
 @HiveType(typeId: 0) // O typeId deve ser único
 class Questao {
-  @HiveField(0)
+  
   String? id;
 
-  @HiveField(1)
+
   String textoQuestao;
 
-  @HiveField(2)
+
   QuestaoTipo tipoQuestao;
 
-  @HiveField(5)
+
   List<String>? opcoes;
 
-  @HiveField(6)
+
 
   //  Funcionará da seguinte forma:  { 'opcao1': 'idQuestao1', 'opcao2': 'idQuestao2' }
   // pega o id da questão que será direcionada a partir da opção selecionada
@@ -31,11 +31,15 @@ class Questao {
 
   Map<String, String?>? direcionamento;
 
-  @HiveField(7)
+
   bool obrigatoria;
 
-  @HiveField(8)
+
   String? bancoId;
+
+
+ 
+  Map < String, String>? ranking;
 
   Questao({
     required this.textoQuestao,
@@ -45,6 +49,7 @@ class Questao {
     this.direcionamento,
     this.obrigatoria = false,
     this.bancoId,
+    this.ranking,
   });
 
   // Método toMap para Firestore
@@ -57,6 +62,7 @@ class Questao {
       'direcionamento': direcionamento ?? {},
       'obrigatoria': obrigatoria,
       'bancoId': bancoId,
+      'ranking':ranking,
     };
   }
 
@@ -75,6 +81,7 @@ class Questao {
           : {},
       obrigatoria: map['obrigatoria'] ?? false,
       bancoId: map['bancoId'],
+      ranking: map['ranking']!=null?  Map<String, String>.from(map['ranking']): {},
     );
   }
 }
