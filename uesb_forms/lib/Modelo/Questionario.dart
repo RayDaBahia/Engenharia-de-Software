@@ -3,7 +3,6 @@ import 'package:hive/hive.dart';
 
 @HiveType(typeId: 0)
 class Questionario {
-
   String _id;
 
   String _nome;
@@ -13,27 +12,28 @@ class Questionario {
   bool _publicado;
 
   bool _visivel;
-  
+
   bool _ativo;
- 
+
   DateTime? _prazo; // O campo prazo agora é opcional (nullable)
 
-  DateTime? _dataPublicacao; // O campo dataPublicacao agora é opcional (nullable)
- 
+  DateTime?
+      _dataPublicacao; // O campo dataPublicacao agora é opcional (nullable)
+
   List<String> _entrevistadores;
 
   String? _link;
- 
+
   bool _aplicado;
-  
+
   String? _liderId;
-  
+
   String? _senha;
-  
+
   String _tipoAplicacao;
 
   int _meta;
- 
+
   String? _liderNome; // Novo campo para o nome do líder
 
   DateTime _dataCriacao; // Novo campo para a data de criação
@@ -73,7 +73,9 @@ class Questionario {
         _senha = senha,
         _meta = meta,
         _liderNome = liderNome,
-        _dataCriacao = dataCriacao ?? DateTime.now(); // Define dataCriacao como agora se não for fornecida
+        _dataCriacao = dataCriacao ??
+            DateTime
+                .now(); // Define dataCriacao como agora se não for fornecida
 
   // Método para copiar o objeto com novos valores
   Questionario copyWith({
@@ -151,7 +153,8 @@ class Questionario {
   set tipoAplicacao(String value) => _tipoAplicacao = value;
   set meta(int value) => _meta = value;
   set liderNome(String? value) => _liderNome = value;
-  set dataCriacao(DateTime value) => _dataCriacao = value; // Setter para dataCriacao
+  set dataCriacao(DateTime value) =>
+      _dataCriacao = value; // Setter para dataCriacao
 
   // Método para converter para Map
   Map<String, dynamic> toMap() {
@@ -172,38 +175,43 @@ class Questionario {
       'tipoAplicacao': _tipoAplicacao,
       'meta': _meta,
       'liderNome': _liderNome,
-      'dataCriacao': _dataCriacao.toIso8601String(), // Adicionando a data de criação ao Map
+      'dataCriacao': _dataCriacao
+          .toIso8601String(), // Adicionando a data de criação ao Map
     };
   }
 
   // Método para converter de Map para objeto Questionario
- factory Questionario.fromMap(Map<String, dynamic> map, String documentId) {
-  return Questionario(
-    id: documentId,
-    nome: map['nome'] ?? '',
-    tipoAplicacao: map['tipoAplicacao'] ?? '',
-    descricao: map['descricao'] ?? '',
-    publicado: map['publicado'] ?? false,
-    visivel: map['visivel'] ?? false,
-    ativo: map['ativo'] ?? false,
-    prazo: map['prazo'] != null
-        ? (map['prazo'] is Timestamp ? map['prazo'].toDate() : DateTime.parse(map['prazo']))
-        : null,
-    dataPublicacao: map['dataPublicacao'] != null
-        ? (map['dataPublicacao'] is Timestamp ? map['dataPublicacao'].toDate() : DateTime.parse(map['dataPublicacao']))
-        : null,
-    entrevistadores: List<String>.from(map['entrevistadores'] ?? []),
-    link: map['link'],
-    aplicado: map['aplicado'] ?? false,
-    liderId: map['liderId'],
-    senha: map['senha'] ?? '',
-    meta: map['meta'] ?? 0,
-    liderNome: map['liderNome'],
-    dataCriacao: map['dataCriacao'] != null
-        ? (map['dataCriacao'] is Timestamp ? map['dataCriacao'].toDate() : DateTime.parse(map['dataCriacao']))
-        : DateTime.now(), // Definir data de criação como agora se não existir
-  );
-}
-
+  factory Questionario.fromMap(Map<String, dynamic> map, String documentId) {
+    return Questionario(
+      id: documentId,
+      nome: map['nome'] ?? '',
+      tipoAplicacao: map['tipoAplicacao'] ?? '',
+      descricao: map['descricao'] ?? '',
+      publicado: map['publicado'] ?? false,
+      visivel: map['visivel'] ?? false,
+      ativo: map['ativo'] ?? false,
+      prazo: map['prazo'] != null
+          ? (map['prazo'] is Timestamp
+              ? map['prazo'].toDate()
+              : DateTime.parse(map['prazo']))
+          : null,
+      dataPublicacao: map['dataPublicacao'] != null
+          ? (map['dataPublicacao'] is Timestamp
+              ? map['dataPublicacao'].toDate()
+              : DateTime.parse(map['dataPublicacao']))
+          : null,
+      entrevistadores: List<String>.from(map['entrevistadores'] ?? []),
+      link: map['link'],
+      aplicado: map['aplicado'] ?? false,
+      liderId: map['liderId'],
+      senha: map['senha'] ?? '',
+      meta: map['meta'] ?? 0,
+      liderNome: map['liderNome'],
+      dataCriacao: map['dataCriacao'] != null
+          ? (map['dataCriacao'] is Timestamp
+              ? map['dataCriacao'].toDate()
+              : DateTime.parse(map['dataCriacao']))
+          : DateTime.now(), // Definir data de criação como agora se não existir
+    );
   }
-
+}

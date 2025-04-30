@@ -2,9 +2,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:uesb_forms/Controle_Modelo/aplicacao_list.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
+import 'package:uesb_forms/Controle_Modelo/resposta_provider.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/meus_Bancos.dart';
 import 'package:uesb_forms/Telas/BancoDeQuestoes/crud_Banco_Questoes.dart';
@@ -15,8 +17,8 @@ import 'package:uesb_forms/Telas/Formulario/SelecaoQuestoesBanco.dart';
 import 'package:uesb_forms/Telas/Login.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 import 'package:uesb_forms/Utils/firebase_options.dart';
-import 'package:uesb_forms/Modelo/questao.dart';  // Importando Questao
-import 'package:uesb_forms/Modelo/questionario.dart';  // Importando Questionario
+import 'package:uesb_forms/Modelo/questao.dart'; // Importando Questao
+import 'package:uesb_forms/Modelo/questionario.dart'; // Importando Questionario
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,8 +28,6 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-
- 
   runApp(const MyApp());
 }
 
@@ -38,16 +38,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => RespostaProvider()),
+        ChangeNotifierProvider(create: (_) => AplicacaoList()),
         ChangeNotifierProvider(create: (_) => AuthList()),
         ChangeNotifierProxyProvider<AuthList, BancoList>(
           create: (_) => BancoList(),
           update: (context, authList, previousBancoList) => BancoList(authList),
         ),
-       ChangeNotifierProxyProvider<AuthList, QuestionarioList>(
-              create: (_) => QuestionarioList(null), 
-              update: (context, authList, previous) => QuestionarioList(authList),
+        ChangeNotifierProxyProvider<AuthList, QuestionarioList>(
+          create: (_) => QuestionarioList(null),
+          update: (context, authList, previous) => QuestionarioList(authList),
         ),
-
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -56,7 +57,8 @@ class MyApp extends StatelessWidget {
           appBarTheme: const AppBarTheme(
             iconTheme: IconThemeData(color: Colors.white),
           ),
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 18, 2, 47)),
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color.fromARGB(255, 18, 2, 47)),
           useMaterial3: true,
         ),
         routes: {
@@ -67,7 +69,6 @@ class MyApp extends StatelessWidget {
           Rotas.SELECAO_QUESTOES_BANCO: (ctx) => SelecaoQuestoesBanco(),
           Rotas.EDICAO_FORMULARIO_TELA: (ctx) => EdicaoQuestionario(),
           Rotas.CONFIGURAR_ACESSO_FORMS: (ctx) => ConfigurarAcesso(),
-      
         },
       ),
     );

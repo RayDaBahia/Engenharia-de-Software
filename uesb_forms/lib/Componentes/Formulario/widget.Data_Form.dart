@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:uesb_forms/Controle_Modelo/resposta_provider.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 
 class WidgetDataForm extends StatefulWidget {
@@ -11,36 +13,41 @@ class WidgetDataForm extends StatefulWidget {
 }
 
 class _WidgetDataFormState extends State<WidgetDataForm> {
-  late TextEditingController controleResposta;
+  late TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
-    controleResposta = TextEditingController(
-    //  text: widget.questao.respostaData != null
-     //     ? "${widget.questao.respostaData!.toLocal()}".split(' ')[0]
-          //: '',
+    final resposta = Provider.of<RespostaProvider>(context, listen: false)
+        .obterResposta(widget.questao.id ?? '');
+    _controller = TextEditingController(
+      text: resposta != null ? _formatarData(resposta) : '',
     );
+  }
+
+  String _formatarData(dynamic data) {
+    if (data is DateTime) return "${data.toLocal()}".split(' ')[0];
+    return data.toString();
   }
 
   @override
   void dispose() {
-    controleResposta.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
-  void _selectDate() async {
-    final DateTime? selectedDate = await showDatePicker(
+  Future<void> _selecionarData() async {
+    final data = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2019),
-      lastDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
     );
-    if (selectedDate != null) {
-      setState(() {
-       // widget.questao.respostaData = selectedDate;
-        controleResposta.text = "${selectedDate.toLocal()}".split(' ')[0];
-      });
+
+    if (data != null) {
+      _controller.text = _formatarData(data);
+      Provider.of<RespostaProvider>(context, listen: false)
+          .adicionarResposta(widget.questao.id!, data);
     }
   }
 
@@ -60,14 +67,14 @@ class _WidgetDataFormState extends State<WidgetDataForm> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(
-                  onPressed: _selectDate,
+                  onPressed: _selecionarData,
                   child: const Icon(Icons.calendar_month),
                 ),
               ],
             ),
             const SizedBox(height: 10),
             TextField(
-              controller: controleResposta,
+              controller: _controller,
               readOnly: true,
               decoration: const InputDecoration(
                 hintText: "Selecione uma data",
@@ -80,4 +87,3 @@ class _WidgetDataFormState extends State<WidgetDataForm> {
     );
   }
 }
-

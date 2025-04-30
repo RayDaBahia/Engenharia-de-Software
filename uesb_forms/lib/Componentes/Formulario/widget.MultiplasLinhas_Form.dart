@@ -1,29 +1,45 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:uesb_forms/Controle_Modelo/resposta_provider.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 
 class WidgetMultiplaslinhasForm extends StatefulWidget {
   final Questao questao;
 
-  const WidgetMultiplaslinhasForm ({super.key, required this.questao});
+  const WidgetMultiplaslinhasForm({super.key, required this.questao});
 
   @override
-  _WidgetMultiplaslinhasFormState createState() => _WidgetMultiplaslinhasFormState();
+  _WidgetMultiplaslinhasFormState createState() =>
+      _WidgetMultiplaslinhasFormState();
 }
 
-class _WidgetMultiplaslinhasFormState extends State<WidgetMultiplaslinhasForm > {
-  late TextEditingController controleResposta;
+class _WidgetMultiplaslinhasFormState extends State<WidgetMultiplaslinhasForm> {
+  late TextEditingController _controleResposta;
 
   @override
   void initState() {
     super.initState();
-    controleResposta = TextEditingController();
+    // Busca resposta existente no Provider
+    final respostaProvider =
+        Provider.of<RespostaProvider>(context, listen: false);
+    _controleResposta = TextEditingController(
+      text:
+          respostaProvider.obterResposta(widget.questao.id ?? '')?.toString() ??
+              '',
+    );
   }
 
   @override
   void dispose() {
-    controleResposta.dispose();
+    _controleResposta.dispose();
     super.dispose();
+  }
+
+  void _salvarResposta() {
+    if (widget.questao.id != null) {
+      Provider.of<RespostaProvider>(context, listen: false)
+          .adicionarResposta(widget.questao.id!, _controleResposta.text);
+    }
   }
 
   @override
@@ -37,16 +53,15 @@ class _WidgetMultiplaslinhasFormState extends State<WidgetMultiplaslinhasForm > 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-      
+            // Título (mantido igual)
             Text(
               widget.questao.textoQuestao,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-
             const SizedBox(height: 10),
-
+            // Campo de texto (mantido igual)
             TextField(
-              controller: controleResposta,
+              controller: _controleResposta,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -54,6 +69,8 @@ class _WidgetMultiplaslinhasFormState extends State<WidgetMultiplaslinhasForm > 
                 labelText: 'Digite sua resposta',
               ),
               maxLines: null,
+              onChanged: (value) =>
+                  _salvarResposta(), // Adicionado apenas esta linha
             ),
           ],
         ),

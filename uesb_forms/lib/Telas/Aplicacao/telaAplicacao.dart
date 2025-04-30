@@ -1,0 +1,248 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:uesb_forms/Controle_Modelo/aplicacao_list.dart';
+import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
+import 'package:uesb_forms/Controle_Modelo/resposta_provider.dart';
+import 'package:uesb_forms/Modelo/Questionario.dart';
+import 'package:uesb_forms/Componentes/Formulario/QuestaoWidgetForm.dart';
+
+class TelaAplicacao extends StatefulWidget {
+  final String perfilUsuario;
+  final String? idEntrevistador;
+
+  const TelaAplicacao({
+    Key? key,
+    required this.perfilUsuario,
+    this.idEntrevistador,
+  }) : super(key: key);
+
+  @override
+  _TelaAplicacaoState createState() => _TelaAplicacaoState();
+}
+
+class _TelaAplicacaoState extends State<TelaAplicacao> {
+  late Questionario _questionario;
+  int _indiceAtual = 0;
+  bool _isLoading = false;
+  final List<int> _historicoNavegacao = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is Questionario) {
+        _carregarQuestionario(args);
+        Provider.of<RespostaProvider>(context, listen: false).limparRespostas();
+      }
+    });
+  }
+
+  Future<void> _carregarQuestionario(Questionario questionario) async {
+    setState(() => _isLoading = true);
+    _questionario = questionario;
+    await Provider.of<QuestionarioList>(context, listen: false)
+        .buscarQuestoes(questionario.id);
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  void _avancar() {
+    final questionarioList =
+        Provider.of<QuestionarioList>(context, listen: false);
+    final questoes = questionarioList.listaQuestoes;
+    final respostaProvider =
+        Provider.of<RespostaProvider>(context, listen: false);
+
+    if (_isLoading || questoes.isEmpty) return;
+
+    final questaoAtual = questoes[_indiceAtual];
+    final resposta = respostaProvider.obterResposta(questaoAtual.id!);
+
+    // Verificação de questão obrigatória
+    if (questaoAtual.obrigatoria && resposta == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                'Essa questão é obrigatórioria! Por favor, responda antes de continuar.')),
+      );
+      return;
+    }
+
+    _historicoNavegacao.add(_indiceAtual);
+
+    // Lógica de navegação dinâmica (usando apenas opcoes)
+    if (resposta != null && questaoAtual.direcionamento != null) {
+      String? respostaParaNavegacao;
+
+      // 1. Se for índice (resposta int) e tiver opcoes
+      if (resposta is int && questaoAtual.opcoes != null) {
+        if (resposta >= 0 && resposta < questaoAtual.opcoes!.length) {
+          respostaParaNavegacao = questaoAtual.opcoes![resposta];
+        }
+      }
+      // 2. Se já for texto direto
+      else {
+        respostaParaNavegacao = resposta.toString();
+      }
+
+      // Navegação dinâmica
+      if (respostaParaNavegacao != null &&
+          questaoAtual.direcionamento!.containsKey(respostaParaNavegacao)) {
+        final nextId = questaoAtual.direcionamento![respostaParaNavegacao];
+        final nextIndex = questoes.indexWhere((q) => q.id == nextId);
+
+        if (nextIndex != -1) {
+          setState(() => _indiceAtual = nextIndex);
+          return;
+        }
+      }
+    }
+
+    // Navegação padrão (próxima questão na lista)
+    if (_indiceAtual < questoes.length - 1) {
+      setState(() => _indiceAtual++);
+    } else {
+      _finalizarQuestionario();
+    }
+  }
+
+  void _voltar() {
+    if (_historicoNavegacao.isNotEmpty) {
+      setState(() => _indiceAtual = _historicoNavegacao.removeLast());
+    } else if (_indiceAtual > 0) {
+      setState(() => _indiceAtual--);
+    }
+  }
+
+  Future<void> _finalizarQuestionario() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+
+    try {
+      final respostaProvider =
+          Provider.of<RespostaProvider>(context, listen: false);
+      final aplicacaoList = Provider.of<AplicacaoList>(context, listen: false);
+
+      aplicacaoList.aplicacaoAtual.respostas = respostaProvider
+          .todasRespostas.entries
+          .map((e) => {'idQuestao': e.key, 'resposta': e.value})
+          .toList();
+
+      await aplicacaoList.persistirNoFirebase();
+
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Questionário finalizado com sucesso!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final questionarioList = Provider.of<QuestionarioList>(context);
+    final questoes = questionarioList.listaQuestoes;
+
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(_questionario.nome),
+          backgroundColor: const Color.fromARGB(255, 45, 12, 68),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (questoes.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(_questionario.nome),
+          backgroundColor: const Color.fromARGB(255, 45, 12, 68),
+        ),
+        body: const Center(child: Text('Nenhuma pergunta disponível')),
+      );
+    }
+
+    final questaoAtual = questoes[_indiceAtual];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_questionario.nome),
+        backgroundColor: const Color.fromARGB(255, 45, 12, 68),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Column(
+        children: [
+          LinearProgressIndicator(
+            value: (_indiceAtual + 1) / questoes.length,
+            backgroundColor: Colors.grey[300],
+            color: const Color.fromARGB(255, 45, 12, 68),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Text(
+                    'Questão ${_indiceAtual + 1} de ${questoes.length}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  QuestaoWidgetForm(
+                    questao: questaoAtual,
+                    key: ValueKey(questaoAtual.id),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: _voltar,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    minimumSize: const Size(100, 50),
+                  ),
+                  child: const Text('Voltar'),
+                ),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _avancar,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 45, 12, 68),
+                    minimumSize: const Size(100, 50),
+                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                          _indiceAtual == questoes.length - 1
+                              ? 'Finalizar'
+                              : 'Próxima',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
