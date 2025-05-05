@@ -1,54 +1,38 @@
 import 'dart:typed_data';
-
 import 'package:hive/hive.dart';
 import 'questao_tipo.dart'; // Importação da enumeração QuestaoTipo
 
-@HiveType(typeId: 0) // O typeId deve ser único
+@HiveType(typeId: 0)
 class Questao {
-  
+  @HiveField(0)
   String? id;
 
-
+  @HiveField(1)
   String textoQuestao;
 
-
+  @HiveField(2)
   QuestaoTipo tipoQuestao;
 
-
+  @HiveField(5)
   List<String>? opcoes;
 
-
-
-  //  Funcionará da seguinte forma:  { 'opcao1': 'idQuestao1', 'opcao2': 'idQuestao2' }
-  // pega o id da questão que será direcionada a partir da opção selecionada
-  // quando tiver nessa questão objetiva ao responder ela deverá receber por parametro uma função do tipo calback a ser chamada
-  // na tela de exibição do fomulário para ser respondido. Essa função definirá o id da próxima questão a ser exibida que deverá ser
-  // buscada na lista que a tela de exibição do formulário
-  // caso não tenha direcionamento a questão seguinte será a próxima da lista
-
-  //  deverá ser criada uma coleção chamada de aplicação  que terá o id do formulario, lider, entrevistador e um map com o id da questão e a resposta
-
-  // crie um aplicação list para gerenciar isso e todos os outros métodos que forem necessários
-
+  @HiveField(6)
   Map<String, String?>? direcionamento;
 
-
+  @HiveField(7)
   bool obrigatoria;
 
-
+  @HiveField(8)
   String? bancoId;
 
+  @HiveField(9)
+  String? imagemUrl;
 
+  @HiveField(10)
+  Uint8List? imagemLocal;
 
- 
-  Map < String, String>? ranking;
-/*
-  @HiveField(9) // Usando o próximo fieldId disponível
-  String? imagemUrl; // URL da imagem no Cloudinary
-
-  @HiveField(10) // Field para armazenar temporariamente a imagem local
-  Uint8List? imagemLocal; // Para web e mobile
-*/
+  @HiveField(11)
+  Map<String, String>? ranking; // <- Adicionado aqui
 
   Questao({
     required this.textoQuestao,
@@ -58,15 +42,11 @@ class Questao {
     this.direcionamento,
     this.obrigatoria = false,
     this.bancoId,
-
-    this.ranking,
-/*
     this.imagemUrl,
     this.imagemLocal,
-*/
+    this.ranking, // <- Adicionado aqui
   });
 
-  // Método toMap para Firestore
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -76,8 +56,8 @@ class Questao {
       'direcionamento': direcionamento ?? {},
       'obrigatoria': obrigatoria,
       'bancoId': bancoId,
-      'ranking':ranking,
-
+      'imagemUrl': imagemUrl,
+      'ranking': ranking ?? {}, // <- Adicionado aqui
     };
   }
 
@@ -95,11 +75,10 @@ class Questao {
           : {},
       obrigatoria: map['obrigatoria'] ?? false,
       bancoId: map['bancoId'],
-
-      ranking: map['ranking']!=null?  Map<String, String>.from(map['ranking']): {},
-
-  //    imagemUrl: map['imagemUrl'],
-
+      imagemUrl: map['imagemUrl'],
+      ranking: map['ranking'] != null
+          ? Map<String, String>.from(map['ranking'])
+          : null, // <- Adicionado aqui
     );
   }
 }
