@@ -2,33 +2,41 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
+import 'package:uesb_forms/Controle_Modelo/resposta_provider.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
-
 
 class WidgetListaSuspensaForm extends StatefulWidget {
   final Questao questao;
   final String? bancoId;
 
-  const WidgetListaSuspensaForm ({
+  const WidgetListaSuspensaForm({
     super.key,
     required this.questao,
     this.bancoId,
   });
 
   @override
-  State< WidgetListaSuspensaForm > createState() => _WidgetListaSuspensaFormState();
+  State<WidgetListaSuspensaForm> createState() =>
+      _WidgetListaSuspensaFormState();
 }
 
-class _WidgetListaSuspensaFormState extends State< WidgetListaSuspensaForm> {
+class _WidgetListaSuspensaFormState extends State<WidgetListaSuspensaForm> {
   late TextEditingController _perguntaController;
   final List<TextEditingController> _optionControllers = [];
   Uint8List? selectedImage;
+  String? _valorSelecionado; // Novo: Para controlar a seleção atual
 
   @override
   void initState() {
     super.initState();
-    _perguntaController = TextEditingController(text: widget.questao.textoQuestao);
+    _perguntaController =
+        TextEditingController(text: widget.questao.textoQuestao);
     _initializeOptionControllers();
+
+    // Novo: Recupera a resposta salva no Provider, se existir
+    final respostaProvider =
+        Provider.of<RespostaProvider>(context, listen: false);
+    _valorSelecionado = respostaProvider.obterResposta(widget.questao.id ?? '');
   }
 
   void _initializeOptionControllers() {
@@ -49,7 +57,7 @@ class _WidgetListaSuspensaFormState extends State< WidgetListaSuspensaForm> {
 
   void _handleImageSelected(Uint8List? image) {
     setState(() {
-      selectedImage = image; // Atualiza a imagem selecionada
+      selectedImage = image;
     });
   }
 
@@ -62,13 +70,12 @@ class _WidgetListaSuspensaFormState extends State< WidgetListaSuspensaForm> {
       child: Card(
         elevation: 5,
         shadowColor: Colors.black,
-        color: Colors.white, // Cor de fundo do card
+        color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Exibir a imagem selecionada, se houver
               if (selectedImage != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
@@ -79,34 +86,32 @@ class _WidgetListaSuspensaFormState extends State< WidgetListaSuspensaForm> {
                     fit: BoxFit.cover,
                   ),
                 ),
-              
               Text(
-                  widget.questao.textoQuestao!,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+                widget.questao.textoQuestao!,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 20),
-          
               DropdownButton<String>(
                 hint: const Text('Selecione uma opção'),
-                value: widget.questao.opcoes!.isNotEmpty ? widget.questao.opcoes![0] : null, // Exibe a primeira opção
+                value: _valorSelecionado, // Alterado: Usa o valor do Provider
                 items: widget.questao.opcoes!.map((String item) {
                   return DropdownMenuItem<String>(
                     value: item,
                     child: Text(item),
                   );
                 }).toList(),
-                   onChanged: (String? newValue) {
+                onChanged: (String? newValue) {
                   setState(() {
-                    // Atualizar a questão com a nova opção selecionada
-                    if (newValue != null) {
-                      // Encontrar o índice da opção selecionada
-                      int index = widget.questao.opcoes!.indexOf(newValue);
-                      if (index != -1) {
-                        widget.questao.opcoes![index] = newValue;
-                      }
-                    }
+                    _valorSelecionado = newValue;
                   });
-                }
+
+                  // Novo: Salva a resposta no Provider
+                  if (newValue != null && widget.questao.id != null) {
+                    Provider.of<RespostaProvider>(context, listen: false)
+                        .adicionarResposta(widget.questao.id!, newValue);
+                  }
+                },
               ),
             ],
           ),

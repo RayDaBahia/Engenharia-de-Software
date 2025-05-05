@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:uesb_forms/Controle_Modelo/resposta_provider.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
@@ -12,30 +14,56 @@ class WidgetMeObjForm extends StatefulWidget {
 }
 
 class _WidgetMeObjFormState extends State<WidgetMeObjForm> {
-  // Armazena as opções selecionadas (em um caso de múltipla escolha)
   late List<int> selectedOptions;
 
   @override
   void initState() {
     super.initState();
-    // Inicializa com nenhuma opção selecionada
-    selectedOptions = [];
+    // Busca resposta existente no Provider
+    final respostaProvider =
+        Provider.of<RespostaProvider>(context, listen: false);
+    final respostaSalva =
+        respostaProvider.obterResposta(widget.questao.id ?? '');
+
+    // Inicializa com resposta salva ou vazio
+    selectedOptions = respostaSalva != null
+        ? (respostaSalva is List
+            ? List<int>.from(respostaSalva)
+            : [respostaSalva as int])
+        : [];
   }
 
-  // Função para alterar o estado de uma opção
   void _onOptionChanged(int value, bool selected) {
+    final respostaProvider =
+        Provider.of<RespostaProvider>(context, listen: false);
+    final isMultipleChoice =
+        widget.questao.tipoQuestao == QuestaoTipo.MultiPlaEscolha;
+
     setState(() {
       if (selected) {
-        selectedOptions.add(value);
+        if (isMultipleChoice) {
+          selectedOptions.add(value);
+        } else {
+          selectedOptions = [value];
+        }
       } else {
         selectedOptions.remove(value);
       }
     });
+
+    // Salva no Provider
+    if (widget.questao.id != null) {
+      respostaProvider.adicionarResposta(
+        widget.questao.id!,
+        isMultipleChoice ? selectedOptions : selectedOptions.firstOrNull,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isMultipleChoice = widget.questao.tipoQuestao == QuestaoTipo.MultiPlaEscolha; // Verifique o tipo da questão
+    bool isMultipleChoice =
+        widget.questao.tipoQuestao == QuestaoTipo.MultiPlaEscolha;
 
     return SizedBox(
       width: 300,
@@ -51,7 +79,8 @@ class _WidgetMeObjFormState extends State<WidgetMeObjForm> {
               if (widget.questao.textoQuestao != null)
                 Text(
                   widget.questao.textoQuestao!,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               const SizedBox(height: 20),
               Column(
@@ -68,11 +97,13 @@ class _WidgetMeObjFormState extends State<WidgetMeObjForm> {
                             )
                           : Radio<int>(
                               value: index,
-                              groupValue: selectedOptions.isEmpty ? -1 : selectedOptions.first,
+                              groupValue: selectedOptions.isEmpty
+                                  ? -1
+                                  : selectedOptions.first,
                               onChanged: (int? value) {
-                                setState(() {
-                                  selectedOptions = value != null ? [value] : [];
-                                });
+                                if (value != null) {
+                                  _onOptionChanged(value, true);
+                                }
                               },
                             ),
                       Expanded(

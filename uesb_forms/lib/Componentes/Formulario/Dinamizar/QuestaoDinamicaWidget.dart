@@ -26,12 +26,6 @@ class QuestaoDinamicaWidget extends StatelessWidget {
       case QuestaoTipo.Numerica:
         return WidgetRespostaNumericaForm(questao: questao);
 
-      case QuestaoTipo.ListaSuspensa:
-        return WidgetListaSuspensaForm(questao: questao);
-
-      case QuestaoTipo.Ranking:
-        return WidgetRankingForm(questao: questao);
-
       default:
         return const Text('Tipo de questão não suportado');
     }

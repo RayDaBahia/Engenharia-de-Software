@@ -7,7 +7,6 @@ import 'package:uesb_forms/Modelo/questao.dart';
 
 class Teladinamizarquestao extends StatefulWidget {
   final Questao questaoSelecionada;
-  late List<Questao> _questoesSelecionadas = [];
 
   Teladinamizarquestao({Key? key, required this.questaoSelecionada,})
       : super(key: key);
@@ -79,11 +78,6 @@ class _TeladinamizarquestaoState extends State<Teladinamizarquestao> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      'Questão ${index + 1}',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
                                     QuestaoDinamicaWidget(questao: questao),
                                   ],
                                 ),

@@ -349,27 +349,21 @@ class BancoList with ChangeNotifier {
             questao.textoQuestao.toLowerCase().contains(texto.toLowerCase()))
         .toList();
 
+        
+    notifyListeners();
+
     return questoesFiltro;
 
-    notifyListeners();
   }
 
   void verificaPreenchimento(List<Questao> questoes, Banco banco) {
-    bool verificaPgt = questoes.any((q) => q.textoQuestao.isEmpty);
-    bool verificaCampos = questoes.any((q) {
-      return q.opcoes?.every((opcao) => opcao.trim().isEmpty) ?? false;
-    });
+  
 
     if (banco.nome.isEmpty) {
       throw Exception('O Banco deve ter um nome');
     }
 
-    if (verificaPgt) {
-      throw Exception('Campo pergunta é obrigatório');
-    }
-    if (verificaCampos) {
-      throw Exception('Necessário adicionar opções às questões');
-    }
+
   }
 
   /////////////////////////////////////////// BANCO DE QUESTÕES ///////////////////////////////////////////////////////

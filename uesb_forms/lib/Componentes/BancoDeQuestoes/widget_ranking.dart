@@ -102,18 +102,36 @@ class _WidgetRankingState extends State<WidgetRanking> {
     _controleAlternativas.clear();
     _controleNiveis.clear();
 
-    if (widget.questao.opcoes != null) {
-      for (var alternativa in widget.questao.opcoes!) {
-        _controleAlternativas.add(TextEditingController(text: alternativa));
-      }
-    }
+
+    // Inicializa as alternativas e níveis com base nas propriedades do modelo `Questao`
+if (widget.questao.ranking != null && widget.questao.ranking!.isNotEmpty) {
+  widget.questao.ranking!.forEach((nivel, alternativa) {
+    _controleNiveis.add(TextEditingController(text: nivel));
+    _controleAlternativas.add(TextEditingController(text: alternativa));
+  });
+}
+
+
+
+    
   }
 
   void _atualizarQuestao() {
-    widget.questao.opcoes = _controleAlternativas.map((c) => c.text).toList();
-
+   
+    // Notifica o Provider de que a questão foi alterada
     final bancoList = Provider.of<BancoList>(context, listen: false);
-    bancoList.adicionarQuestaoNaLista(widget.questao);
+
+    bool niveisCompativeis= _controleNiveis.any((controller) => controller.text.isEmpty);
+
+    if(niveisCompativeis){
+   
+      return;
+    }
+    widget.questao.ranking = _controleNiveis.asMap().map((index, controller) => MapEntry(controller.text, _controleAlternativas[index].text));
+
+
+    bancoList.adicionarQuestaoNaLista(widget.questao); // Atualiza a lista no Provider
+
   }
 
   @override
@@ -176,83 +194,63 @@ class _WidgetRankingState extends State<WidgetRanking> {
 
               const SizedBox(height: 20),
 
-              // Opções de ranking
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Coluna de alternativas
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ...List.generate(
-                          _controleAlternativas.length,
-                          (index) => Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: _controleAlternativas[index],
-                                  decoration: InputDecoration(
-                                    labelText: 'Opção ${index + 1}',
-                                  ),
-                                  onChanged: (value) => _atualizarQuestao(),
-                                  readOnly: widget.isFormulario,
-                                ),
-                              ),
-                              if (!widget
-                                  .isFormulario) // Só mostra botão de remover no modo edição
-                                IconButton(
-                                  icon: const Icon(Icons.close),
-                                  onPressed: () {
-                                    setState(() {
-                                      _controleAlternativas.removeAt(index);
-                                      widget.questao.opcoes?.removeAt(index);
-                                      _atualizarQuestao();
-                                    });
-                                  },
-                                ),
-                            ],
-                          ),
-                        ),
-                        if (!widget
-                            .isFormulario) // Só mostra botão de adicionar no modo edição
-                          ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                _controleAlternativas
-                                    .add(TextEditingController(text: ''));
-                                widget.questao.opcoes?.add('');
-                              });
-                              _atualizarQuestao();
-                            },
-                            child: const Text("Adicionar outra opção"),
-                          ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-
-                  // Coluna de níveis (classificação)
-                  if (!widget.isFormulario) // Só mostra no modo edição
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ...List.generate(
-                            _controleNiveis.length,
-                            (index) => TextField(
-                              controller: _controleNiveis[index],
-                              decoration: const InputDecoration(
-                                labelText: 'Classificação',
-                              ),
-                              onChanged: (value) => _atualizarQuestao(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
+              Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    ...List.generate(
+      _controleAlternativas.length,
+      (index) => Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: _controleAlternativas[index],
+              decoration: InputDecoration(
+                labelText: 'Opção ${index + 1}',
               ),
+              onChanged: (_) => _atualizarQuestao(),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: _controleNiveis[index],
+              decoration: const InputDecoration(
+                labelText: 'Classificação',
+
+              ),
+              onChanged: (_) => _atualizarQuestao(),
+            ),
+          ),
+          const SizedBox(width: 10),
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () {
+              setState(() {
+                _controleAlternativas.removeAt(index);
+                _controleNiveis.removeAt(index);
+              });
+              _atualizarQuestao();
+            },
+          ),
+        ],
+      ),
+    ),
+    const SizedBox(height: 10),
+    ElevatedButton(
+      onPressed: () {
+        setState(() {
+          _controleNiveis.add(TextEditingController(text: ''));
+          _controleAlternativas.add(TextEditingController(text: ''));
+        });
+      
+      },
+      child: const Text("Adicionar outra opção"),
+    ),
+  ],
+),
+
             ],
           ),
         ),

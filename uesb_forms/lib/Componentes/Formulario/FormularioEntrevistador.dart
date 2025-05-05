@@ -60,11 +60,8 @@ class FormularioEntrevistador extends StatelessWidget {
                   icon: const Icon(Icons.more_vert, color: Colors.white),
                   onSelected: (value) async {
                     if (value == 'Notificar líder') {
-
                       // Lógica para notificar o líder
                       // Você pode enviar uma notificação ou e-mail para o líder aqui.
-                    
-                     
                     } else if (value == 'Responder') {
                       if (questionario.senha == null ||
                           questionario.senha!.isEmpty) {
@@ -75,16 +72,13 @@ class FormularioEntrevistador extends StatelessWidget {
                         if (senhaDigitada == questionario.senha) {
                           // Lógica para responder ao questionário
                           // Você pode abrir uma nova tela ou permitir que o usuário complete o questionário aqui.
-  
                         } else {
                           // Exibir um alerta caso a senha esteja incorreta
                           await _exibirAlertaSenhaIncorreta(context);
                         }
-                      } else {
-
-                      }
+                      } else {}
                       // Adicione a lógica necessária
-                    } 
+                    }
 
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
