@@ -4,6 +4,7 @@ import 'package:uesb_forms/Controle_Modelo/resposta_provider.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
+
 class WidgetLinhaUnicaOremailForm extends StatefulWidget {
   final Questao questao;
   final bool isFormulario;

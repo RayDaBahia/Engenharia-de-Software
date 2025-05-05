@@ -1,16 +1,13 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
-import 'package:uesb_forms/Componentes/WidgetOpcoesImagem.dart';
+import 'package:uesb_forms/Componentes/widget_opcoes_imagem.dart';
 
 class WidgetListaSuspensa extends StatefulWidget {
   final Questao questao;
   final String? bancoId;
-
 
   const WidgetListaSuspensa({super.key, required this.questao, this.bancoId});
 
@@ -21,12 +18,12 @@ class WidgetListaSuspensa extends StatefulWidget {
 class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
   late TextEditingController _perguntaController;
   final List<TextEditingController> _optionControllers = [];
-  Uint8List? selectedImage;
 
   @override
   void initState() {
     super.initState();
-    _perguntaController = TextEditingController(text: widget.questao.textoQuestao);
+    _perguntaController =
+        TextEditingController(text: widget.questao.textoQuestao);
     _initializeOptionControllers();
   }
 
@@ -48,8 +45,55 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
 
   void _handleImageSelected(Uint8List? image) {
     setState(() {
-      selectedImage = image; // Atualiza a imagem selecionada
+      // Armazena a imagem localmente na questão
+      widget.questao.imagemLocal = image;
+      // Se estava usando uma imagem remota, marca para remoção
+      if (image == null && widget.questao.imagemUrl != null) {
+        widget.questao.imagemUrl = null;
+      }
     });
+  }
+
+  Widget _buildImagePreview() {
+    // Prioridade para imagem local (se estiver sendo editada)
+    if (widget.questao.imagemLocal != null) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Image.memory(
+          widget.questao.imagemLocal!,
+          height: 500,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+    // Se tem URL remota
+    else if (widget.questao.imagemUrl != null) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Image.network(
+          widget.questao.imagemUrl!,
+          height: 500,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return const Icon(Icons.broken_image, size: 50);
+          },
+        ),
+      );
+    }
+    return const SizedBox.shrink(); // Nenhuma imagem
   }
 
   @override
@@ -61,7 +105,7 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
       child: Card(
         elevation: 5,
         shadowColor: Colors.black,
-        color: Colors.white, // Cor de fundo do card
+        color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -76,20 +120,29 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
                     },
                     icon: const Icon(Icons.delete),
                   ),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
+                  IconButton(
+                      onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
+                  IconButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return Dialog(
+                            child: WidgetOpcoesImagem(
+                              onImageSelected: _handleImageSelected,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    icon: const Icon(Icons.image),
+                  ),
                 ],
               ),
-              // Exibir a imagem selecionada, se houver
-              if (selectedImage != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Image.memory(
-                    selectedImage!,
-                    height: 500,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
+
+              // Exibição da imagem (local ou remota)
+              _buildImagePreview(),
+
               TextField(
                 controller: _perguntaController,
                 maxLines: null,
@@ -105,8 +158,9 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
                   bancoList.adicionarQuestaoNaLista(widget.questao);
                 },
               ),
-             dropDown(), 
-             
+
+              dropDown(),
+
               const SizedBox(height: 20),
               Column(
                 children: List.generate(
@@ -136,30 +190,11 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
                         },
                         icon: const Icon(Icons.close),
                       ),
-                      IconButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return Dialog(
-                                child: WidgetOpcoesImagem(
-                                  onImageSelected: (image) {
-                                    _handleImageSelected(image); // Atualiza a imagem selecionada
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              );
-                            },
-                          );
-                        },
-                        icon: const Icon(Icons.image),
-                      ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 18),
-         
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -182,29 +217,25 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
     );
   }
 
-Widget dropDown() {
-  return DropdownButton<String>(
-    hint: const Text('Selecione uma opção'), // Texto exibido quando nada está selecionado
-    items: widget.questao.opcoes!.map((String item) {
-      return DropdownMenuItem<String>(
-        value: item,
-        child: Text(item),
-      );
-    }).toList(),
-    onChanged: (String? newValue) {
-      setState(() {
-        // Atualizar a questão com a nova opção selecionada
-        if (newValue != null) {
-          // Encontrar o índice da opção selecionada
-          int index = widget.questao.opcoes!.indexOf(newValue);
-          if (index != -1) {
-            widget.questao.opcoes![index] = newValue;
+  Widget dropDown() {
+    return DropdownButton<String>(
+      hint: const Text('Selecione uma opção'),
+      items: widget.questao.opcoes!.map((String item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged: (String? newValue) {
+        setState(() {
+          if (newValue != null) {
+            int index = widget.questao.opcoes!.indexOf(newValue);
+            if (index != -1) {
+              widget.questao.opcoes![index] = newValue;
+            }
           }
-        }
-      });
-    },
-  );
+        });
+      },
+    );
+  }
 }
-
-}
-

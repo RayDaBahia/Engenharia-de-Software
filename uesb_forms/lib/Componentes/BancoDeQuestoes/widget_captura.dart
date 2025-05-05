@@ -3,69 +3,86 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
+import 'package:uesb_forms/Modelo/questao_tipo.dart';
 import 'package:uesb_forms/Componentes/widget_opcoes_imagem.dart';
 
-class WidgetMultiplaslinhas extends StatefulWidget {
-  final String? idBanco;
+class WidgetCaptura extends StatefulWidget {
   final Questao questao;
-  final bool
-      isFormulario; // Novo parâmetro para diferenciar modo edição/formulário
+  final String? bancoId;
+  final bool isFormulario;
 
-  const WidgetMultiplaslinhas({
-    super.key,
+  const WidgetCaptura({
+    Key? key,
     required this.questao,
-    this.idBanco,
-    this.isFormulario = false, // Padrão: modo edição
-  });
+    this.bancoId,
+    this.isFormulario = false,
+  }) : super(key: key);
 
   @override
-  _WidgetMultiplaslinhasState createState() => _WidgetMultiplaslinhasState();
+  State<WidgetCaptura> createState() => _WidgetCapturaState();
 }
 
-class _WidgetMultiplaslinhasState extends State<WidgetMultiplaslinhas> {
-  late TextEditingController controlePergunta;
-  late TextEditingController controleResposta;
+class _WidgetCapturaState extends State<WidgetCaptura> {
+  late TextEditingController _perguntaController;
 
   @override
   void initState() {
     super.initState();
-    controlePergunta = TextEditingController(text: widget.questao.textoQuestao);
-    controleResposta = TextEditingController(text: '');
+    _perguntaController =
+        TextEditingController(text: widget.questao.textoQuestao);
+    widget.questao.tipoQuestao = QuestaoTipo.Captura;
   }
 
   void _handleImageSelected(Uint8List? image) {
     setState(() {
-      // Armazena a imagem localmente na questão
       widget.questao.imagemLocal = image;
-      // Se estava usando uma imagem remota e substituiu por nenhuma, marca para remoção
       if (image == null && widget.questao.imagemUrl != null) {
         widget.questao.imagemUrl = null;
       }
     });
   }
 
+  Widget _buildImageResponseArea() {
+    return Container(
+      height: 200,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.camera_alt, size: 50, color: Colors.grey),
+            const SizedBox(height: 10),
+            const Text(
+              'Resposta por imagem',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildImagePreview() {
-    // Prioridade para imagem local (se estiver sendo editada)
     if (widget.questao.imagemLocal != null) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 10),
         child: Image.memory(
           widget.questao.imagemLocal!,
-          height: 500,
           width: double.infinity,
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
         ),
       );
-    }
-    // Se tem URL remota
-    else if (widget.questao.imagemUrl != null) {
+    } else if (widget.questao.imagemUrl != null) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 10),
         child: Image.network(
           widget.questao.imagemUrl!,
-          height: 500,
           width: double.infinity,
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
             return Center(
@@ -83,7 +100,7 @@ class _WidgetMultiplaslinhasState extends State<WidgetMultiplaslinhas> {
         ),
       );
     }
-    return const SizedBox.shrink(); // Nenhuma imagem
+    return const SizedBox.shrink();
   }
 
   @override
@@ -93,22 +110,22 @@ class _WidgetMultiplaslinhasState extends State<WidgetMultiplaslinhas> {
     return Card(
       elevation: 5,
       shadowColor: Colors.black,
-      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Botões de ação (só aparecem no modo edição)
             if (!widget.isFormulario)
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
                     onPressed: () {
-                      bancoList.removerQuestao(widget.idBanco, widget.questao);
+                      bancoList.removerQuestao(widget.bancoId, widget.questao);
                     },
                     icon: const Icon(Icons.delete),
                   ),
+                  IconButton(
+                      onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
                   IconButton(
                     onPressed: () {
                       showDialog(
@@ -127,12 +144,10 @@ class _WidgetMultiplaslinhasState extends State<WidgetMultiplaslinhas> {
                 ],
               ),
 
-            // Exibição da imagem (local ou remota)
             _buildImagePreview(),
 
-            // Campo de pergunta
             TextField(
-              controller: controlePergunta,
+              controller: _perguntaController,
               decoration: InputDecoration(
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -142,25 +157,13 @@ class _WidgetMultiplaslinhasState extends State<WidgetMultiplaslinhas> {
                 widget.questao.textoQuestao = value;
                 bancoList.adicionarQuestaoNaLista(widget.questao);
               },
-              readOnly: widget.isFormulario, // Só edita no modo edição
-              maxLines: null, // Permite múltiplas linhas
-              keyboardType: TextInputType.multiline,
+              readOnly: widget.isFormulario,
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
 
-            // Campo de resposta
-            TextField(
-              controller: controleResposta,
-              decoration: InputDecoration(
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                labelText: 'Resposta',
-              ),
-              enabled: widget.isFormulario, // Só habilitado no modo formulário
-              maxLines: null, // Permite múltiplas linhas
-              keyboardType: TextInputType.multiline,
-            ),
+            // Área de resposta (sempre desabilitada no modelo)
+            _buildImageResponseArea(),
           ],
         ),
       ),
@@ -169,8 +172,7 @@ class _WidgetMultiplaslinhasState extends State<WidgetMultiplaslinhas> {
 
   @override
   void dispose() {
-    controlePergunta.dispose();
-    controleResposta.dispose();
+    _perguntaController.dispose();
     super.dispose();
   }
 }

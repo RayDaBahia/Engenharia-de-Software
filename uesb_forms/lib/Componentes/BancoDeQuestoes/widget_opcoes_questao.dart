@@ -13,20 +13,20 @@ class WidgetOpcoesQuestao extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-                  onPressed: () {
-                    _showBottomSheet(context);
-                  },
-                  backgroundColor: const Color.fromARGB(255, 33, 12, 71),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                  child: const Icon(Icons.add),
-                );
+      onPressed: () {
+        _showBottomSheet(context);
+      },
+      backgroundColor: const Color.fromARGB(255, 33, 12, 71),
+      foregroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30.0),
+      ),
+      child: const Icon(Icons.add),
+    );
   }
 
   void _showBottomSheet(BuildContext context) {
-   showModalBottomSheet(
+    showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return Container(
@@ -44,7 +44,6 @@ class WidgetOpcoesQuestao extends StatelessWidget {
                     Questao(
                       textoQuestao: '',
                       tipoQuestao: QuestaoTipo.LinhaUnica,
-                 
                     ),
                   );
                   Navigator.pop(context);
@@ -55,19 +54,15 @@ class WidgetOpcoesQuestao extends StatelessWidget {
                   leading: const Icon(Icons.text_fields),
                   title: const Text('Múltiplas Linhas'),
                   onTap: () {
-
-               Provider.of<BancoList>(context, listen: false)
-                      .adicionarQuestaoNaLista(
-                    Questao(
-                      textoQuestao: '',
-                      tipoQuestao: QuestaoTipo.MultiplasLinhas,
-                      opcoes: [],
-                    ),
-                  );
-                  Navigator.pop(context);
-
-
-
+                    Provider.of<BancoList>(context, listen: false)
+                        .adicionarQuestaoNaLista(
+                      Questao(
+                        textoQuestao: '',
+                        tipoQuestao: QuestaoTipo.MultiplasLinhas,
+                        opcoes: [],
+                      ),
+                    );
+                    Navigator.pop(context);
                   }),
               ListTile(
                 leading: const Icon(Icons.format_list_numbered),
@@ -102,12 +97,18 @@ class WidgetOpcoesQuestao extends StatelessWidget {
                 },
               ),
               ListTile(
-                
                 leading: const Icon(Icons.camera_alt),
                 title: const Text('Imagem (Captura)'),
                 onTap: () {
+                  Provider.of<BancoList>(context, listen: false)
+                      .adicionarQuestaoNaLista(
+                    Questao(
+                      id: Random().nextInt(1000000).toString(),
+                      textoQuestao: '',
+                      tipoQuestao: QuestaoTipo.Captura,
+                    ),
+                  );
                   Navigator.pop(context);
-                  // Navegar ou mostrar o widget de captura de imagem
                 },
               ),
               ListTile(
@@ -146,14 +147,12 @@ class WidgetOpcoesQuestao extends StatelessWidget {
                 leading: const Icon(Icons.star),
                 title: const Text('Ranking (Classificação)'),
                 onTap: () {
-                 Provider.of<BancoList>(context, listen: false)
+                  Provider.of<BancoList>(context, listen: false)
                       .adicionarQuestaoNaLista(
                     Questao(
                       id: Random().nextInt(1000000).toString(),
                       textoQuestao: '',
                       tipoQuestao: QuestaoTipo.Ranking,
-             
-               
                     ),
                   );
 
@@ -185,7 +184,6 @@ class WidgetOpcoesQuestao extends StatelessWidget {
                     Questao(
                       textoQuestao: '',
                       tipoQuestao: QuestaoTipo.Email,
-                     
                     ),
                   );
                   Navigator.pop(context);
@@ -198,5 +196,4 @@ class WidgetOpcoesQuestao extends StatelessWidget {
       },
     );
   }
-
 }

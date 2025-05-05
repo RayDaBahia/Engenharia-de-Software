@@ -3,12 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/banco_list.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
+import 'package:uesb_forms/Componentes/widget_opcoes_imagem.dart';
 
 class WidgetRanking extends StatefulWidget {
   final Questao questao;
   final String? bancoId;
+  final bool isFormulario; // Novo parâmetro para modo formulário
 
-  const WidgetRanking({super.key, required this.questao, this.bancoId});
+  const WidgetRanking({
+    super.key,
+    required this.questao,
+    this.bancoId,
+    this.isFormulario = false, // Padrão: modo edição
+  });
 
   @override
   State<WidgetRanking> createState() => _WidgetRankingState();
@@ -18,19 +25,65 @@ class _WidgetRankingState extends State<WidgetRanking> {
   late TextEditingController _perguntaController;
   final List<TextEditingController> _controleAlternativas = [];
   final List<TextEditingController> _controleNiveis = [];
-  Uint8List? selectedImage;
 
   @override
   void initState() {
     super.initState();
-    _perguntaController = TextEditingController(text: widget.questao.textoQuestao);
+    _perguntaController =
+        TextEditingController(text: widget.questao.textoQuestao);
     _initializeOptionControllers();
   }
 
   void _handleImageSelected(Uint8List? image) {
     setState(() {
-      selectedImage = image;
+      // Armazena a imagem localmente na questão
+      widget.questao.imagemLocal = image;
+      // Se estava usando uma imagem remota e substituiu por nenhuma, marca para remoção
+      if (image == null && widget.questao.imagemUrl != null) {
+        widget.questao.imagemUrl = null;
+      }
     });
+    _atualizarQuestao();
+  }
+
+  Widget _buildImagePreview() {
+    // Prioridade para imagem local (se estiver sendo editada)
+    if (widget.questao.imagemLocal != null) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Image.memory(
+          widget.questao.imagemLocal!,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+    // Se tem URL remota
+    else if (widget.questao.imagemUrl != null) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Image.network(
+          widget.questao.imagemUrl!,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return const Icon(Icons.broken_image, size: 50);
+          },
+        ),
+      );
+    }
+    return const SizedBox.shrink(); // Nenhuma imagem
   }
 
   @override
@@ -48,6 +101,7 @@ class _WidgetRankingState extends State<WidgetRanking> {
   void _initializeOptionControllers() {
     _controleAlternativas.clear();
     _controleNiveis.clear();
+
 
     // Inicializa as alternativas e níveis com base nas propriedades do modelo `Questao`
 if (widget.questao.ranking != null && widget.questao.ranking!.isNotEmpty) {
@@ -77,6 +131,7 @@ if (widget.questao.ranking != null && widget.questao.ranking!.isNotEmpty) {
 
 
     bancoList.adicionarQuestaoNaLista(widget.questao); // Atualiza a lista no Provider
+
   }
 
   @override
@@ -92,18 +147,53 @@ if (widget.questao.ranking != null && widget.questao.ranking!.isNotEmpty) {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Botões de ação (só no modo edição)
+              if (!widget.isFormulario)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Provider.of<BancoList>(context, listen: false)
+                            .removerQuestao(widget.bancoId, widget.questao);
+                      },
+                      icon: const Icon(Icons.delete),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            child: WidgetOpcoesImagem(
+                              onImageSelected: _handleImageSelected,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.image),
+                    ),
+                  ],
+                ),
+
+              // Exibição da imagem
+              _buildImagePreview(),
+
+              // Campo de pergunta
               TextField(
                 controller: _perguntaController,
                 maxLines: null,
-                decoration: const InputDecoration(labelText: 'Digite sua pergunta aqui'),
+                decoration: const InputDecoration(
+                  labelText: 'Digite sua pergunta aqui',
+                ),
                 onChanged: (value) {
-                  setState(() {
-                    widget.questao.textoQuestao = value;
-                  });
-                  _atualizarQuestao();  // Atualiza o banco de dados com a nova pergunta
+                  widget.questao.textoQuestao = value;
+                  _atualizarQuestao();
                 },
+                readOnly: widget.isFormulario, // Só edita no modo edição
               ),
+
               const SizedBox(height: 20),
+
               Column(
   crossAxisAlignment: CrossAxisAlignment.start,
   children: [
@@ -128,6 +218,7 @@ if (widget.questao.ranking != null && widget.questao.ranking!.isNotEmpty) {
               controller: _controleNiveis[index],
               decoration: const InputDecoration(
                 labelText: 'Classificação',
+
               ),
               onChanged: (_) => _atualizarQuestao(),
             ),

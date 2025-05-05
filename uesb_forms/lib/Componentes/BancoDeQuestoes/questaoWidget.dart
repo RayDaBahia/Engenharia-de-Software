@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_captura.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_data.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_linha_unica_orEmail.dart';
 import 'package:uesb_forms/Componentes/BancoDeQuestoes/widget_lista_suspensa.dart';
@@ -31,6 +32,12 @@ class QuestaoWidget extends StatelessWidget {
         return WidgetLinhaUnicaOremail(
           questao: questao,
           idBanco: bancoId,
+        );
+
+      case QuestaoTipo.Captura:
+        return WidgetCaptura(
+          questao: questao,
+          bancoId: bancoId,
         );
 
       case QuestaoTipo.Numerica:
