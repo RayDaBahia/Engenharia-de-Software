@@ -4,7 +4,6 @@ import 'package:uesb_forms/Controle_Modelo/resposta_provider.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
-
 class WidgetLinhaUnicaOremailForm extends StatefulWidget {
   final Questao questao;
   final bool isFormulario;
@@ -65,6 +64,32 @@ class _WidgetLinhaUnicaOremailFormState
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Adicionado: Exibe imagem se houver URL
+            if (widget.questao.imagemUrl != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Image.network(
+                  widget.questao.imagemUrl!,
+                  height: 500,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.broken_image, size: 50);
+                  },
+                ),
+              ),
+
             Text(widget.questao.textoQuestao),
             const SizedBox(height: 10),
             TextField(

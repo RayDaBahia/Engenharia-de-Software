@@ -24,7 +24,7 @@ class _WidgetListaSuspensaFormState extends State<WidgetListaSuspensaForm> {
   late TextEditingController _perguntaController;
   final List<TextEditingController> _optionControllers = [];
   Uint8List? selectedImage;
-  String? _valorSelecionado; // Novo: Para controlar a seleção atual
+  String? _valorSelecionado;
 
   @override
   void initState() {
@@ -33,7 +33,7 @@ class _WidgetListaSuspensaFormState extends State<WidgetListaSuspensaForm> {
         TextEditingController(text: widget.questao.textoQuestao);
     _initializeOptionControllers();
 
-    // Novo: Recupera a resposta salva no Provider, se existir
+    // Recupera a resposta salva no Provider, se existir
     final respostaProvider =
         Provider.of<RespostaProvider>(context, listen: false);
     _valorSelecionado = respostaProvider.obterResposta(widget.questao.id ?? '');
@@ -55,12 +55,6 @@ class _WidgetListaSuspensaFormState extends State<WidgetListaSuspensaForm> {
     super.dispose();
   }
 
-  void _handleImageSelected(Uint8List? image) {
-    setState(() {
-      selectedImage = image;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final bancoList = Provider.of<BancoList>(context, listen: true);
@@ -76,16 +70,32 @@ class _WidgetListaSuspensaFormState extends State<WidgetListaSuspensaForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (selectedImage != null)
+              // Adicionado: Exibe imagem se houver URL
+              if (widget.questao.imagemUrl != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: Image.memory(
-                    selectedImage!,
+                  child: Image.network(
+                    widget.questao.imagemUrl!,
                     height: 500,
                     width: double.infinity,
                     fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                              : null,
+                        ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons.broken_image, size: 50);
+                    },
                   ),
                 ),
+
               Text(
                 widget.questao.textoQuestao!,
                 style:
@@ -94,7 +104,7 @@ class _WidgetListaSuspensaFormState extends State<WidgetListaSuspensaForm> {
               const SizedBox(height: 20),
               DropdownButton<String>(
                 hint: const Text('Selecione uma opção'),
-                value: _valorSelecionado, // Alterado: Usa o valor do Provider
+                value: _valorSelecionado,
                 items: widget.questao.opcoes!.map((String item) {
                   return DropdownMenuItem<String>(
                     value: item,
@@ -106,7 +116,6 @@ class _WidgetListaSuspensaFormState extends State<WidgetListaSuspensaForm> {
                     _valorSelecionado = newValue;
                   });
 
-                  // Novo: Salva a resposta no Provider
                   if (newValue != null && widget.questao.id != null) {
                     Provider.of<RespostaProvider>(context, listen: false)
                         .adicionarResposta(widget.questao.id!, newValue);

@@ -53,6 +53,32 @@ class _WidgetMultiplaslinhasFormState extends State<WidgetMultiplaslinhasForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Adicionado: Exibe imagem se houver URL
+            if (widget.questao.imagemUrl != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Image.network(
+                  widget.questao.imagemUrl!,
+                  height: 500,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.broken_image, size: 50);
+                  },
+                ),
+              ),
+
             // Título (mantido igual)
             Text(
               widget.questao.textoQuestao,
@@ -69,8 +95,7 @@ class _WidgetMultiplaslinhasFormState extends State<WidgetMultiplaslinhasForm> {
                 labelText: 'Digite sua resposta',
               ),
               maxLines: null,
-              onChanged: (value) =>
-                  _salvarResposta(), // Adicionado apenas esta linha
+              onChanged: (value) => _salvarResposta(),
             ),
           ],
         ),

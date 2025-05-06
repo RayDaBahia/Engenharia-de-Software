@@ -33,6 +33,48 @@ class _WidgetMeObjFormState extends State<WidgetMeObjForm> {
         : [];
   }
 
+  Widget _buildImagePreview() {
+    // Prioridade para imagem local (se estiver sendo editada)
+    if (widget.questao.imagemLocal != null) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Image.memory(
+          widget.questao.imagemLocal!,
+          height: 500,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+    // Se tem URL remota
+    else if (widget.questao.imagemUrl != null) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Image.network(
+          widget.questao.imagemUrl!,
+          height: 500,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return const Icon(Icons.broken_image, size: 50);
+          },
+        ),
+      );
+    }
+    return const SizedBox.shrink(); // Nenhuma imagem
+  }
+
   void _onOptionChanged(int value, bool selected) {
     final respostaProvider =
         Provider.of<RespostaProvider>(context, listen: false);
@@ -76,6 +118,9 @@ class _WidgetMeObjFormState extends State<WidgetMeObjForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Exibição da imagem (local ou remota)
+              _buildImagePreview(),
+
               if (widget.questao.textoQuestao != null)
                 Text(
                   widget.questao.textoQuestao!,
