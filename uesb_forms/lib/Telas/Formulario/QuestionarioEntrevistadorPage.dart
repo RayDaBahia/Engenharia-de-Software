@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Componentes/Formulario/FormularioEntrevistador.dart';
-import 'package:uesb_forms/Componentes/Formulario/FormularioLider.dart';
+import 'package:uesb_forms/Controle_Modelo/aplicacao_list.dart';
+import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
+import 'package:uesb_forms/Modelo/AplicacaoQuestionario.dart';
+import 'package:uesb_forms/Modelo/Questionario.dart';
+import 'package:uesb_forms/Telas/Aplicacao/telaAplicacao.dart';
+import 'package:uesb_forms/Telas/Aplicacao/telaTesteQuestionario.dart';
 
 class QuestionariosEntrevistadorPage extends StatefulWidget {
   const QuestionariosEntrevistadorPage({super.key});
@@ -14,12 +19,65 @@ class QuestionariosEntrevistadorPage extends StatefulWidget {
 
 class _QuestionariosEntrevistadorPageState
     extends State<QuestionariosEntrevistadorPage> {
-  String _searchQuery = ""; // Armazena o termo de pesquisa
-  String _filtroSelecionado = "Todos"; // Filtro atual (padrão: mostrar todos)
+  String _searchQuery = "";
+  String _filtroSelecionado = "Todos";
 
-  @override
+  // --- NOVOS MÉTODOS ADICIONADOS --- //
+  void _aplicarQuestionario(Questionario questionario, BuildContext context) {
+    if (!questionario.publicado || !questionario.ativo) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                'Apenas questionários publicados e ativos podem ser aplicados!')),
+      );
+      return;
+    }
 
-  // Carrega os questionários quando a tela é inicializada
+    final auth = Provider.of<AuthList>(context, listen: false);
+    final aplicacaoList = Provider.of<AplicacaoList>(context, listen: false);
+
+    aplicacaoList.aplicacaoAtual = Aplicacaoquestionario(
+      idAplicacao: DateTime.now().millisecondsSinceEpoch.toString(),
+      idQuestionario: questionario.id,
+      idEntrevistador: auth.usuario?.id ?? '',
+      respostas: [],
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TelaAplicacao(
+          perfilUsuario: 'Entrevistador',
+          idEntrevistador: auth.usuario?.id ?? '',
+        ),
+        settings: RouteSettings(arguments: questionario),
+      ),
+    );
+  }
+
+  void _testarQuestionario(Questionario questionario, BuildContext context) {
+    if (!questionario.publicado) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text('Apenas questionários publicados podem ser testados!')),
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TelaTesteQuestionario(
+          perfilUsuario: 'Entrevistador',
+          idEntrevistador: 'teste-${DateTime.now().millisecondsSinceEpoch}',
+        ),
+        settings: RouteSettings(arguments: questionario),
+      ),
+    );
+  }
+  // --- FIM DOS NOVOS MÉTODOS --- //
+
   @override
   void initState() {
     super.initState();
@@ -53,15 +111,10 @@ class _QuestionariosEntrevistadorPageState
 
     return Column(
       children: [
-        // Barra de pesquisa
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextField(
-            onChanged: (query) {
-              setState(() {
-                _searchQuery = query;
-              });
-            },
+            onChanged: (query) => setState(() => _searchQuery = query),
             decoration: InputDecoration(
               labelText: 'Pesquisar por nome',
               prefixIcon: const Icon(Icons.search),
@@ -71,8 +124,6 @@ class _QuestionariosEntrevistadorPageState
             ),
           ),
         ),
-
-        // Filtros de categoria
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: SingleChildScrollView(
@@ -89,7 +140,6 @@ class _QuestionariosEntrevistadorPageState
             ),
           ),
         ),
-
         questionariosEntrevistador.isEmpty
             ? const Center(
                 child: Text(
@@ -97,10 +147,7 @@ class _QuestionariosEntrevistadorPageState
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               )
-            :
-
-            // Lista de questionários
-            Expanded(
+            : Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: ListView.builder(
@@ -109,7 +156,11 @@ class _QuestionariosEntrevistadorPageState
                       final questionario = questionariosEntrevistador[index];
                       return FormularioEntrevistador(
                         questionario: questionario,
-                        //numRespostas: respostas,
+                        // --- ADICIONADO --- //
+                        onAplicar: () =>
+                            _aplicarQuestionario(questionario, context),
+                        onTestar: () =>
+                            _testarQuestionario(questionario, context),
                       );
                     },
                   ),
@@ -119,14 +170,9 @@ class _QuestionariosEntrevistadorPageState
     );
   }
 
-  /// Componente Chip para selecionar categorias (somente um ativo por vez)
   Widget _CategoriaChip(String label, IconData icon, String filtro) {
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _filtroSelecionado = filtro;
-        });
-      },
+      onTap: () => setState(() => _filtroSelecionado = filtro),
       child: Chip(
         label: Row(
           children: [
@@ -146,9 +192,7 @@ class _QuestionariosEntrevistadorPageState
         backgroundColor: _filtroSelecionado == filtro
             ? const Color.fromARGB(255, 45, 12, 68)
             : const Color.fromARGB(255, 254, 253, 253),
-        side: BorderSide(
-            color: const Color.fromARGB(
-                255, 45, 12, 68)), // Borda visível quando não está selecionado
+        side: const BorderSide(color: Color.fromARGB(255, 45, 12, 68)),
       ),
     );
   }

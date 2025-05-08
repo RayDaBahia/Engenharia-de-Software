@@ -6,23 +6,21 @@ import 'package:uesb_forms/Modelo/Questionario.dart';
 
 class FormularioEntrevistador extends StatelessWidget {
   final Questionario questionario;
-  // final int numRespostas;
+  final VoidCallback? onAplicar;
+  final VoidCallback? onTestar;
 
   const FormularioEntrevistador({
     super.key,
     required this.questionario,
-    // required this.numRespostas,
+    this.onAplicar,
+    this.onTestar,
   });
 
   @override
   Widget build(BuildContext context) {
-    final questionarioProvider =
-        Provider.of<QuestionarioList>(context, listen: false);
-
-    // Formatar a data de publicação
-    String dataPublicacao = questionario.dataPublicacao != null
+    final dataPublicacao = questionario.dataPublicacao != null
         ? DateFormat('dd/MM/yyyy').format(questionario.dataPublicacao!)
-        : "Data não disponível";
+        : "Não publicado";
 
     return Card(
       elevation: 4,
@@ -30,6 +28,7 @@ class FormularioEntrevistador extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Column(
         children: [
+          // Cabeçalho com gradiente e menu
           Stack(
             children: [
               Container(
@@ -47,96 +46,92 @@ class FormularioEntrevistador extends StatelessWidget {
                   ),
                 ),
               ),
-              if (questionario.senha != null && questionario.senha!.isNotEmpty)
-                const Positioned(
-                  right: 10,
-                  top: 10,
-                  child: Icon(Icons.lock, color: Colors.white, size: 20),
-                ),
               Positioned(
                 left: 10,
-                top: 10,
+                top: 5, // Ajuste para alinhar verticalmente
                 child: PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert, color: Colors.white),
+                  itemBuilder: (context) => [
+                    if (questionario.publicado)
+                      const PopupMenuItem(
+                        value: 'Notificar',
+                        child: Text('Notificar líder'),
+                      ),
+                  ],
                   onSelected: (value) async {
-                    if (value == 'Notificar líder') {
+                    if (value == 'Notificar') {
                       // Lógica para notificar o líder
-                      // Você pode enviar uma notificação ou e-mail para o líder aqui.
-                    } else if (value == 'Responder') {
-                      if (questionario.senha == null ||
-                          questionario.senha!.isEmpty) {
-                        String senhaDigitada =
-                            await _mostrarDialogoSenha(context);
-
-                        // Verificar se a senha fornecida é igual à senha do questionário
-                        if (senhaDigitada == questionario.senha) {
-                          // Lógica para responder ao questionário
-                          // Você pode abrir uma nova tela ou permitir que o usuário complete o questionário aqui.
-                        } else {
-                          // Exibir um alerta caso a senha esteja incorreta
-                          await _exibirAlertaSenhaIncorreta(context);
-                        }
-                      } else {}
-                      // Adicione a lógica necessária
-                    }
-
-                    if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content:
-                                Text('Ação "$value" realizada com sucesso!')),
+                        const SnackBar(content: Text('Líder notificado!')),
                       );
                     }
                   },
-                  itemBuilder: (context) {
-                    List<PopupMenuEntry<String>> opcoes = [];
-
-                    if (questionario.publicado) {
-                      if (questionario.ativo) {
-                        opcoes.add(const PopupMenuItem(
-                            value: 'Notificar líder',
-                            child: Text('Notificar líder')));
-                        opcoes.add(const PopupMenuItem(
-                            value: 'Responder', child: Text('Responder')));
-                      }
-                    }
-
-                    return opcoes;
-                  },
                 ),
               ),
+              if (questionario.senha != null && questionario.senha!.isNotEmpty)
+                const Positioned(
+                  right: 10,
+                  top: 10, // Ajuste para alinhar verticalmente
+                  child: Icon(Icons.lock, color: Colors.white, size: 30),
+                ),
             ],
           ),
+          // Corpo do card
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   questionario.nome,
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+                const SizedBox(height: 6),
                 Text(
                   "Líder: ${questionario.liderNome}",
                   style: const TextStyle(fontSize: 14, color: Colors.grey),
                 ),
-                const SizedBox(height: 10),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                const SizedBox(height: 6),
+                Text(
+                  "Publicado em: $dataPublicacao",
+                  style: const TextStyle(fontSize: 14, color: Colors.black),
+                ),
+                const SizedBox(height: 12),
+                // Botões principais (sempre visíveis se publicado)
+                if (questionario.publicado)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      /*
-                      Text(
-                        "Respostas: $numRespostas / ${questionario.meta}",
-                        style:
-                            const TextStyle(fontSize: 14, color: Colors.black),
-                      ),*/
-                      Text(
-                        "Publicado em: $dataPublicacao",
-                        style:
-                            const TextStyle(fontSize: 14, color: Colors.black),
+                      if (questionario.ativo)
+                        ElevatedButton(
+                          onPressed: () => _handleAcao(
+                            context,
+                            onAplicar,
+                            "Aplicar",
+                            questionario.senha,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 45, 12, 68),
+                          ),
+                          child: const Text('Aplicar',
+                              style: TextStyle(color: Colors.white)),
+                        ),
+                      const SizedBox(width: 8),
+                      OutlinedButton(
+                        onPressed: () => _handleAcao(
+                          context,
+                          onTestar,
+                          "Testar",
+                          questionario.senha,
+                        ),
+                        child: const Text('Testar'),
                       ),
-                    ]),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -145,53 +140,48 @@ class FormularioEntrevistador extends StatelessWidget {
     );
   }
 
-  Future<String> _mostrarDialogoSenha(BuildContext context) async {
-    String senha = '';
-    await showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        TextEditingController _senhaController = TextEditingController();
-
-        return AlertDialog(
-          title: Text("Digite a senha"),
+  Future<void> _handleAcao(
+    BuildContext context,
+    VoidCallback? callback,
+    String acao,
+    String? senha,
+  ) async {
+    if (senha?.isNotEmpty ?? false) {
+      final senhaDigitada = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Senha requerida"),
           content: TextField(
-            controller: _senhaController,
             obscureText: true,
-            decoration: InputDecoration(hintText: "Senha"),
+            decoration: const InputDecoration(hintText: "Digite a senha"),
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                senha = _senhaController.text;
-                Navigator.of(context).pop(senha); // Retorna a senha digitada
-              },
-              child: Text("OK"),
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancelar"),
             ),
-          ],
-        );
-      },
-    );
-    return senha; // Retorna a senha digitada
-  }
-
-  // Função para exibir um alerta se a senha for incorreta
-  Future<void> _exibirAlertaSenhaIncorreta(BuildContext context) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Erro"),
-          content: Text("A senha digitada está incorreta."),
-          actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Fecha o diálogo
+                final controller = (context as Element)
+                    .findAncestorWidgetOfExactType<TextField>()
+                    ?.controller;
+                Navigator.pop(context, controller?.text ?? '');
               },
-              child: Text("Fechar"),
+              child: const Text("Confirmar"),
             ),
           ],
+        ),
+      );
+
+      if (senhaDigitada == senha) {
+        callback?.call();
+      } else if (senhaDigitada != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Senha incorreta!")),
         );
-      },
-    );
+      }
+    } else {
+      callback?.call();
+    }
   }
 }

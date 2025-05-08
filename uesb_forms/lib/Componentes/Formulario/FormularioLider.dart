@@ -3,16 +3,17 @@ import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
-import 'package:uesb_forms/Telas/Aplicacao/telaAplicacao.dart';
 
 class FormularioLider extends StatelessWidget {
   final Questionario questionario;
-  final VoidCallback? onTestar; // Novo callback para teste
+  final VoidCallback onAplicar; // Callback para aplicar
+  final VoidCallback onTestar; // Callback para testar
 
   const FormularioLider({
     super.key,
     required this.questionario,
-    this.onTestar, // Adicionado parâmetro
+    required this.onAplicar,
+    required this.onTestar,
   });
 
   @override
@@ -51,7 +52,7 @@ class FormularioLider extends StatelessWidget {
                 ),
               Positioned(
                 left: 10,
-                top: 10,
+                top: 5,
                 child: PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert, color: Colors.white),
                   onSelected: (value) async {
@@ -78,8 +79,11 @@ class FormularioLider extends StatelessWidget {
                             Rotas.CONFIGURAR_ACESSO_FORMS,
                             arguments: questionario);
                         break;
-                      case 'testar': // Nova opção de teste
-                        if (onTestar != null) onTestar!();
+                      case 'testar':
+                        onTestar();
+                        break;
+                      case 'aplicar':
+                        onAplicar();
                         break;
                     }
 
@@ -94,7 +98,7 @@ class FormularioLider extends StatelessWidget {
                   itemBuilder: (context) {
                     List<PopupMenuEntry<String>> opcoes = [];
 
-                    // Adiciona a opção de teste (sempre visível para líder)
+                    // Adiciona opções de teste e aplicar (sempre visíveis)
                     opcoes.add(const PopupMenuItem(
                       value: 'testar',
                       child: Row(
@@ -102,6 +106,17 @@ class FormularioLider extends StatelessWidget {
                           Icon(Icons.play_arrow, color: Colors.black),
                           SizedBox(width: 8),
                           Text('Testar questionário'),
+                        ],
+                      ),
+                    ));
+
+                    opcoes.add(const PopupMenuItem(
+                      value: 'aplicar',
+                      child: Row(
+                        children: [
+                          Icon(Icons.assignment, color: Colors.black),
+                          SizedBox(width: 8),
+                          Text('Aplicar questionário'),
                         ],
                       ),
                     ));

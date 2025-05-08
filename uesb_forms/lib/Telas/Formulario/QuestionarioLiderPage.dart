@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Componentes/Formulario/FormularioLider.dart';
 import 'package:uesb_forms/Controle_Modelo/aplicacao_list.dart';
+import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Modelo/AplicacaoQuestionario.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 import 'package:uesb_forms/Telas/Aplicacao/telaAplicacao.dart';
+import 'package:uesb_forms/Telas/Aplicacao/telaTesteQuestionario.dart';
 
 class QuestionariosLiderPage extends StatefulWidget {
   const QuestionariosLiderPage({super.key});
@@ -19,14 +21,49 @@ class _QuestionariosLiderPageState extends State<QuestionariosLiderPage> {
   String _searchQuery = "";
   String _filtroSelecionado = "Todos";
 
+  void _aplicarQuestionario(Questionario questionario, BuildContext context) {
+    try {
+      final auth = Provider.of<AuthList>(context, listen: false);
+      final aplicacaoList = Provider.of<AplicacaoList>(context, listen: false);
+
+      if (!auth.isAutenticado()) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Faça login primeiro')),
+        );
+        return;
+      }
+
+      aplicacaoList.aplicacaoAtual = Aplicacaoquestionario(
+        idAplicacao: DateTime.now().millisecondsSinceEpoch.toString(),
+        idQuestionario: questionario.id,
+        idEntrevistador: auth.usuario?.id ?? '',
+        respostas: [],
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TelaAplicacao(
+            perfilUsuario: 'Entrevistador',
+            idEntrevistador: auth.usuario?.id ?? '',
+          ),
+          settings: RouteSettings(arguments: questionario),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro: ${e.toString()}')),
+      );
+    }
+  }
+
   void _testarQuestionario(Questionario questionario, BuildContext context) {
-// Navegar para a tela passando o questionário
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TelaAplicacao(
-          perfilUsuario: 'Entrevistador',
-          idEntrevistador: '123',
+        builder: (context) => TelaTesteQuestionario(
+          perfilUsuario: 'Líder',
+          idEntrevistador: 'teste-${DateTime.now().millisecondsSinceEpoch}',
         ),
         settings: RouteSettings(arguments: questionario),
       ),
@@ -62,7 +99,6 @@ class _QuestionariosLiderPageState extends State<QuestionariosLiderPage> {
         children: [
           Column(
             children: [
-              // Barra de pesquisa (mantido igual)
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
@@ -76,8 +112,6 @@ class _QuestionariosLiderPageState extends State<QuestionariosLiderPage> {
                   ),
                 ),
               ),
-
-              // Filtros (mantido igual)
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: SingleChildScrollView(
@@ -99,8 +133,6 @@ class _QuestionariosLiderPageState extends State<QuestionariosLiderPage> {
                   ),
                 ),
               ),
-
-              // Lista de questionários
               Expanded(
                 child: questionariosLider.isEmpty
                     ? const Center(
@@ -118,8 +150,10 @@ class _QuestionariosLiderPageState extends State<QuestionariosLiderPage> {
                             final questionario = questionariosLider[index];
                             return FormularioLider(
                               questionario: questionario,
-                              onTestar: () => _testarQuestionario(
-                                  questionario as Questionario, context),
+                              onAplicar: () =>
+                                  _aplicarQuestionario(questionario, context),
+                              onTestar: () =>
+                                  _testarQuestionario(questionario, context),
                             );
                           },
                         ),
@@ -127,8 +161,6 @@ class _QuestionariosLiderPageState extends State<QuestionariosLiderPage> {
               ),
             ],
           ),
-
-          // Botão flutuante (mantido igual)
           Positioned(
             bottom: 40,
             right: 20,
@@ -139,7 +171,6 @@ class _QuestionariosLiderPageState extends State<QuestionariosLiderPage> {
     );
   }
 
-  // Métodos auxiliares (mantidos iguais)
   Widget _botaoAdicionarFormulario(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 40.0),

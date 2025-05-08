@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:uesb_forms/Controle_Modelo/aplicacao_list.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Controle_Modelo/resposta_provider.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
 import 'package:uesb_forms/Componentes/Formulario/QuestaoWidgetForm.dart';
 
-class TelaAplicacao extends StatefulWidget {
+class TelaTesteQuestionario extends StatefulWidget {
   final String perfilUsuario;
   final String? idEntrevistador;
 
-  const TelaAplicacao({
+  const TelaTesteQuestionario({
     Key? key,
     required this.perfilUsuario,
     this.idEntrevistador,
   }) : super(key: key);
 
   @override
-  _TelaAplicacaoState createState() => _TelaAplicacaoState();
+  _TelaTesteQuestionarioState createState() => _TelaTesteQuestionarioState();
 }
 
-class _TelaAplicacaoState extends State<TelaAplicacao> {
+class _TelaTesteQuestionarioState extends State<TelaTesteQuestionario> {
   late Questionario _questionario;
   int _indiceAtual = 0;
   bool _isLoading = false;
@@ -63,7 +62,7 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text(
-                'Essa questão é obrigatórioria! Por favor, responda antes de continuar.')),
+                'Essa questão é obrigatória! Por favor, responda antes de continuar.')),
       );
       return;
     }
@@ -102,7 +101,7 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
     if (_indiceAtual < questoes.length - 1) {
       setState(() => _indiceAtual++);
     } else {
-      _finalizarQuestionario();
+      _finalizarTeste();
     }
   }
 
@@ -114,39 +113,22 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
     }
   }
 
-  Future<void> _finalizarQuestionario() async {
-    if (_isLoading) return;
-    setState(() => _isLoading = true);
-
-    try {
-      final respostaProvider =
-          Provider.of<RespostaProvider>(context, listen: false);
-      final aplicacaoList = Provider.of<AplicacaoList>(context, listen: false);
-
-      aplicacaoList.aplicacaoAtual.respostas = respostaProvider
-          .todasRespostas.entries
-          .map((e) => {'idQuestao': e.key, 'resposta': e.value})
-          .toList();
-
-      await aplicacaoList.persistirNoFirebase();
-
-      if (mounted) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Questionário finalizado com sucesso!')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro: ${e.toString()}')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+  void _finalizarTeste() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Teste Concluído'),
+        content: const Text('Você concluiu o teste do questionário.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    ).then((_) {
+      Navigator.of(context).pop(); // Fecha o diálogo
+    });
   }
 
   @override
@@ -158,7 +140,7 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
       return Scaffold(
         appBar: AppBar(
           title: Text(
-            _questionario.nome,
+            'Teste: ${_questionario.nome}',
             style: const TextStyle(color: Colors.white),
           ),
           backgroundColor: const Color.fromARGB(255, 45, 12, 68),
@@ -171,7 +153,7 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
       return Scaffold(
         appBar: AppBar(
           title: Text(
-            _questionario.nome,
+            'Teste: ${_questionario.nome}',
             style: const TextStyle(color: Colors.white),
           ),
           backgroundColor: const Color.fromARGB(255, 45, 12, 68),
@@ -185,7 +167,7 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _questionario.nome,
+          'Teste: ${_questionario.nome}',
           style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: const Color.fromARGB(255, 45, 12, 68),
@@ -242,7 +224,7 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
                       ? const CircularProgressIndicator(color: Colors.white)
                       : Text(
                           _indiceAtual == questoes.length - 1
-                              ? 'Finalizar'
+                              ? 'Finalizar Teste'
                               : 'Próxima',
                           style: const TextStyle(color: Colors.white),
                         ),
