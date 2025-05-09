@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uesb_forms/Controle_Modelo/aplicacao_list.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
+import 'package:uesb_forms/Telas/Formulario/Dados.dart';
 import 'package:uesb_forms/Utils/rotas.dart';
 
 class FormularioLider extends StatelessWidget {
@@ -20,6 +22,9 @@ class FormularioLider extends StatelessWidget {
   Widget build(BuildContext context) {
     final questionarioProvider =
         Provider.of<QuestionarioList>(context, listen: true);
+
+    final Provider_aplicacao =
+        Provider.of<AplicacaoList>(context, listen: false);
 
     return Card(
       elevation: 4,
@@ -85,6 +90,15 @@ class FormularioLider extends StatelessWidget {
                       case 'aplicar':
                         onAplicar();
                         break;
+                      case 'Dados':
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                Dados(questionario: questionario),
+                          ),
+                        );
+
+                        break;
                     }
 
                     if (context.mounted) {
@@ -134,9 +148,33 @@ class FormularioLider extends StatelessWidget {
                       if (!questionario.ativo) {
                         opcoes.add(const PopupMenuItem(
                             value: 'ativar', child: Text('Ativar')));
+                        opcoes.add(const PopupMenuItem(
+                          value: 'Dados',
+                          child: Row(
+                            children: [
+                              Icon(Icons.bar_chart),
+                              SizedBox(
+                                width: 8,
+                              ),
+                              Text('Dados')
+                            ],
+                          ),
+                        ));
                       } else {
                         opcoes.add(const PopupMenuItem(
                             value: 'desativar', child: Text('Desativar')));
+                        opcoes.add(const PopupMenuItem(
+                          value: 'Dados',
+                          child: Row(
+                            children: [
+                              Icon(Icons.bar_chart),
+                              SizedBox(
+                                width: 8,
+                              ),
+                              Text('Dados no excel')
+                            ],
+                          ),
+                        ));
                       }
                     }
 
