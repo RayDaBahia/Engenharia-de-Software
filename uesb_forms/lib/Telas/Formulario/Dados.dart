@@ -145,14 +145,13 @@ class Dados extends StatelessWidget {
                       margin: const EdgeInsets.all(16),
                       child: PaginatedDataTable(
                         header: _TableHeader(
-                      
                           questionario: questionario,
                           totalAplicacoes: aplicacoes.length,
                         ),
                         rowsPerPage: 10,
                         columnSpacing: 24,
                         horizontalMargin: 20,
-                       headingRowHeight: 96,
+                        headingRowHeight: 96,
                         dataRowMinHeight: 40,
                         dataRowMaxHeight: 60,
                         dividerThickness: 1.2,
@@ -201,12 +200,10 @@ class Dados extends StatelessWidget {
 }
 
 class _TableHeader extends StatelessWidget {
-
   final Questionario questionario;
   final int totalAplicacoes;
 
   const _TableHeader({
-
     required this.questionario,
     required this.totalAplicacoes,
   });
@@ -217,40 +214,36 @@ class _TableHeader extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     final int meta = questionario.meta ?? 0;
- final double progresso = meta > 0 
-    ? (totalAplicacoes / meta).clamp(0.0, 1.0)
-    : 0.0;
+    final double progresso =
+        meta > 0 ? (totalAplicacoes / meta).clamp(0.0, 1.0) : 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-       
-        
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                LinearProgressIndicator(
-                  value: progresso,
-                  backgroundColor: colorScheme.surfaceVariant,
-                  color: colorScheme.primary,
-                  minHeight: 8,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LinearProgressIndicator(
+                value: progresso,
+                backgroundColor: colorScheme.surfaceVariant,
+                color: colorScheme.primary,
+                minHeight: 8,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                meta > 0
+                    ? '$totalAplicacoes / $meta aplicados'
+                    : '$totalAplicacoes aplicados (Meta não definida)',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: colorScheme.onSurface.withOpacity(0.8),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                   meta > 0 
-                  ? '$totalAplicacoes / $meta aplicados'
-                  : '$totalAplicacoes aplicados (Meta não definida)',
-            
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: colorScheme.onSurface.withOpacity(0.8),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
+        ),
         const SizedBox(height: 12),
       ],
     );

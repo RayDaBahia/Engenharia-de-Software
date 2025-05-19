@@ -1,0 +1,2 @@
+C:/Users/alexl/Documents/GitHub/Engenharia-de-Software/uesb_forms/android/app/.cxx/RelWithDebInfo/712q1z5u/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/alexl/Documents/GitHub/Engenharia-de-Software/uesb_forms/android/app/.cxx/RelWithDebInfo/712q1z5u/x86_64/CMakeFiles/rebuild_cache.dir
