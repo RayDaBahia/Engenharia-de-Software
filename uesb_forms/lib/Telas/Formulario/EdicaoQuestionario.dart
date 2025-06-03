@@ -236,7 +236,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                                   ),
 
                                   // Seta para cima
-                                  IconButton(
+                                  /*IconButton(
                                     icon: const Icon(Icons.arrow_upward,
                                         color: Colors.blue),
                                     onPressed: () {
@@ -268,7 +268,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                                         });
                                       }
                                     },
-                                  ),
+                                  ),*/
 
                                   if ([
                                     QuestaoTipo.MultiPlaEscolha,

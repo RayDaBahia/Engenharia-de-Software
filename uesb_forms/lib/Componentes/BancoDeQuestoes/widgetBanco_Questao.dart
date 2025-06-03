@@ -34,7 +34,8 @@ class _WidgetbancoQuestaoState extends State<WidgetbancoQuestao> {
     return InkWell(
       onTap: () {
         if (!widget.isFormulario) {
-          Navigator.of(context).pushNamed(Rotas.CRUD_BANCO, arguments: widget.banco);
+          Navigator.of(context)
+              .pushNamed(Rotas.CRUD_BANCO, arguments: widget.banco);
         } else {
           Navigator.of(context).pushNamed(
             Rotas.SELECAO_QUESTOES_BANCO,
@@ -43,29 +44,44 @@ class _WidgetbancoQuestaoState extends State<WidgetbancoQuestao> {
         }
       },
       child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Container(
-          width: screenWidth,
-          height: 100,
-          decoration: BoxDecoration(
-            color: Colors.black45,
-            borderRadius: BorderRadius.circular(5),
-            border: Border.all(color: Colors.black, width: 1.0),
+        padding: const EdgeInsets.all(20),
+        child: Card(
+          elevation: 4,
+          margin: const EdgeInsets.symmetric(vertical: 10),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Row(
+          child: Column(
+            children: [
+              Container(
+                height: 50,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                  gradient: LinearGradient(
+                    colors: [
+                      Color.fromARGB(255, 0, 0, 0),
+                      Color.fromARGB(255, 103, 52, 139)
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      widget.banco.nome,
-                      style: const TextStyle(
-                        color: Color.fromARGB(255, 27, 7, 80),
-                        fontSize: 30,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        widget.banco.nome.length > 25
+                            ? '${widget.banco.nome.substring(0, 25)}...'
+                            : widget.banco.nome,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     if (!widget.isFormulario)
@@ -73,22 +89,25 @@ class _WidgetbancoQuestaoState extends State<WidgetbancoQuestao> {
                         children: [
                           IconButton(
                             tooltip: "Excluir banco",
-                            icon: const Icon(Icons.delete, color: Color.fromARGB(255, 27, 7, 80)),
+                            icon: const Icon(Icons.delete, color: Colors.white),
                             onPressed: () async {
                               final confirm = await showDialog<bool>(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
                                     title: const Text('Confirmar Exclusão'),
-                                    content: const Text('Tem certeza de que deseja excluir este banco?'),
+                                    content: const Text(
+                                        'Tem certeza de que deseja excluir este banco?'),
                                     actions: <Widget>[
                                       TextButton(
                                         child: const Text('Cancelar'),
-                                        onPressed: () => Navigator.of(context).pop(false),
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(false),
                                       ),
                                       TextButton(
                                         child: const Text('Excluir'),
-                                        onPressed: () => Navigator.of(context).pop(true),
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(true),
                                       ),
                                     ],
                                   );
@@ -97,31 +116,49 @@ class _WidgetbancoQuestaoState extends State<WidgetbancoQuestao> {
 
                               if (confirm == true) {
                                 try {
-                                  await _bancoList.excluirBanco(widget.banco.id ?? '');
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Banco excluído com sucesso')),
-                                  );
+                                  await _bancoList
+                                      .excluirBanco(widget.banco.id ?? '');
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'Banco excluído com sucesso')),
+                                    );
+                                  }
                                 } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Erro ao excluir o banco')),
-                                  );
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content:
+                                              Text('Erro ao excluir o banco')),
+                                    );
+                                  }
                                 }
                               }
                             },
                           ),
                           IconButton(
                             tooltip: "Duplicar banco",
-                            icon: const Icon(Icons.copy, color: Color.fromARGB(255, 27, 7, 80)),
+                            icon: const Icon(Icons.copy, color: Colors.white),
                             onPressed: () async {
                               try {
-                                await _bancoList.duplicarBanco(widget.banco.id ?? '');
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Banco duplicado com sucesso')),
-                                );
+                                await _bancoList
+                                    .duplicarBanco(widget.banco.id ?? '');
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            'Banco duplicado com sucesso')),
+                                  );
+                                }
                               } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Erro ao duplicar o banco')),
-                                );
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content:
+                                            Text('Erro ao duplicar o banco')),
+                                  );
+                                }
                               }
                             },
                           ),
@@ -129,16 +166,27 @@ class _WidgetbancoQuestaoState extends State<WidgetbancoQuestao> {
                       ),
                   ],
                 ),
-                const Divider(color: Colors.black),
-                Text(
-                  widget.banco.descricao,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 15,
-                  ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      widget.banco.descricao.length > 50
+                          ? '${widget.banco.descricao.substring(0, 50)}...'
+                          : widget.banco.descricao,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
