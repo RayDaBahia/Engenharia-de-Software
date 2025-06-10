@@ -2,7 +2,7 @@ class Banco {
   String? id; // O ID é opcional
    String nome; // Nome do banco (obrigatório)
    String descricao; // Descrição do banco (obrigatório)
-
+      
   Banco({
     this.id, // Atribuição opcional
     required this.nome, // Nome obrigatório

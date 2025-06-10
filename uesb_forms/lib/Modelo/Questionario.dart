@@ -4,41 +4,24 @@ import 'package:hive/hive.dart';
 @HiveType(typeId: 0)
 class Questionario {
   String _id;
-
   String _nome;
-
   String _descricao;
-
   bool _publicado;
-
   bool _visivel;
-
   bool _ativo;
-
-  DateTime? _prazo; // O campo prazo agora é opcional (nullable)
-
-  DateTime?
-      _dataPublicacao; // O campo dataPublicacao agora é opcional (nullable)
-
+  DateTime? _prazo;
+  DateTime? _dataPublicacao;
   List<String> _entrevistadores;
-
+  List<String> _grupos; // << ADICIONADO
   String? _link;
-
   bool _aplicado;
-
   String? _liderId;
-
   String? _senha;
-
   String _tipoAplicacao;
-
   int _meta;
+  String? _liderNome;
+  DateTime _dataCriacao;
 
-  String? _liderNome; // Novo campo para o nome do líder
-
-  DateTime _dataCriacao; // Novo campo para a data de criação
-
-  // Tornando todos os parâmetros opcionais com valores padrão
   Questionario({
     String id = '',
     String nome = '',
@@ -47,16 +30,17 @@ class Questionario {
     bool publicado = false,
     bool visivel = false,
     bool ativo = false,
-    DateTime? prazo, // Agora o prazo é opcional
-    DateTime? dataPublicacao, // Agora o dataPublicacao é opcional
+    DateTime? prazo,
+    DateTime? dataPublicacao,
     List<String> entrevistadores = const [],
+    List<String> grupos = const [], // << ADICIONADO
     String? link,
     bool aplicado = false,
     String? liderId,
     String? senha,
     int meta = 0,
-    String? liderNome, // Novo campo no construtor
-    DateTime? dataCriacao, // Novo campo no construtor
+    String? liderNome,
+    DateTime? dataCriacao,
   })  : _id = id,
         _nome = nome,
         _tipoAplicacao = tipoAplicacao,
@@ -67,17 +51,15 @@ class Questionario {
         _prazo = prazo,
         _dataPublicacao = dataPublicacao,
         _entrevistadores = entrevistadores,
+        _grupos = grupos, // << ADICIONADO
         _link = link,
         _aplicado = aplicado,
         _liderId = liderId,
         _senha = senha,
         _meta = meta,
         _liderNome = liderNome,
-        _dataCriacao = dataCriacao ??
-            DateTime
-                .now(); // Define dataCriacao como agora se não for fornecida
+        _dataCriacao = dataCriacao ?? DateTime.now();
 
-  // Método para copiar o objeto com novos valores
   Questionario copyWith({
     String? id,
     String? nome,
@@ -89,6 +71,7 @@ class Questionario {
     DateTime? prazo,
     DateTime? dataPublicacao,
     List<String>? entrevistadores,
+    List<String>? grupos, // << ADICIONADO
     String? link,
     bool? aplicado,
     String? liderId,
@@ -108,6 +91,7 @@ class Questionario {
       prazo: prazo ?? _prazo,
       dataPublicacao: dataPublicacao ?? _dataPublicacao,
       entrevistadores: entrevistadores ?? _entrevistadores,
+      grupos: grupos ?? _grupos, // << ADICIONADO
       link: link ?? _link,
       aplicado: aplicado ?? _aplicado,
       liderId: liderId ?? _liderId,
@@ -118,7 +102,7 @@ class Questionario {
     );
   }
 
-  // Métodos Getters e Setters
+  // Getters
   String get id => _id;
   String get nome => _nome;
   String get descricao => _descricao;
@@ -128,6 +112,7 @@ class Questionario {
   DateTime? get prazo => _prazo;
   DateTime? get dataPublicacao => _dataPublicacao;
   List<String> get entrevistadores => _entrevistadores;
+  List<String> get grupos => _grupos; // << ADICIONADO
   String? get link => _link;
   bool get aplicado => _aplicado;
   String? get liderId => _liderId;
@@ -135,8 +120,9 @@ class Questionario {
   String get tipoAplicacao => _tipoAplicacao;
   int get meta => _meta;
   String? get liderNome => _liderNome;
-  DateTime get dataCriacao => _dataCriacao; // Getter para dataCriacao
+  DateTime get dataCriacao => _dataCriacao;
 
+  // Setters
   set id(String value) => _id = value;
   set nome(String value) => _nome = value;
   set descricao(String value) => _descricao = value;
@@ -146,6 +132,7 @@ class Questionario {
   set prazo(DateTime? value) => _prazo = value;
   set dataPublicacao(DateTime? value) => _dataPublicacao = value;
   set entrevistadores(List<String> value) => _entrevistadores = value;
+  set grupos(List<String> value) => _grupos = value; // << ADICIONADO
   set link(String? value) => _link = value;
   set aplicado(bool value) => _aplicado = value;
   set liderId(String? value) => _liderId = value;
@@ -153,10 +140,8 @@ class Questionario {
   set tipoAplicacao(String value) => _tipoAplicacao = value;
   set meta(int value) => _meta = value;
   set liderNome(String? value) => _liderNome = value;
-  set dataCriacao(DateTime value) =>
-      _dataCriacao = value; // Setter para dataCriacao
+  set dataCriacao(DateTime value) => _dataCriacao = value;
 
-  // Método para converter para Map
   Map<String, dynamic> toMap() {
     return {
       'id': _id,
@@ -168,6 +153,7 @@ class Questionario {
       'prazo': _prazo?.toIso8601String(),
       'dataPublicacao': _dataPublicacao?.toIso8601String(),
       'entrevistadores': _entrevistadores,
+      'grupos': _grupos, // << ADICIONADO
       'link': _link,
       'aplicado': _aplicado,
       'liderId': _liderId,
@@ -175,12 +161,10 @@ class Questionario {
       'tipoAplicacao': _tipoAplicacao,
       'meta': _meta,
       'liderNome': _liderNome,
-      'dataCriacao': _dataCriacao
-          .toIso8601String(), // Adicionando a data de criação ao Map
+      'dataCriacao': _dataCriacao.toIso8601String(),
     };
   }
 
-  // Método para converter de Map para objeto Questionario
   factory Questionario.fromMap(Map<String, dynamic> map, String documentId) {
     return Questionario(
       id: documentId,
@@ -201,6 +185,7 @@ class Questionario {
               : DateTime.parse(map['dataPublicacao']))
           : null,
       entrevistadores: List<String>.from(map['entrevistadores'] ?? []),
+      grupos: List<String>.from(map['grupos'] ?? []), // << ADICIONADO
       link: map['link'],
       aplicado: map['aplicado'] ?? false,
       liderId: map['liderId'],
@@ -211,7 +196,7 @@ class Questionario {
           ? (map['dataCriacao'] is Timestamp
               ? map['dataCriacao'].toDate()
               : DateTime.parse(map['dataCriacao']))
-          : DateTime.now(), // Definir data de criação como agora se não existir
+          : DateTime.now(),
     );
   }
 }

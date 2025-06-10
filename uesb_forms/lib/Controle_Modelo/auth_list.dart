@@ -11,7 +11,8 @@ class AuthList with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   Usuario? _usuario;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: '92855436550-2unp3fm8mo04k6125a3ojnv6212nubgt.apps.googleusercontent.com',
+    clientId:
+        '92855436550-2unp3fm8mo04k6125a3ojnv6212nubgt.apps.googleusercontent.com',
     hostedDomain: 'uesb.edu.br',
   );
   User? _user;
@@ -45,7 +46,8 @@ class AuthList with ChangeNotifier {
         idToken: GoogleAuth.idToken,
       );
 
-      UserCredential userCredential = await _auth.signInWithCredential(credential);
+      UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
       _user = userCredential.user;
 
       if (_user != null) {
@@ -64,35 +66,74 @@ class AuthList with ChangeNotifier {
     }
   }
 
-  /// Stream para buscar usuários por email com debounce
-  Stream<List<Usuario>> buscarUsuariosPorEmail(String email) {
-    if (email.isEmpty) {
-      return Stream.value([]);
+ 
+Stream<List<Usuario>> buscarUsuariosPorEmail(String email) {
+  if (email.isEmpty) {
+    return Stream.value([]);
+  }
+
+  var query = _firestore
+      .collection('usuarios')
+      .where('email', isGreaterThanOrEqualTo: email)
+      .where('email', isLessThanOrEqualTo: '$email\uf8ff');
+
+  return query.snapshots().map((snapshot) {
+    List<Usuario> listaUsuarios = snapshot.docs.map((doc) {
+      return Usuario(
+        id: doc.id,
+        nome: doc['nome'],
+        email: doc['email'],
+        fotoPerfilUrl: doc['fotoPerfilUrl'] ?? '',
+      );
+    }).toList();
+
+    // Removendo o usuário logado, se necessário
+    if (_usuario != null) {
+      listaUsuarios.removeWhere((u) => u.id == _usuario!.id);
     }
 
-    var query = _firestore
+    // Se não encontrar ninguém, mas o email é válido, adiciona manualmente
+    if (listaUsuarios.isEmpty && validarEmailUesb(email)) {
+      listaUsuarios.add(
+        Usuario(id: '', nome: '', email: email, fotoPerfilUrl: ''),
+      );
+    }
+
+
+
+    return listaUsuarios;
+  });
+}
+
+bool validarEmailUesb(String email) {
+  final regex = RegExp(r'^[a-zA-Z0-9._%+-]+@uesb\.edu\.br$');
+  return regex.hasMatch(email.trim());
+}
+
+Future<Usuario?> buscarUsuarioPorId(String id) async {
+  try {
+    final snapshot = await FirebaseFirestore.instance
         .collection('usuarios')
-        .where('email', isGreaterThanOrEqualTo: email)
-        .where('email', isLessThanOrEqualTo: '$email\uf8ff');
+        .doc(id)
+        .get();
 
-    return query.snapshots().map((snapshot) {
-      var listaUsuarios = snapshot.docs.map((doc) {
-        return Usuario(
-          id: doc.id,
-          nome: doc['nome'],
-          email: doc['email'],
-          fotoPerfilUrl: doc['fotoPerfilUrl'] ?? '',
-        );
-      }).toList();
+    if (snapshot.exists) {
+      return Usuario(
+        id: snapshot.id,
+        nome: snapshot['nome'],
+        email: snapshot['email'],
+        fotoPerfilUrl: snapshot['fotoPerfilUrl'] ?? '',
+      );
+    } else {
+      return null;
+    }
+  } catch (e) {
 
-      // Removendo o usuário logado, se existir
-      if (_usuario != null) {
-        listaUsuarios.removeWhere((u) => u.id == _usuario!.id);
-      }
-
-      return listaUsuarios;
-    });
+    return null;
   }
+}
+
+
 
   /// Debounce para evitar múltiplas requisições no Firestore
   void onSearchChanged(String email, Function(Stream<List<Usuario>>) callback) {
@@ -113,7 +154,8 @@ class AuthList with ChangeNotifier {
       GoogleAuthProvider googleProvider = GoogleAuthProvider();
       googleProvider.setCustomParameters({'prompt': 'select_account'});
 
-      UserCredential userCredential = await _auth.signInWithPopup(googleProvider);
+      UserCredential userCredential =
+          await _auth.signInWithPopup(googleProvider);
       User? user = userCredential.user;
 
       if (user != null) {

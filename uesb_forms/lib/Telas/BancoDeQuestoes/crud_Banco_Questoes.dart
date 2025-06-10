@@ -154,14 +154,12 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
               ),
             ),
             const SizedBox(height: 10),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                WidgetOpcoesQuestao(),
-                const SizedBox(width: 20),
-              ],
+
+            Align(
+              child: WidgetOpcoesQuestao(),
+              alignment: Alignment.bottomRight,
             ),
+            const SizedBox(width: 20),
           ],
         ),
       ),
@@ -183,7 +181,8 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
           try {
             await bancoList.SalvarBanco(
               _nomeBancoController.text,
-              _descricaoBancoController.text,   );
+              _descricaoBancoController.text,
+            );
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Banco criado com sucesso!")),
             );

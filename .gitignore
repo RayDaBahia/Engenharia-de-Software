@@ -4,3 +4,12 @@ uesb_forms/android/local.properties
 uesb_forms/android/local.properties
 uesb_forms/ios/Flutter/Generated.xcconfig
 uesb_forms/ios/Flutter/flutter_export_environment.sh
+uesb_forms/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+uesb_forms/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+uesb_forms/android/local.properties
+uesb_forms/android/local.properties
+uesb_forms/linux/flutter/generated_plugin_registrant.cc
+uesb_forms/linux/flutter/generated_plugins.cmake
+uesb_forms/macos/Flutter/GeneratedPluginRegistrant.swift
+uesb_forms/windows/flutter/generated_plugin_registrant.cc
+uesb_forms/windows/flutter/generated_plugins.cmake

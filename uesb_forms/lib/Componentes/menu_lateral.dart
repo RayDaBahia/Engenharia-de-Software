@@ -54,6 +54,17 @@ class MenuLateral extends StatelessWidget {
             title: const Text('Meus Bancos'),
           ),
           const Divider(),
+
+         
+           ListTile(
+            leading: const Icon(Icons.group),
+            title: const Text('Grupos'),
+            onTap: () {
+              Navigator.of(context).pushNamed(Rotas.MEUS_GRUPOS);
+              
+            },
+          ),
+          const Divider(),
           ListTile(
             leading: const Icon(
               Icons.notifications,
@@ -62,7 +73,7 @@ class MenuLateral extends StatelessWidget {
               Navigator.of(context)
                   .pushNamed(Rotas.CRUD_BANCO); // É SÓ PRA TESTAR POR ENQUANTO
             },
-            title: const Text('Notificação'),
+            title: const Text('Notificações'),
           ),
           const Divider(),
           ListTile(
@@ -82,7 +93,7 @@ class MenuLateral extends StatelessWidget {
               signoutGoogle();
             },
           ),
-          const Divider(),
+      
         ],
       ),
     );

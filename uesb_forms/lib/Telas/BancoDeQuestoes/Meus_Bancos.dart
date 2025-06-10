@@ -112,7 +112,10 @@ class _MeusBancosState extends State<MeusBancos> {
   }
 
   Widget _botaoAdicionarBanco(BuildContext context) {
-    return Padding(
+    return 
+    Align(
+      alignment: Alignment.bottomLeft,
+   child:  Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
       child: ElevatedButton(
         onPressed: () =>
@@ -128,6 +131,6 @@ class _MeusBancosState extends State<MeusBancos> {
           color: Colors.white,
         ),
       ),
-    );
+    ));
   }
 }

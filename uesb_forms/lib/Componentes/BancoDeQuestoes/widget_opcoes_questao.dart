@@ -12,15 +12,13 @@ class WidgetOpcoesQuestao extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
+    return   FloatingActionButton(
       onPressed: () {
         _showBottomSheet(context);
       },
       backgroundColor: const Color.fromARGB(255, 33, 12, 71),
       foregroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30.0),
-      ),
+      shape:  const CircleBorder(),
       child: const Icon(Icons.add),
     );
   }
