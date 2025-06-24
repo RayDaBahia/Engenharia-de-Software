@@ -46,6 +46,9 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
         // Usando o Provider para carregar as questões
         Provider.of<QuestionarioList>(context, listen: false)
             .buscarQuestoes(questionario!.id);
+
+        Provider.of<QuestionarioList>(context, listen: false)
+            .salvarOrdemQuestoes(questionario!.id);
       }
     });
   }
@@ -235,40 +238,45 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                                     },
                                   ),
 
-                                  // Seta para cima
-                                  /*IconButton(
+                                  // Para cima
+                                  IconButton(
                                     icon: const Icon(Icons.arrow_upward,
                                         color: Colors.blue),
-                                    onPressed: () {
+                                    onPressed: () async {
                                       if (index > 0) {
-                                        // Garantir que não está no topo
                                         setState(() {
                                           final questao = _questoesSelecionadas
                                               .removeAt(index);
                                           _questoesSelecionadas.insert(
                                               index - 1, questao);
                                         });
+                                        await Provider.of<QuestionarioList>(
+                                          context,
+                                          listen: false,
+                                        ).salvarOrdemQuestoes(questionario!.id);
                                       }
                                     },
                                   ),
-
-                                  // Seta para baixo
+// Para baixo
                                   IconButton(
                                     icon: const Icon(Icons.arrow_downward,
                                         color: Colors.blue),
-                                    onPressed: () {
+                                    onPressed: () async {
                                       if (index <
                                           _questoesSelecionadas.length - 1) {
-                                        // Garantir que não está no final
                                         setState(() {
                                           final questao = _questoesSelecionadas
                                               .removeAt(index);
                                           _questoesSelecionadas.insert(
                                               index + 1, questao);
                                         });
+                                        await Provider.of<QuestionarioList>(
+                                          context,
+                                          listen: false,
+                                        ).salvarOrdemQuestoes(questionario!.id);
                                       }
                                     },
-                                  ),*/
+                                  ),
 
                                   if ([
                                     QuestaoTipo.MultiPlaEscolha,
@@ -276,7 +284,8 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                                     QuestaoTipo.ListaSuspensa,
                                     QuestaoTipo.Ranking,
                                     QuestaoTipo.Numerica,
-                                  ].map((e) => e.toString()).contains(questao.tipoQuestao.toString())) ...[
+                                  ].map((e) => e.toString()).contains(
+                                      questao.tipoQuestao.toString())) ...[
                                     IconButton(
                                       icon: const Icon(Icons.visibility,
                                           color: Colors.green),
@@ -287,7 +296,8 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                                           MaterialPageRoute(
                                             builder: (_) =>
                                                 Teladinamizarquestao(
-                                                    questaoSelecionada: questao),
+                                                    questaoSelecionada:
+                                                        questao),
                                           ),
                                         );
                                       },
