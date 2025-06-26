@@ -55,10 +55,32 @@ class AplicacaoList with ChangeNotifier {
     try {
       _aplicacoes = await buscarAplicacoes(questionario.id);
 
+      // Busca o documento do questionário e suas questões
+      final questionarioDoc = await FirebaseFirestore.instance
+          .collection('questionarios')
+          .doc(questionario.id)
+          .get();
+
+      if (!questionarioDoc.exists)
+        throw Exception("Questionário não encontrado");
+
+      // Buscar as questões da subcoleção 'questoes' do questionário
+      final questoesSnapshot = await FirebaseFirestore.instance
+          .collection('questionarios')
+          .doc(questionario.id)
+          .collection('questoes')
+          .get();
+
+      final Map<String, String> idParaEnunciado = {
+        for (var doc in questoesSnapshot.docs)
+          doc.id: doc['textoQuestao'] ?? doc.id
+      };
+
       final excel = Excel.createExcel();
       excel.delete('Sheet1');
       final sheet = excel['Dados'];
 
+      // Coletar todos os ids de questões presentes nas respostas
       final Set<String> idsQuestoes = {};
       for (var aplicacao in _aplicacoes) {
         for (var resposta in aplicacao.respostas) {
@@ -67,11 +89,12 @@ class AplicacaoList with ChangeNotifier {
       }
       final List<String> questoesOrdenadas = idsQuestoes.toList()..sort();
 
+      // Montar o cabeçalho usando o enunciado
       final cabecalho = [
         'ID Aplicação',
-        'ID Entrevistador',
-        'ID Entrevistado',
-        ...questoesOrdenadas
+        'Nome Entrevistador',
+        'Nome Entrevistado',
+        ...questoesOrdenadas.map((id) => idParaEnunciado[id] ?? id)
       ];
       sheet.appendRow(cabecalho);
 
@@ -80,10 +103,15 @@ class AplicacaoList with ChangeNotifier {
           for (var r in aplicacao.respostas) r['idQuestao']: r['resposta']
         };
 
+        final nomeEntrevistador =
+            await buscarNomeUsuario(aplicacao.idEntrevistador, 'usuarios');
+        final nomeEntrevistado =
+            await buscarNomeUsuario(aplicacao.idEntrevistado, 'usuarios');
+
         final linha = [
           aplicacao.idAplicacao,
-          aplicacao.idEntrevistador ?? '',
-          aplicacao.idEntrevistado ?? '',
+          nomeEntrevistador,
+          nomeEntrevistado,
           ...questoesOrdenadas.map((id) {
             final resposta = mapaRespostas[id];
             if (resposta == null) return 'Sem dados';
@@ -134,5 +162,15 @@ class AplicacaoList with ChangeNotifier {
       print("Erro na exportação: $e");
       rethrow;
     }
+  }
+
+  Future<String> buscarNomeUsuario(String? id, String colecao) async {
+    if (id == null || id.isEmpty) return '';
+    final doc =
+        await FirebaseFirestore.instance.collection(colecao).doc(id).get();
+    if (doc.exists && doc.data() != null) {
+      return doc.data()!['nome'] ?? id;
+    }
+    return id;
   }
 }
