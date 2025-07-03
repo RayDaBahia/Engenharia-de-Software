@@ -1,2 +1,0 @@
-C:/Users/alexl/Documents/GitHub/Engenharia-de-Software/uesb_forms/android/app/.cxx/Debug/1i3y5a3f/arm64-v8a/CMakeFiles/edit_cache.dir
-C:/Users/alexl/Documents/GitHub/Engenharia-de-Software/uesb_forms/android/app/.cxx/Debug/1i3y5a3f/arm64-v8a/CMakeFiles/rebuild_cache.dir

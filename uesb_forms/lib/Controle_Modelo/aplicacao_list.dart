@@ -73,7 +73,7 @@ class AplicacaoList with ChangeNotifier {
         'ID Entrevistado',
         ...questoesOrdenadas
       ];
-      sheet.appendRow(cabecalho);
+      sheet.appendRow(cabecalho.map((e) => TextCellValue(e)).toList());
 
       for (var aplicacao in _aplicacoes) {
         final Map<String, dynamic> mapaRespostas = {
@@ -106,7 +106,7 @@ class AplicacaoList with ChangeNotifier {
           }),
         ];
 
-        sheet.appendRow(linha);
+        sheet.appendRow(linha.map((e) => TextCellValue(e)).toList());
       }
 
       final fileBytes = excel.encode();
