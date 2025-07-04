@@ -13,3 +13,7 @@ uesb_forms/linux/flutter/generated_plugins.cmake
 uesb_forms/macos/Flutter/GeneratedPluginRegistrant.swift
 uesb_forms/windows/flutter/generated_plugin_registrant.cc
 uesb_forms/windows/flutter/generated_plugins.cmake
+git reset --hard HEAD@{2}
+uesb_forms/android/local.properties
+uesb_forms/android/local.properties
+uesb_forms/android/local.properties
