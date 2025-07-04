@@ -67,11 +67,22 @@ class AplicacaoList with ChangeNotifier {
       }
       final List<String> questoesOrdenadas = idsQuestoes.toList()..sort();
 
+      final questoesSnapshot = await FirebaseFirestore.instance
+          .collection('questionarios')
+          .doc(questionario.id)
+          .collection('questoes')
+          .get();
+
+      final Map<String, String> idParaEnunciado = {
+        for (var doc in questoesSnapshot.docs)
+          doc.id: doc['textoQuestao'] ?? doc.id
+      };
+
       final cabecalho = [
         'ID Aplicação',
         'ID Entrevistador',
         'ID Entrevistado',
-        ...questoesOrdenadas
+        ...questoesOrdenadas.map((id) => idParaEnunciado[id] ?? id)
       ];
       sheet.appendRow(cabecalho);
 
@@ -80,10 +91,16 @@ class AplicacaoList with ChangeNotifier {
           for (var r in aplicacao.respostas) r['idQuestao']: r['resposta']
         };
 
+        // Use o método buscarNomeUsuario para obter os nomes
+        final nomeEntrevistador =
+            await buscarNomeUsuario(aplicacao.idEntrevistador, 'usuarios');
+        final nomeEntrevistado =
+            await buscarNomeUsuario(aplicacao.idEntrevistado, 'usuarios');
+
         final linha = [
           aplicacao.idAplicacao,
-          aplicacao.idEntrevistador ?? '',
-          aplicacao.idEntrevistado ?? '',
+          nomeEntrevistador, // agora mostra o nome
+          nomeEntrevistado, // agora mostra o nome
           ...questoesOrdenadas.map((id) {
             final resposta = mapaRespostas[id];
             if (resposta == null) return 'Sem dados';
@@ -134,5 +151,15 @@ class AplicacaoList with ChangeNotifier {
       print("Erro na exportação: $e");
       rethrow;
     }
+  }
+
+  Future<String> buscarNomeUsuario(String? id, String colecao) async {
+    if (id == null || id.isEmpty) return '';
+    final doc =
+        await FirebaseFirestore.instance.collection(colecao).doc(id).get();
+    if (doc.exists && doc.data() != null) {
+      return doc.data()!['nome'] ?? id;
+    }
+    return id;
   }
 }
