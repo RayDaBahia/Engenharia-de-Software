@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="form_uesb"
+        android:label="uesb_forms"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
