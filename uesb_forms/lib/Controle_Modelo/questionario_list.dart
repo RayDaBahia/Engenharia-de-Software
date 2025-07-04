@@ -435,12 +435,35 @@ class QuestionarioList extends ChangeNotifier {
         return Questao.fromMap(data);
       }).toList();
 
-      listaQuestoes = questoes;
+      listaQuestoes = questoes
+        ..sort((a, b) => (a.ordem ?? 0).compareTo(b.ordem ?? 0));
+
       tamQuestoesLista = questoes.length;
       notifyListeners();
     } catch (e) {
       debugPrint('Erro ao buscar questões: $e');
     }
+  }
+
+  Future<void> salvarOrdemQuestoes(String questionarioId) async {
+    final batch = _firestore.batch();
+
+    for (int i = 0; i < listaQuestoes.length; i++) {
+      final questao = listaQuestoes[i];
+      questao.ordem = i;
+
+      if (questao.id != null && questao.id!.isNotEmpty) {
+        final docRef = _firestore
+            .collection('questionarios')
+            .doc(questionarioId)
+            .collection('questoes')
+            .doc(questao.id);
+        batch.update(docRef, {'ordem': i});
+      }
+    }
+
+    await batch.commit();
+    notifyListeners();
   }
 
   Future<void> atualizarQuestionario(Questionario questionario) async {

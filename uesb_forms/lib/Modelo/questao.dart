@@ -34,6 +34,9 @@ class Questao {
   @HiveField(11)
   Map<String, String>? ranking; // <- Adicionado aqui
 
+  @HiveField(12) // Próximo índice disponível
+  int? ordem; // <- NOVO campo
+
   Questao({
     required this.textoQuestao,
     required this.tipoQuestao,
@@ -45,6 +48,7 @@ class Questao {
     this.imagemUrl,
     this.imagemLocal,
     this.ranking, // <- Adicionado aqui
+    this.ordem = 0, // <- inicialização padrão
   });
 
   Map<String, dynamic> toMap() {
@@ -58,6 +62,7 @@ class Questao {
       'bancoId': bancoId,
       'imagemUrl': imagemUrl,
       'ranking': ranking ?? {}, // <- Adicionado aqui
+      'ordem': ordem, // <- novo campo no Firestore
     };
   }
 
@@ -78,7 +83,8 @@ class Questao {
       imagemUrl: map['imagemUrl'],
       ranking: map['ranking'] != null
           ? Map<String, String>.from(map['ranking'])
-          : null, // <- Adicionado aqui
+          : null,
+      ordem: map['ordem'] ?? 0, // <- leitura segura
     );
   }
 }

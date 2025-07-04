@@ -1,6 +1,6 @@
 {
-    "name": "uesb_forms",
-    "short_name": "uesb_forms",
+    "name": "form_uesb",
+    "short_name": "form_uesb",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

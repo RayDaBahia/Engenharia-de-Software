@@ -3,7 +3,7 @@
     "project_number": "92855436550",
     "firebase_url": "https://uesb-formulario-default-rtdb.firebaseio.com",
     "project_id": "uesb-formulario",
-    "storage_bucket": "uesb-formulario.appspot.com"
+    "storage_bucket": "uesb-formulario.firebasestorage.app"
   },
   "client": [
     {
@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "92855436550-kp0q3014mf6vnqe087rtfno3q1e42s6f.apps.googleusercontent.com",
+          "client_id": "92855436550-b5rdjbr0tdqnqcjdoh23tbi6s9v3c9gf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.uesb_forms",
-            "certificate_hash": "e9ce942f654e00cd5c05fbdfb5fcbb1b67f063ea"
+            "certificate_hash": "23d0455098e83eee5c3c7443e678cda1ffb09d43"
           }
         },
         {
@@ -38,6 +38,13 @@
             {
               "client_id": "92855436550-2unp3fm8mo04k6125a3ojnv6212nubgt.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "92855436550-cfq5645mdo8nag0rr1vf2cjo7cmraeo0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.uesbForms"
+              }
             }
           ]
         }
@@ -67,6 +74,85 @@
             {
               "client_id": "92855436550-2unp3fm8mo04k6125a3ojnv6212nubgt.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "92855436550-cfq5645mdo8nag0rr1vf2cjo7cmraeo0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.uesbForms"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:92855436550:android:4db91e83307d87faaf4a87",
+        "android_client_info": {
+          "package_name": "com.exemplo.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "92855436550-2unp3fm8mo04k6125a3ojnv6212nubgt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBL5e8iteOPaMcCgTJx-2QLVUOV-pED63o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "92855436550-2unp3fm8mo04k6125a3ojnv6212nubgt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "92855436550-cfq5645mdo8nag0rr1vf2cjo7cmraeo0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.uesbForms"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:92855436550:android:f15f1e4c5b276ed4af4a87",
+        "android_client_info": {
+          "package_name": "com.uesbforms.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "92855436550-2unp3fm8mo04k6125a3ojnv6212nubgt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBL5e8iteOPaMcCgTJx-2QLVUOV-pED63o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "92855436550-2unp3fm8mo04k6125a3ojnv6212nubgt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "92855436550-cfq5645mdo8nag0rr1vf2cjo7cmraeo0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.uesbForms"
+              }
             }
           ]
         }
