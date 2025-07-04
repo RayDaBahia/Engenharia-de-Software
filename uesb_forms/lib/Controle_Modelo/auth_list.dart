@@ -35,8 +35,9 @@ class AuthList with ChangeNotifier {
       final GoogleAuthProvider googleProvider = GoogleAuthProvider();
       googleProvider.setCustomParameters({'prompt': 'select_account'});
 
-      final UserCredential userCredential =
-          await _auth.signInWithProvider(googleProvider);
+      final UserCredential userCredential = await _auth.signInWithProvider(
+        googleProvider,
+      );
 
       final user = userCredential.user;
       if (user == null) return;
@@ -56,7 +57,10 @@ class AuthList with ChangeNotifier {
     }
   }
 
-  Stream<List<Usuario>> buscarUsuariosPorEmail(String email) {
+  Stream<List<Usuario>> buscarUsuariosPorEmail(
+    String email, {
+    String? entrevistador,
+  }) {
     if (email.isEmpty) {
       return Stream.value([]);
     }
@@ -70,16 +74,23 @@ class AuthList with ChangeNotifier {
       List<Usuario> listaUsuarios = snapshot.docs.map((doc) {
         return Usuario(
           id: doc.id,
-          nome: doc['nome'],
-          email: doc['email'],
-          fotoPerfilUrl: doc['fotoPerfilUrl'] ?? '',
+          nome: doc.data().containsKey('nome') ? doc['nome'] : '',
+          email: doc.data().containsKey('email') ? doc['email'] : '',
+          fotoPerfilUrl: doc.data().containsKey('fotoPerfilUrl')
+              ? doc['fotoPerfilUrl'] ?? ''
+              : '',
         );
       }).toList();
 
-      if (_usuario != null) {
+      // Só remove se entrevistador for null E _usuario existir e id não for vazio
+      if (entrevistador == null &&
+          _usuario != null &&
+          _usuario!.id != null &&
+          _usuario!.id!.isNotEmpty) {
         listaUsuarios.removeWhere((u) => u.id == _usuario!.id);
       }
 
+      // Se não encontrar ninguém, mas o email é válido, adiciona manualmente
       if (listaUsuarios.isEmpty && validarEmailUesb(email)) {
         listaUsuarios.add(
           Usuario(id: '', nome: '', email: email, fotoPerfilUrl: ''),
@@ -131,8 +142,9 @@ class AuthList with ChangeNotifier {
       final GoogleAuthProvider googleProvider = GoogleAuthProvider();
       googleProvider.setCustomParameters({'prompt': 'select_account'});
 
-      final UserCredential userCredential =
-          await _auth.signInWithPopup(googleProvider);
+      final UserCredential userCredential = await _auth.signInWithPopup(
+        googleProvider,
+      );
 
       final user = userCredential.user;
       if (user != null) {
@@ -175,7 +187,7 @@ class AuthList with ChangeNotifier {
       'nome': usuario.nome,
       'email': usuario.email,
       'fotoPerfilUrl': usuario.fotoPerfilUrl,
-      'id': usuario.id
+      'id': usuario.id,
     }, SetOptions(merge: true));
   }
 }

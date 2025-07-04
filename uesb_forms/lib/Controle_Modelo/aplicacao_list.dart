@@ -25,22 +25,29 @@ class AplicacaoList with ChangeNotifier {
   List<Aplicacaoquestionario> get aplicacoes => _aplicacoes;
 
   Future<void> persistirNoFirebase() async {
-    await FirebaseFirestore.instance.collection("aplicacoes").add(
-          aplicacaoAtual.toMapAplicacao(),
-        );
+    await FirebaseFirestore.instance
+        .collection("aplicacoes")
+        .add(aplicacaoAtual.toMapAplicacao());
   }
 
-  void adicionarResposta(String idQuestao, dynamic resposta,
-      String? idEntrevistador, String? idEntrevistado) {
+  void adicionarResposta(
+    String idQuestao,
+    dynamic resposta,
+    String? idEntrevistador,
+    String? idEntrevistado,
+  ) {
     aplicacaoAtual.idEntrevistado = idEntrevistado;
     aplicacaoAtual.idEntrevistador = idEntrevistador;
-    aplicacaoAtual.respostas
-        .add({"idQuestao": idQuestao, "resposta": resposta});
+    aplicacaoAtual.respostas.add({
+      "idQuestao": idQuestao,
+      "resposta": resposta,
+    });
     notifyListeners();
   }
 
   Future<List<Aplicacaoquestionario>> buscarAplicacoes(
-      String idQuestionario) async {
+    String idQuestionario,
+  ) async {
     final snapshot = await FirebaseFirestore.instance
         .collection("aplicacoes")
         .where("idQuestionario", isEqualTo: idQuestionario)
@@ -67,23 +74,44 @@ class AplicacaoList with ChangeNotifier {
       }
       final List<String> questoesOrdenadas = idsQuestoes.toList()..sort();
 
+      final questoesSnapshot = await FirebaseFirestore.instance
+          .collection('questionarios')
+          .doc(questionario.id)
+          .collection('questoes')
+          .get();
+
+      final Map<String, String> idParaEnunciado = {
+        for (var doc in questoesSnapshot.docs)
+          doc.id: doc['textoQuestao'] ?? doc.id,
+      };
+
       final cabecalho = [
         'ID Aplicação',
         'ID Entrevistador',
         'ID Entrevistado',
-        ...questoesOrdenadas
+        ...questoesOrdenadas.map((id) => idParaEnunciado[id] ?? id),
       ];
       sheet.appendRow(cabecalho.map((e) => TextCellValue(e)).toList());
 
       for (var aplicacao in _aplicacoes) {
         final Map<String, dynamic> mapaRespostas = {
-          for (var r in aplicacao.respostas) r['idQuestao']: r['resposta']
+          for (var r in aplicacao.respostas) r['idQuestao']: r['resposta'],
         };
+
+        // Use o método buscarNomeUsuario para obter os nomes
+        final nomeEntrevistador = await buscarNomeUsuario(
+          aplicacao.idEntrevistador,
+          'usuarios',
+        );
+        final nomeEntrevistado = await buscarNomeUsuario(
+          aplicacao.idEntrevistado,
+          'usuarios',
+        );
 
         final linha = [
           aplicacao.idAplicacao,
-          aplicacao.idEntrevistador ?? '',
-          aplicacao.idEntrevistado ?? '',
+          nomeEntrevistador, // agora mostra o nome
+          nomeEntrevistado, // agora mostra o nome
           ...questoesOrdenadas.map((id) {
             final resposta = mapaRespostas[id];
             if (resposta == null) return 'Sem dados';
@@ -97,8 +125,9 @@ class AplicacaoList with ChangeNotifier {
               final match = regex.firstMatch(resposta);
               if (match != null) {
                 final seconds = int.parse(match.group(1)!);
-                return DateTime.fromMillisecondsSinceEpoch(seconds * 1000)
-                    .toIso8601String();
+                return DateTime.fromMillisecondsSinceEpoch(
+                  seconds * 1000,
+                ).toIso8601String();
               }
             }
 
@@ -106,7 +135,7 @@ class AplicacaoList with ChangeNotifier {
           }),
         ];
 
-        sheet.appendRow(linha.map((e) => TextCellValue(e)).toList());
+        sheet.appendRow(linha.map((e) => TextCellValue(e.toString())).toList());
       }
 
       final fileBytes = excel.encode();
@@ -119,8 +148,17 @@ class AplicacaoList with ChangeNotifier {
       } else {
         // ANDROID / iOS
         if (io.Platform.isAndroid || io.Platform.isIOS) {
-          final status = await Permission.storage.request();
-          if (!status.isGranted) throw Exception("Permissão negada");
+          var status = await Permission.storage.request();
+
+          // Se não foi concedido, tente pedir novamente (apenas Android)
+          if (!status.isGranted && io.Platform.isAndroid) {
+            status = await Permission.manageExternalStorage.request();
+          }
+
+          if (!status.isGranted) {
+            // Aqui você pode mostrar um diálogo explicando por que precisa da permissão
+            throw Exception("Permissão negada");
+          }
 
           final Uint8List bytes = Uint8List.fromList(fileBytes);
           await FileSaver.instance.saveFile(
@@ -134,5 +172,17 @@ class AplicacaoList with ChangeNotifier {
       print("Erro na exportação: $e");
       rethrow;
     }
+  }
+
+  Future<String> buscarNomeUsuario(String? id, String colecao) async {
+    if (id == null || id.isEmpty) return '';
+    final doc = await FirebaseFirestore.instance
+        .collection(colecao)
+        .doc(id)
+        .get();
+    if (doc.exists && doc.data() != null) {
+      return doc.data()!['nome'] ?? id;
+    }
+    return id;
   }
 }

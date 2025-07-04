@@ -17,10 +17,7 @@ class _MeusgruposState extends State<Meusgrupos> {
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        title: Text(
-          'Grupos',
-          style: const TextStyle(color: Colors.white),
-        ),
+        title: Text('Grupos', style: const TextStyle(color: Colors.white)),
         backgroundColor: const Color.fromARGB(255, 45, 12, 68),
         actions: [
           Padding(
@@ -32,10 +29,7 @@ class _MeusgruposState extends State<Meusgrupos> {
                 });
               },
               itemBuilder: (BuildContext context) => [
-                const PopupMenuItem(
-                  value: "Líder",
-                  child: Text("Líder"),
-                ),
+                const PopupMenuItem(value: "Líder", child: Text("Líder")),
                 const PopupMenuItem(
                   value: "Entrevistador",
                   child: Text("Entrevistador"),
@@ -45,19 +39,26 @@ class _MeusgruposState extends State<Meusgrupos> {
                 padding: const EdgeInsets.all(8),
                 child: Icon(
                   _perfilSelecionado == "Líder"
-                      ? Icons.person // Ícone para Líder
+                      ? Icons
+                            .person // Ícone para Líder
                       : Icons.assignment_ind, // Ícone para Entrevistador
-                  color:
-                      const Color.fromARGB(255, 233, 233, 234), // Cor do ícone
+                  color: const Color.fromARGB(
+                    255,
+                    233,
+                    233,
+                    234,
+                  ), // Cor do ícone
                   size: 30,
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
       drawer: MenuLateral(),
-      body: _perfilSelecionado== 'Líder'?   ListaGrupos(lider: true,): ListaGrupos(lider: false)
+      body: _perfilSelecionado == 'Líder'
+          ? ListaGrupos(key: ValueKey('lider'), lider: true)
+          : ListaGrupos(key: ValueKey('entrevistador'), lider: false),
     );
   }
 }

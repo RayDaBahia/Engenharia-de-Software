@@ -16,7 +16,7 @@ class ListaGrupos extends StatefulWidget {
   const ListaGrupos({
     Key? key,
     required this.lider,
-  
+
     this.gruposIniciais = const [],
   }) : super(key: key);
 
@@ -39,6 +39,8 @@ class _ListaGruposState extends State<ListaGrupos> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    debugPrint('🔍 ListaGrupos: widget.lider = ${widget.lider}');
+
     if (!_gruposCarregados) {
       final grupoList = Provider.of<GrupoList>(context, listen: false);
       final Future<void> carregamento = widget.lider
@@ -55,31 +57,22 @@ class _ListaGruposState extends State<ListaGrupos> {
     }
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-  
-      drawer:  const MenuLateral(),
+      drawer: const MenuLateral(),
       body: Consumer2<GrupoList, QuestionarioList>(
         builder: (context, grupoList, questionarioList, _) {
           final todosGrupos = widget.lider
               ? grupoList.gruposLider
               : grupoList.gruposEntrevistador;
 
-          final gruposSelecionadosIds =
-              questionarioList.grupos.map((g) => g.id).toSet();
-
           List<Grupo> gruposVisiveis = todosGrupos.where((grupo) {
-            final correspondePesquisa = filtroPesquisa.isEmpty ||
+            final correspondePesquisa =
+                filtroPesquisa.isEmpty ||
                 grupo.nome.toLowerCase().contains(filtroPesquisa.toLowerCase());
 
-            
-
-            return correspondePesquisa &&
-                !gruposSelecionadosIds.contains(grupo.id);
+            return correspondePesquisa;
           }).toList();
 
           return Column(
@@ -114,17 +107,11 @@ class _ListaGruposState extends State<ListaGrupos> {
                         itemBuilder: (context, index) {
                           final grupo = gruposVisiveis[index];
 
-                          return   GrupoCard(
-                                  grupo: grupo,
-                                  isLider: widget.lider,
-                                  
-                                );
+                          return GrupoCard(grupo: grupo, isLider: widget.lider);
                         },
                       ),
               ),
-              if (widget.lider )
-                _botaoAdicionarGrupo(context),
-        
+              if (widget.lider) _botaoAdicionarGrupo(context),
             ],
           );
         },
@@ -139,16 +126,12 @@ class _ListaGruposState extends State<ListaGrupos> {
         alignment: Alignment.centerRight,
         child: ElevatedButton(
           onPressed: () => Navigator.pushNamed(context, Rotas.CRIAR_GRUPO),
-           style: ElevatedButton.styleFrom(
-          backgroundColor: const Color.fromARGB(255, 45, 12, 68),
-          shape: const CircleBorder(),
-          padding: const EdgeInsets.all(20),
-        ),
-        child: const Icon(
-          Icons.add,
-          size: 30,
-          color: Colors.white,
-        ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color.fromARGB(255, 45, 12, 68),
+            shape: const CircleBorder(),
+            padding: const EdgeInsets.all(20),
+          ),
+          child: const Icon(Icons.add, size: 30, color: Colors.white),
         ),
       ),
     );

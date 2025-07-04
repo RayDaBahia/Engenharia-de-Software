@@ -1,32 +1,28 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
 import 'package:uesb_forms/Modelo/grupo.dart';
 import 'package:uesb_forms/Modelo/usuario.dart';
 
+class PessoasGrupo extends StatefulWidget {
+  Grupo grupo;
 
-class PessoasGrupo extends StatefulWidget{
-
-Grupo grupo;
-
-PessoasGrupo(this.grupo);
-
-
-
+  PessoasGrupo(this.grupo);
 
   @override
   State<PessoasGrupo> createState() => _PessoasGrupoState();
 }
 
-class _PessoasGrupoState extends State<PessoasGrupo>{
-
-List<Usuario> entrevistadores = [];
+class _PessoasGrupoState extends State<PessoasGrupo> {
+  List<Usuario> entrevistadores = [];
   List<Usuario> entrevistadoresFiltrados = [];
   late Usuario lider;
   bool carregando = true;
   final TextEditingController _pesquisaController = TextEditingController();
 
-      int _selectedIndex = 0;
+  int _selectedIndex = 0;
 
   @override
   void dispose() {
@@ -41,7 +37,10 @@ List<Usuario> entrevistadores = [];
     List<Usuario> listaEntrevistadores = [];
     if (grupo.idEntrevistadores != null) {
       final futures = grupo.idEntrevistadores!.map((email) async {
-        final usuariosStream = authList.buscarUsuariosPorEmail(email);
+        final usuariosStream = authList.buscarUsuariosPorEmail(
+          email,
+          entrevistador: 'entrevistador',
+        );
         final usuarios = await usuariosStream.first;
         return usuarios.isNotEmpty ? usuarios.first : null;
       });
@@ -70,14 +69,11 @@ List<Usuario> entrevistadores = [];
 
   @override
   Widget build(BuildContext context) {
-
-
     if (carregando) {
       buscarUsuarios(context, widget.grupo);
     }
 
     return Scaffold(
-   
       body: carregando
           ? const Center(child: CircularProgressIndicator())
           : ListView(
@@ -87,12 +83,18 @@ List<Usuario> entrevistadores = [];
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(widget.grupo.nome,
-                          style: const TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.bold)),
+                      Text(
+                        widget.grupo.nome,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(height: 4),
-                      Text(widget.grupo.descricao ?? '',
-                          style: const TextStyle(fontSize: 16)),
+                      Text(
+                        widget.grupo.descricao ?? '',
+                        style: const TextStyle(fontSize: 16),
+                      ),
                     ],
                   ),
                 ),
@@ -120,32 +122,40 @@ List<Usuario> entrevistadores = [];
                   ),
                 ),
                 const SizedBox(height: 8),
-                ...entrevistadoresFiltrados.map((e) => _buildUserTile(
-                      nome: e.nome!,
-                      email: e.email!,
-                      cor: _corAleatoria(e.nome!),
-                    )),
+                ...entrevistadoresFiltrados.map(
+                  (e) => _buildUserTile(
+                    nome: e.nome!,
+                    email: e.email!,
+                    cor: _corAleatoria(e.nome!),
+                  ),
+                ),
               ],
             ),
-  
     );
   }
 
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Text(title,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
     );
   }
 
-  Widget _buildUserTile(
-      {required String nome, required String email, required Color cor}) {
+  Widget _buildUserTile({
+    required String nome,
+    required String email,
+    required Color cor,
+  }) {
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: cor,
-        child: Text(nome.isNotEmpty ? nome[0].toUpperCase() : '?',
-            style: const TextStyle(color: Colors.white)),
+        child: Text(
+          nome.isNotEmpty ? nome[0].toUpperCase() : '?',
+          style: const TextStyle(color: Colors.white),
+        ),
       ),
       title: Text(nome),
       subtitle: Text(email),
@@ -154,6 +164,9 @@ List<Usuario> entrevistadores = [];
 
   Color _corAleatoria(String nome) {
     final cores = [Colors.red, Colors.blue, Colors.purple, Colors.teal];
+
+    if (nome.isEmpty) return Colors.grey; // cor padrão segura
+
     return cores[nome.codeUnitAt(0) % cores.length];
   }
 }
