@@ -5,6 +5,35 @@ import 'package:uesb_forms/Controle_Modelo/aplicacao_list.dart';
 import 'package:uesb_forms/Modelo/AplicacaoQuestionario.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
 
+// Função auxiliar para buscar nome do usuário
+Future<String> buscarNomeUsuario(String? id) async {
+  if (id == null || id.isEmpty) return '';
+  final doc = await FirebaseFirestore.instance
+      .collection('usuarios')
+      .doc(id)
+      .get();
+  if (doc.exists && doc.data() != null) {
+    return doc.data()!['nome'] ?? id;
+  }
+  return id;
+}
+
+// Função auxiliar para buscar enunciados das questões
+Future<Map<String, String>> buscarEnunciadosQuestoes(
+  String questionarioId,
+) async {
+  final questoesSnapshot = await FirebaseFirestore.instance
+      .collection('questionarios')
+      .doc(questionarioId)
+      .collection('questoes')
+      .get();
+
+  return {
+    for (var doc in questoesSnapshot.docs)
+      doc.id: doc['textoQuestao'] ?? doc.id,
+  };
+}
+
 class Dados extends StatelessWidget {
   final Questionario questionario;
 
@@ -15,8 +44,10 @@ class Dados extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final Provider_aplicacao =
-        Provider.of<AplicacaoList>(context, listen: false);
+    final Provider_aplicacao = Provider.of<AplicacaoList>(
+      context,
+      listen: false,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -56,7 +87,7 @@ class Dados extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-          )
+          ),
         ],
         title: const Text(
           'Visualizar Questionário',
@@ -114,82 +145,120 @@ class Dados extends StatelessWidget {
 
           final aplicacoes = snapshot.data ?? [];
           final Set<String> idsQuestoes = {};
+          final Set<String> idsUsuarios = {};
 
           for (var aplicacao in aplicacoes) {
+            if (aplicacao.idEntrevistador != null)
+              idsUsuarios.add(aplicacao.idEntrevistador!);
+            if (aplicacao.idEntrevistado != null)
+              idsUsuarios.add(aplicacao.idEntrevistado!);
             for (var resposta in aplicacao.respostas) {
               idsQuestoes.add(resposta['idQuestao']);
             }
           }
 
           final questoesOrdenadas = idsQuestoes.toList()..sort();
-          final cabecalho = [
-            'ID Aplicação',
-            'ID Entrevistador',
-            'ID Entrevistado',
-            ...questoesOrdenadas
-          ];
 
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: constraints.maxWidth,
-                    maxWidth: 2000,
-                  ),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: Card(
-                      elevation: 4,
-                      margin: const EdgeInsets.all(16),
-                      child: PaginatedDataTable(
-                        header: _TableHeader(
-                          questionario: questionario,
-                          totalAplicacoes: aplicacoes.length,
-                        ),
-                        rowsPerPage: 10,
-                        columnSpacing: 24,
-                        horizontalMargin: 20,
-                        headingRowHeight: 96,
-                        dataRowMinHeight: 40,
-                        dataRowMaxHeight: 60,
-                        dividerThickness: 1.2,
-                        showCheckboxColumn: false,
-                        showFirstLastButtons: true,
-                        availableRowsPerPage: const [10, 20, 50],
-                        onRowsPerPageChanged: (value) {},
-                        columns: cabecalho
-                            .map((titulo) => DataColumn(
-                                  label: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12, horizontal: 8),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          const Color.fromARGB(255, 45, 12, 68),
-                                    ),
-                                    child: Text(
-                                      titulo,
-                                      style:
-                                          theme.textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: colorScheme.onPrimary,
+          // FutureBuilder para buscar nomes e enunciados
+          return FutureBuilder<Map<String, dynamic>>(
+            future: () async {
+              final nomes = <String, String>{};
+              for (var id in idsUsuarios) {
+                nomes[id] = await buscarNomeUsuario(id);
+              }
+              final enunciados = await buscarEnunciadosQuestoes(
+                questionario.id,
+              );
+              return {'nomes': nomes, 'enunciados': enunciados};
+            }(),
+            builder: (context, snapshot2) {
+              if (!snapshot2.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final nomes = snapshot2.data!['nomes'] as Map<String, String>;
+              final enunciados =
+                  snapshot2.data!['enunciados'] as Map<String, String>;
+
+              final cabecalho = [
+                'ID Aplicação',
+                'Entrevistador',
+                'Entrevistado',
+                ...questoesOrdenadas.map((id) => enunciados[id] ?? id),
+              ];
+
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: constraints.maxWidth,
+                        maxWidth: 2000,
+                      ),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: Card(
+                          elevation: 4,
+                          margin: const EdgeInsets.all(16),
+                          child: PaginatedDataTable(
+                            header: _TableHeader(
+                              questionario: questionario,
+                              totalAplicacoes: aplicacoes.length,
+                            ),
+                            rowsPerPage: 10,
+                            columnSpacing: 24,
+                            horizontalMargin: 20,
+                            headingRowHeight: 96,
+                            dataRowMinHeight: 40,
+                            dataRowMaxHeight: 60,
+                            dividerThickness: 1.2,
+                            showCheckboxColumn: false,
+                            showFirstLastButtons: true,
+                            availableRowsPerPage: const [10, 20, 50],
+                            onRowsPerPageChanged: (value) {},
+                            columns: cabecalho
+                                .map(
+                                  (titulo) => DataColumn(
+                                    label: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                        horizontal: 8,
                                       ),
-                                      textAlign: TextAlign.center,
-                                      overflow: TextOverflow.ellipsis,
+                                      decoration: BoxDecoration(
+                                        color: const Color.fromARGB(
+                                          255,
+                                          45,
+                                          12,
+                                          68,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        titulo,
+                                        style: theme.textTheme.titleMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: colorScheme.onPrimary,
+                                            ),
+                                        textAlign: TextAlign.center,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                   ),
-                                ))
-                            .toList(),
-                        source: _DataSource(
-                          aplicacoes,
-                          questoesOrdenadas,
-                          theme: theme,
+                                )
+                                .toList(),
+                            source: _DataSource(
+                              aplicacoes,
+                              questoesOrdenadas,
+                              nomes,
+                              enunciados,
+                              theme: theme,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                },
               );
             },
           );
@@ -214,8 +283,9 @@ class _TableHeader extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     final int meta = questionario.meta ?? 0;
-    final double progresso =
-        meta > 0 ? (totalAplicacoes / meta).clamp(0.0, 1.0) : 0.0;
+    final double progresso = meta > 0
+        ? (totalAplicacoes / meta).clamp(0.0, 1.0)
+        : 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,9 +323,17 @@ class _TableHeader extends StatelessWidget {
 class _DataSource extends DataTableSource {
   final List<Aplicacaoquestionario> aplicacoes;
   final List<String> questoesOrdenadas;
+  final Map<String, String> nomes;
+  final Map<String, String> enunciados;
   final ThemeData theme;
 
-  _DataSource(this.aplicacoes, this.questoesOrdenadas, {required this.theme});
+  _DataSource(
+    this.aplicacoes,
+    this.questoesOrdenadas,
+    this.nomes,
+    this.enunciados, {
+    required this.theme,
+  });
 
   @override
   DataRow getRow(int index) {
@@ -264,7 +342,7 @@ class _DataSource extends DataTableSource {
     final colorScheme = theme.colorScheme;
 
     final Map<String, dynamic> mapaRespostas = {
-      for (var r in aplicacao.respostas) r['idQuestao']: r['resposta']
+      for (var r in aplicacao.respostas) r['idQuestao']: r['resposta'],
     };
 
     String formatarResposta(dynamic resposta) {
@@ -298,8 +376,8 @@ class _DataSource extends DataTableSource {
 
     final dadosLinha = [
       aplicacao.idAplicacao,
-      aplicacao.idEntrevistador ?? '',
-      aplicacao.idEntrevistado ?? '',
+      nomes[aplicacao.idEntrevistador] ?? aplicacao.idEntrevistador ?? '',
+      nomes[aplicacao.idEntrevistado] ?? aplicacao.idEntrevistado ?? '',
       ...questoesOrdenadas.map((id) => formatarResposta(mapaRespostas[id])),
     ];
 
@@ -313,19 +391,23 @@ class _DataSource extends DataTableSource {
             : colorScheme.surface;
       }),
       cells: dadosLinha
-          .map((dado) => DataCell(
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    dado.toString(),
-                    style: theme.textTheme.bodyMedium,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+          .map(
+            (dado) => DataCell(
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 12,
                 ),
-              ))
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  dado.toString(),
+                  style: theme.textTheme.bodyMedium,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          )
           .toList(),
     );
   }
