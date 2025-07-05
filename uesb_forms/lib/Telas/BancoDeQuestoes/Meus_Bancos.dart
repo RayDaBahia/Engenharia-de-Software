@@ -16,6 +16,8 @@ class MeusBancos extends StatefulWidget {
 }
 
 class _MeusBancosState extends State<MeusBancos> {
+  String _searchQuery = ""; // Adicione esta linha
+
   @override
   void initState() {
     super.initState();
@@ -43,10 +45,13 @@ class _MeusBancosState extends State<MeusBancos> {
 
   @override
   Widget build(BuildContext context) {
-    //var screenHeight = MediaQuery.sizeOf(context).height;
-    //var screenWidth = MediaQuery.sizeOf(context).width;
-
     final bancoList = Provider.of<BancoList>(context, listen: true);
+
+    // Filtra os bancos pelo nome, igual ao QuestionarioLiderPage
+    final bancosFiltrados = bancoList.bancosLista.where((banco) {
+      return banco.nome.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+
     return Scaffold(
       drawer: isFormulario ? null : MenuLateral(),
       appBar: AppBar(
@@ -78,23 +83,33 @@ class _MeusBancosState extends State<MeusBancos> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                if (bancoList.bancosLista.isNotEmpty) ...[
-                  WidgetPesquisa(
-                    listaDeBancos: bancoList.bancosLista,
-                    isFormulario: isFormulario,
+                // Campo de busca igual ao QuestionarioLiderPage
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    onChanged: (query) => setState(() => _searchQuery = query),
+                    decoration: InputDecoration(
+                      labelText: 'Pesquisar por nome',
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
                   ),
+                ),
+                if (bancosFiltrados.isNotEmpty) ...[
                   Expanded(
                     child: ListView.builder(
-                      itemCount: bancoList.bancosLista.length,
+                      itemCount: bancosFiltrados.length,
                       itemBuilder: (context, index) {
-                        final bancoQuestao = bancoList.bancosLista[index];
+                        final bancoQuestao = bancosFiltrados[index];
                         return WidgetbancoQuestao(
                             banco: bancoQuestao, isFormulario: isFormulario);
                       },
                     ),
                   ),
                 ] else ...[
-                  Center(
+                  const Center(
                     child: Text('Você não possui bancos'),
                   ),
                 ],
