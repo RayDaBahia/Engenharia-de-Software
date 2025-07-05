@@ -164,7 +164,6 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.green, // Cor de fundo verde para sucesso
         behavior: SnackBarBehavior.floating, // Faz ele "flutuar" acima da UI
         margin: const EdgeInsets.all(16), // Margem nas bordas
         duration: const Duration(seconds: 3), // Tempo que ele fica visível

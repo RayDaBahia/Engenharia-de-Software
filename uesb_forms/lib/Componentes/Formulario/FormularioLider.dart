@@ -117,7 +117,6 @@ class FormularioLider extends StatelessWidget {
                       value: 'testar',
                       child: Row(
                         children: [
-                          Icon(Icons.play_arrow, color: Colors.black),
                           SizedBox(width: 8),
                           Text('Testar questionário'),
                         ],
@@ -128,7 +127,6 @@ class FormularioLider extends StatelessWidget {
                       value: 'aplicar',
                       child: Row(
                         children: [
-                          Icon(Icons.assignment, color: Colors.black),
                           SizedBox(width: 8),
                           Text('Aplicar questionário'),
                         ],
@@ -152,7 +150,6 @@ class FormularioLider extends StatelessWidget {
                           value: 'Dados',
                           child: Row(
                             children: [
-                              Icon(Icons.bar_chart),
                               SizedBox(
                                 width: 8,
                               ),
@@ -167,7 +164,6 @@ class FormularioLider extends StatelessWidget {
                           value: 'Dados',
                           child: Row(
                             children: [
-                              Icon(Icons.bar_chart),
                               SizedBox(
                                 width: 8,
                               ),
@@ -206,14 +202,39 @@ class FormularioLider extends StatelessWidget {
                       icon: const Icon(Icons.copy,
                           color: Color.fromARGB(255, 69, 12, 126)),
                       onPressed: () async {
-                        await questionarioProvider
-                            .duplicarQuestionario(questionario);
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    'Questionário duplicado com sucesso!')),
-                          );
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Confirmar Duplicação'),
+                              content: const Text(
+                                  'Tem certeza de que deseja duplicar este questionário?'),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text('Cancelar'),
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(false),
+                                ),
+                                TextButton(
+                                  child: const Text('Duplicar'),
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(true),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+
+                        if (confirm == true) {
+                          await questionarioProvider
+                              .duplicarQuestionario(questionario);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      'Questionário duplicado com sucesso!')),
+                            );
+                          }
                         }
                       },
                     ),
@@ -221,14 +242,39 @@ class FormularioLider extends StatelessWidget {
                       IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () async {
-                          await questionarioProvider
-                              .excluirQuestionario(questionario.id);
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text(
-                                      'Questionário excluído com sucesso!')),
-                            );
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Confirmar Exclusão'),
+                                content: const Text(
+                                    'Tem certeza de que deseja excluir este questionário?'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('Cancelar'),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                  ),
+                                  TextButton(
+                                    child: const Text('Excluir'),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(true),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+
+                          if (confirm == true) {
+                            await questionarioProvider
+                                .excluirQuestionario(questionario.id);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        'Questionário excluído com sucesso!')),
+                              );
+                            }
                           }
                         },
                       ),
