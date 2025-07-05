@@ -39,6 +39,8 @@ class _ListaGruposState extends State<ListaGrupos> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    debugPrint('🔍 ListaGrupos: widget.lider = ${widget.lider}');
+
     if (!_gruposCarregados) {
       final grupoList = Provider.of<GrupoList>(context, listen: false);
       final Future<void> carregamento = widget.lider
@@ -69,17 +71,12 @@ class _ListaGruposState extends State<ListaGrupos> {
               ? grupoList.gruposLider
               : grupoList.gruposEntrevistador;
 
-          final gruposSelecionadosIds =
-              questionarioList.grupos.map((g) => g.id).toSet();
-
           List<Grupo> gruposVisiveis = todosGrupos.where((grupo) {
             final correspondePesquisa = filtroPesquisa.isEmpty ||
                 grupo.nome.toLowerCase().contains(filtroPesquisa.toLowerCase());
 
-            
 
-            return correspondePesquisa &&
-                !gruposSelecionadosIds.contains(grupo.id);
+            return correspondePesquisa;
           }).toList();
 
           return Column(

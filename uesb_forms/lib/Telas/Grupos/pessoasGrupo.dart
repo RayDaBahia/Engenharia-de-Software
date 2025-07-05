@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/auth_list.dart';
@@ -10,8 +12,6 @@ class PessoasGrupo extends StatefulWidget{
 Grupo grupo;
 
 PessoasGrupo(this.grupo);
-
-
 
 
   @override
@@ -41,7 +41,7 @@ List<Usuario> entrevistadores = [];
     List<Usuario> listaEntrevistadores = [];
     if (grupo.idEntrevistadores != null) {
       final futures = grupo.idEntrevistadores!.map((email) async {
-        final usuariosStream = authList.buscarUsuariosPorEmail(email);
+        final usuariosStream = authList.buscarUsuariosPorEmail(email, entrevistador: 'entrevistador');
         final usuarios = await usuariosStream.first;
         return usuarios.isNotEmpty ? usuarios.first : null;
       });
@@ -152,8 +152,15 @@ List<Usuario> entrevistadores = [];
     );
   }
 
-  Color _corAleatoria(String nome) {
-    final cores = [Colors.red, Colors.blue, Colors.purple, Colors.teal];
-    return cores[nome.codeUnitAt(0) % cores.length];
-  }
+
+
+Color _corAleatoria(String nome) {
+  final cores = [Colors.red, Colors.blue, Colors.purple, Colors.teal];
+
+  if (nome.isEmpty) return Colors.grey; // cor padrão segura
+
+  return cores[nome.codeUnitAt(0) % cores.length];
+}
+
+
 }

@@ -57,7 +57,10 @@ class _MeusgruposState extends State<Meusgrupos> {
         ],
       ),
       drawer: MenuLateral(),
-      body: _perfilSelecionado== 'Líder'?   ListaGrupos(lider: true,): ListaGrupos(lider: false)
+      body: _perfilSelecionado == 'Líder' 
+    ? ListaGrupos(key: ValueKey('lider'), lider: true) 
+    : ListaGrupos(key: ValueKey('entrevistador'), lider: false),
+
     );
   }
 }
