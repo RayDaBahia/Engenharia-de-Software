@@ -63,8 +63,6 @@ class _WidgetDataState extends State<WidgetData> {
                         },
                         icon: const Icon(Icons.delete)),
                     IconButton(
-                        onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
-                    IconButton(
                       onPressed: () {},
                       icon: const Icon(Icons.image),
                     ),

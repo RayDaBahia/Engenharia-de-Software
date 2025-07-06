@@ -121,8 +121,6 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
                     icon: const Icon(Icons.delete),
                   ),
                   IconButton(
-                      onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
-                  IconButton(
                     onPressed: () {
                       showDialog(
                         context: context,

@@ -46,28 +46,6 @@ class FormularioEntrevistador extends StatelessWidget {
                   ),
                 ),
               ),
-              Positioned(
-                left: 10,
-                top: 5, // Ajuste para alinhar verticalmente
-                child: PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert, color: Colors.white),
-                  itemBuilder: (context) => [
-                    if (questionario.publicado)
-                      const PopupMenuItem(
-                        value: 'Notificar',
-                        child: Text('Notificar líder'),
-                      ),
-                  ],
-                  onSelected: (value) async {
-                    if (value == 'Notificar') {
-                      // Lógica para notificar o líder
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Líder notificado!')),
-                      );
-                    }
-                  },
-                ),
-              ),
               if (questionario.senha != null && questionario.senha!.isNotEmpty)
                 const Positioned(
                   right: 10,

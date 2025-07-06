@@ -228,16 +228,52 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                                   IconButton(
                                     icon: const Icon(Icons.delete,
                                         color: Colors.red),
-                                    onPressed: () {
-                                      setState(() {
-                                        Provider.of<QuestionarioList>(context,
-                                                listen: false)
-                                            .excluirQuestaoSelecionada(
-                                                index, questionario!.id);
-                                      });
+                                    onPressed: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: const Text(
+                                                'Confirmar Exclusão'),
+                                            content: const Text(
+                                                'Tem certeza de que deseja excluir esta questão do questionário?'),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                child: const Text('Cancelar'),
+                                                onPressed: () =>
+                                                    Navigator.of(context)
+                                                        .pop(false),
+                                              ),
+                                              TextButton(
+                                                child: const Text('Excluir'),
+                                                onPressed: () =>
+                                                    Navigator.of(context)
+                                                        .pop(true),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+
+                                      if (confirm == true) {
+                                        setState(() {
+                                          Provider.of<QuestionarioList>(context,
+                                                  listen: false)
+                                              .excluirQuestaoSelecionada(
+                                                  index, questionario!.id);
+                                        });
+
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text(
+                                                    'Questão excluída com sucesso')),
+                                          );
+                                        }
+                                      }
                                     },
                                   ),
-
                                   // Para cima
                                   IconButton(
                                     icon: const Icon(Icons.arrow_upward,

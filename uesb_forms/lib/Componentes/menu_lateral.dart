@@ -65,7 +65,7 @@ class MenuLateral extends StatelessWidget {
             },
           ),
           const Divider(),
-          ListTile(
+          /*ListTile(
             leading: const Icon(
               Icons.notifications,
             ),
@@ -81,7 +81,7 @@ class MenuLateral extends StatelessWidget {
             title: const Text('Conta'),
             onTap: () {},
           ),
-          const Divider(),
+          const Divider(),*/
           SizedBox(
             height: screenHeight * 0.2,
           ),

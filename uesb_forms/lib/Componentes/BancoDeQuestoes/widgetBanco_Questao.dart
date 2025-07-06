@@ -141,23 +141,48 @@ class _WidgetbancoQuestaoState extends State<WidgetbancoQuestao> {
                             tooltip: "Duplicar banco",
                             icon: const Icon(Icons.copy, color: Colors.white),
                             onPressed: () async {
-                              try {
-                                await _bancoList
-                                    .duplicarBanco(widget.banco.id ?? '');
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            'Banco duplicado com sucesso')),
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Confirmar Duplicação'),
+                                    content: const Text(
+                                        'Tem certeza de que deseja duplicar este banco?'),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: const Text('Cancelar'),
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(false),
+                                      ),
+                                      TextButton(
+                                        child: const Text('Duplicar'),
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(true),
+                                      ),
+                                    ],
                                   );
-                                }
-                              } catch (e) {
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content:
-                                            Text('Erro ao duplicar o banco')),
-                                  );
+                                },
+                              );
+
+                              if (confirm == true) {
+                                try {
+                                  await _bancoList
+                                      .duplicarBanco(widget.banco.id ?? '');
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'Banco duplicado com sucesso')),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content:
+                                              Text('Erro ao duplicar o banco')),
+                                    );
+                                  }
                                 }
                               }
                             },

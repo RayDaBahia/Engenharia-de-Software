@@ -125,8 +125,6 @@ class _WidgetCapturaState extends State<WidgetCaptura> {
                     icon: const Icon(Icons.delete),
                   ),
                   IconButton(
-                      onPressed: () {}, icon: const Icon(Icons.copy_sharp)),
-                  IconButton(
                     onPressed: () {
                       showDialog(
                         context: context,
