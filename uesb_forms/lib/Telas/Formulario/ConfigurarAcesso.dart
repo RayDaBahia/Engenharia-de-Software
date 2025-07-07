@@ -193,7 +193,7 @@ Future<void> _handlePublishResponse(BuildContext dialogContext, bool publicar) a
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          "Configurar Acesso",
+          "Configurações Gerais",
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         centerTitle: true,
@@ -325,7 +325,7 @@ Future<void> _handlePublishResponse(BuildContext dialogContext, bool publicar) a
                   // Use ConstrainedBox for specific height within SingleChildScrollView
                   constraints: BoxConstraints(maxHeight: 150),
                   child: gruposSelecionadosCompletos.isEmpty
-                      ? Center(child: Text("Nenhum grupo selecionado"))
+                      ? Center(child: Text(""))
                       : ListView.builder(
                           addAutomaticKeepAlives: true, // Adicione esta linha
                           itemCount: gruposSelecionadosCompletos.length,
@@ -375,7 +375,7 @@ Future<void> _handlePublishResponse(BuildContext dialogContext, bool publicar) a
                     return Center(child: Text("Erro: ${snapshot.error}"));
                   }
                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text("Nenhum usuário encontrado"));
+                    return Center(child: Text(""));
                   }
                   return ConstrainedBox(
                     // Constrain height for the search results
@@ -407,7 +407,7 @@ Future<void> _handlePublishResponse(BuildContext dialogContext, bool publicar) a
               ConstrainedBox(
                 constraints: BoxConstraints(maxHeight: 150),
                 child: entrevistadores.isEmpty
-                    ? Center(child: Text("Nenhum entrevistador selecionado"))
+                    ? Center(child: Text(""))
                     : ListView.builder(
                         shrinkWrap: true,
                         itemCount: entrevistadores.length,

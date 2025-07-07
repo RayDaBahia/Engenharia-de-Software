@@ -5,10 +5,12 @@ class RespostaProvider extends ChangeNotifier {
   final Map<String, dynamic> _respostas = {};
 
   // MANTÉM TUDO EXISTENTE (não quebra nada)
-  void adicionarResposta(String questaoId, dynamic resposta) {
+  void adicionarResposta(String questaoId, dynamic resposta, ) {
     _respostas[questaoId] = resposta;
     notifyListeners();
   }
+
+
 
   void removerResposta(String questaoId) {
     _respostas.remove(questaoId);

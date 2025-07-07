@@ -79,6 +79,7 @@ class _WidgetRankingFormState extends State<WidgetRankingForm> {
     return SizedBox(
       width: 300,
       child: Card(
+        color: Colors.white,
         elevation: 5,
         child: Padding(
           padding: const EdgeInsets.all(16),

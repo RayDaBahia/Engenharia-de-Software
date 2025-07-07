@@ -103,6 +103,7 @@ class _WidgetListaSuspensaState extends State<WidgetListaSuspensa> {
     return SizedBox(
       width: 300,
       child: Card(
+        
         elevation: 5,
         shadowColor: Colors.black,
         color: Colors.white,

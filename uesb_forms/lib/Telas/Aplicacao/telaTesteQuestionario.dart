@@ -201,37 +201,33 @@ class _TelaTesteQuestionarioState extends State<TelaTesteQuestionario> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: _voltar,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                    minimumSize: const Size(100, 50),
-                  ),
-                  child: const Text('Voltar'),
-                ),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _avancar,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 45, 12, 68),
-                    minimumSize: const Size(100, 50),
-                  ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                          _indiceAtual == questoes.length - 1
-                              ? 'Finalizar Teste'
-                              : 'Próxima',
-                          style: const TextStyle(color: Colors.white),
+             Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0), // Espaçamento da borda
+                    child: GestureDetector(
+                      onTap: _isLoading ? null : _avancar,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Color(
+                              0xFF1B0C2F), // Cor de fundo (ajuste conforme desejar)
+                          shape: BoxShape.circle,
                         ),
+                        padding: EdgeInsets.all(12),
+                        child: _indiceAtual == questoes.length - 1
+                            ? Icon(
+                                  Icons.check,
+
+                                color: Colors.white,
+                              )
+                            : Icon(
+                              Icons.chevron_right,
+                                color: Colors.white,
+                              ),
+                      ),
+                    ),
+                  ),
                 ),
-              ],
-            ),
-          ),
         ],
       ),
     );

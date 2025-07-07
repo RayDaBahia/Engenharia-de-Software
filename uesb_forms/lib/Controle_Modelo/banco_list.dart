@@ -56,9 +56,9 @@ class BancoList with ChangeNotifier {
         }
       }
 
-      batch.set(questaoRef, questao.toMap());
+ 
     }
-    await batch.commit();
+ 
   }
 
   Future<void> _deletarImagemSeExistir(String? imageUrl) async {
@@ -104,45 +104,45 @@ class BancoList with ChangeNotifier {
   }
 
   // Método para adicionar banco e coleção de questões
-  Future<void> addBanco(Banco banco, List<Questao> questoes) async {
-    final user = _authList?.usuario; // pega o registro do usuário
-    if (user != null) {
-      verificaPreenchimento(questoes, banco);
+ Future<void> addBanco(Banco banco, List<Questao> questoes) async {
+  final user = _authList?.usuario;
+  if (user != null) {
+    verificaPreenchimento(questoes, banco);
 
-      // Adiciona o banco
-      final bancoRef = await _firestore
-          .collection('usuarios') // Coleção dos usuários
-          .doc(user.id) // ID do usuário
-          .collection('bancos') // Subcoleção 'bancos' do usuário
-          .add({
-        'nome': banco.nome,
-        'descricao': banco.descricao,
-      });
+    // Adiciona o banco
+    final bancoRef = await _firestore
+        .collection('usuarios')
+        .doc(user.id)
+        .collection('bancos')
+        .add({
+      'nome': banco.nome,
+      'descricao': banco.descricao,
+    });
 
-      // ADICIONADO: Atribui IDs temporários para questões novas
-      for (var questao in questoes) {
-        questao.id ??= Random().nextInt(1000000).toString();
-        questao.bancoId = bancoRef.id;
-      }
+    banco.id = bancoRef.id;
 
-      // ADICIONADO: Processa upload de imagens antes de salvar
-      await _processarImagensQuestoes(user.id!, bancoRef.id, questoes);
+    // Processa upload de imagens antes de salvar
+    await _processarImagensQuestoes(user.id!, bancoRef.id, questoes);
 
-      banco.id = bancoRef.id;
+    for (var questao in questoes) {
+      // Remove o ID se já tiver, pois usaremos o do Firebase
+      questao.id = null;
+      questao.bancoId = bancoRef.id;
 
-      // Usando WriteBatch para adicionar as questões
-      WriteBatch batch = _firestore.batch(); // Inicia o batch
+      final docRef = await bancoRef.collection('questoes').add(questao.toMap());
 
-      for (var questao in questoes) {
-        final questaoRef = bancoRef.collection('questoes').doc(questao.id);
-        batch.set(questaoRef, questao.toMap());
-      }
+      // Atualiza o campo `id` no próprio documento no Firestore
+      await docRef.update({'id': docRef.id});
 
-      await batch.commit(); // Executa todas as operações em um único commit
-      bancosLista.add(banco);
-      notifyListeners();
+      // E atualiza também no objeto local
+      questao.id = docRef.id;
     }
+
+    bancosLista.add(banco);
+    notifyListeners();
   }
+}
+
 
   Future<void> AtualizarBanco(Banco banco) async {
     final user = _authList?.usuario;

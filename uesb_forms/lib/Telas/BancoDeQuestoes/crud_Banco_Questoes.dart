@@ -60,8 +60,10 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
 
       if (args is Banco) {
         banco = args;
-        Provider.of<BancoList>(context, listen: false)
-            .buscarQuestoesBancoNoBd(banco!.id);
+        Provider.of<BancoList>(
+          context,
+          listen: false,
+        ).buscarQuestoesBancoNoBd(banco!.id);
 
         _descricaoBancoController.text = banco!.descricao;
         _nomeBancoController.text = banco!.nome;
@@ -82,36 +84,22 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
     final questoesFiltradas = bancoList.filtrarQuestoes(filtroTexto);
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 45, 12, 68),
-        title: TextField(
-          controller: _questaoFiltro,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: const Color.fromARGB(255, 45, 12, 68),
-            labelText: '',
-            labelStyle:
-                TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(13)),
-            prefixIcon:
-                Icon(Icons.search, color: Color.fromARGB(255, 251, 253, 254)),
-          ),
-          style: TextStyle(color: Colors.white),
-        ),
-        actions: <Widget>[botaoSalvar(bancoList)],
-      ),
+      appBar: AppBar(actions: <Widget>[botaoSalvar(bancoList)],
+      backgroundColor:  const Color.fromARGB(255, 45, 12, 68),),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            // Campos de texto para nome e descrição do banco
+             Text('Nome do Banco',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
             TextField(
               controller: _nomeBancoController,
               maxLines: 1,
               decoration: InputDecoration(
-                labelText:
-                    _nomeBancoController.text.isEmpty ? 'Banco Sem Título' : '',
+                  hintText: 'Digite o nome do banco',
                 labelStyle: TextStyle(
                   color: Color.fromARGB(255, 27, 7, 80),
                   fontSize: 30,
@@ -119,6 +107,9 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                 ),
               ),
             ),
+                Text('Descrição do banco',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
             Padding(
               padding: EdgeInsets.symmetric(vertical: 15),
               child: TextField(
@@ -127,20 +118,31 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
                     null, // Permite que o campo de descrição cresça conforme necessário
                 maxLength: 150, // Limite de 150 caracteres
                 decoration: InputDecoration(
-                  labelText: _descricaoBancoController.text.isEmpty
-                      ? 'adicione uma descrição ao banco'
-                      : '',
-                  labelStyle: TextStyle(
-                    color: Colors.grey,
-                  ),
+                   hintText: 'Adicione uma descrição ao grupo',
+                  labelStyle: TextStyle(color: Colors.grey),
                   border: OutlineInputBorder(),
                 ),
                 onChanged: (text) {
                   setState(
-                      () {}); // Atualiza a UI para o contador de caracteres
+                    () {},
+                  ); // Atualiza a UI para o contador de caracteres
                 },
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: TextField(
+                controller: _questaoFiltro,
+                decoration: InputDecoration(
+                  labelText: 'Pesquisar questões',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  prefixIcon: const Icon(Icons.search),
+                ),
+              ),
+            ),
+
             Expanded(
               child: ListView.builder(
                 itemCount: questoesFiltradas.length,
@@ -175,47 +177,51 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
   }
 
   Widget botaoSalvar(BancoList bancoList) {
-    return TextButton(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: TextButton(
       onPressed: () async {
         if (banco == null) {
-          try {
-            await bancoList.SalvarBanco(
-              _nomeBancoController.text,
-              _descricaoBancoController.text,
-            );
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Banco criado com sucesso!")),
-            );
-            Navigator.of(context).pop();
-          } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Erro ao criar banco: $e")),
-            );
-          }
+        try {
+          await bancoList.SalvarBanco(
+          _nomeBancoController.text,
+          _descricaoBancoController.text,
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Banco criado com sucesso!")),
+          );
+          Navigator.of(context).pop();
+        } catch (e) {
+          ScaffoldMessenger.of(
+          context,
+          ).showSnackBar(SnackBar(content: Text("Erro ao criar banco: $e")));
+        }
         } else {
-          try {
-            banco!.nome = _nomeBancoController.text;
-            banco!.descricao = _descricaoBancoController.text;
-            await bancoList.AtualizarBanco(banco!);
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Banco atualizado com sucesso!")),
-            );
-          } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Erro ao atualizar banco: $e")),
-            );
-          }
+        try {
+          banco!.nome = _nomeBancoController.text;
+          banco!.descricao = _descricaoBancoController.text;
+          await bancoList.AtualizarBanco(banco!);
+          ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Banco atualizado com sucesso!")),
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erro ao atualizar banco: $e")),
+          );
+        }
         }
       },
       style: TextButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: const Color.fromARGB(255, 37, 7, 88),
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        foregroundColor: const Color.fromARGB(255, 1, 21, 37),
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      child: banco == null ? const Text('Salvar') : const Text('Atualizar'),
+      child: banco == null
+        ? const Text('Salvar', style: TextStyle(fontWeight: FontWeight.bold))
+        : const Text('Atualizar', style: TextStyle(fontWeight: FontWeight.bold)),
+      ),
     );
+  
   }
 }

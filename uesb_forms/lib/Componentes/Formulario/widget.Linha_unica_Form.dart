@@ -18,33 +18,52 @@ class WidgetLinhaUnicaOremailForm extends StatefulWidget {
   State<WidgetLinhaUnicaOremailForm> createState() =>
       _WidgetLinhaUnicaOremailFormState();
 }
-
 class _WidgetLinhaUnicaOremailFormState
     extends State<WidgetLinhaUnicaOremailForm> {
   late TextEditingController _controller;
+  bool emailInvalido = false;
 
   @override
   void initState() {
     super.initState();
-    // Busca a resposta existente no Provider
     final respostaProvider =
         Provider.of<RespostaProvider>(context, listen: false);
     final respostaSalva =
         respostaProvider.obterResposta(widget.questao.id ?? '');
 
-    _controller = TextEditingController(
-      text: respostaSalva?.toString() ?? '',
-    );
-
-    // Listener para atualizar o Provider quando o texto mudar
+    _controller = TextEditingController(text: respostaSalva?.toString() ?? '');
     _controller.addListener(_atualizarResposta);
   }
 
   void _atualizarResposta() {
     if (widget.questao.id != null) {
-      Provider.of<RespostaProvider>(context, listen: false)
-          .adicionarResposta(widget.questao.id!, _controller.text);
+      if (widget.questao.tipoQuestao == QuestaoTipo.LinhaUnica) {
+        Provider.of<RespostaProvider>(context, listen: false)
+            .adicionarResposta(widget.questao.id!, _controller.text);
+      } else {
+        addQuestaoEmail(_controller.text);
+      }
     }
+  }
+
+  void addQuestaoEmail(String text) {
+    bool valido = validarEmail(text);
+
+  
+Provider.of<RespostaProvider>(context, listen: false)
+    .adicionarResposta(widget.questao.id!, text);
+
+setState(() {
+  emailInvalido = !valido;
+});
+
+  }
+
+  bool validarEmail(String email) {
+    final RegExp regex = RegExp(
+      r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$",
+    );
+    return regex.hasMatch(email);
   }
 
   @override
@@ -63,8 +82,9 @@ class _WidgetLinhaUnicaOremailFormState
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Adicionado: Exibe imagem se houver URL
+            
             if (widget.questao.imagemUrl != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
@@ -89,8 +109,8 @@ class _WidgetLinhaUnicaOremailFormState
                   },
                 ),
               ),
-
-            Text(widget.questao.textoQuestao),
+            Text(widget.questao.textoQuestao, style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),),
             const SizedBox(height: 10),
             TextField(
               controller: _controller,
@@ -103,8 +123,17 @@ class _WidgetLinhaUnicaOremailFormState
                     : 'Digite seu e-mail',
               ),
               maxLines: 1,
-              maxLength: (MediaQuery.of(context).size.width / 11).floor(),
+              keyboardType:
+                  widget.questao.tipoQuestao == QuestaoTipo.Email ? TextInputType.emailAddress : TextInputType.text,
             ),
+            if (emailInvalido && widget.questao.tipoQuestao == QuestaoTipo.Email)
+              const Padding(
+                padding: EdgeInsets.only(top: 8.0),
+                child: Text(
+                  'E-mail inválido',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
           ],
         ),
       ),

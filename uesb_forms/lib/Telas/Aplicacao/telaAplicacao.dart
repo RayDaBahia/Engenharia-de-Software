@@ -5,6 +5,7 @@ import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Controle_Modelo/resposta_provider.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
 import 'package:uesb_forms/Componentes/Formulario/QuestaoWidgetForm.dart';
+import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
 class TelaAplicacao extends StatefulWidget {
   final String perfilUsuario;
@@ -41,32 +42,54 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
   Future<void> _carregarQuestionario(Questionario questionario) async {
     setState(() => _isLoading = true);
     _questionario = questionario;
-    await Provider.of<QuestionarioList>(context, listen: false)
-        .buscarQuestoes(questionario.id);
+    await Provider.of<QuestionarioList>(
+      context,
+      listen: false,
+    ).buscarQuestoes(questionario.id);
     if (mounted) setState(() => _isLoading = false);
   }
 
   void _avancar() {
-    final questionarioList =
-        Provider.of<QuestionarioList>(context, listen: false);
+    final questionarioList = Provider.of<QuestionarioList>(
+      context,
+      listen: false,
+    );
     final questoes = questionarioList.listaQuestoes;
-    final respostaProvider =
-        Provider.of<RespostaProvider>(context, listen: false);
+    final respostaProvider = Provider.of<RespostaProvider>(
+      context,
+      listen: false,
+    );
 
     if (_isLoading || questoes.isEmpty) return;
 
     final questaoAtual = questoes[_indiceAtual];
     final resposta = respostaProvider.obterResposta(questaoAtual.id!);
 
-    // Verificação de questão obrigatória
-    if (questaoAtual.obrigatoria && resposta == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text(
-                'Essa questão é obrigatórioria! Por favor, responda antes de continuar.')),
-      );
-      return;
-    }
+
+// Verificação de questão obrigatória
+if (questaoAtual.obrigatoria && (resposta == null || (resposta is String && resposta.trim().isEmpty))) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text(
+        'Essa questão é obrigatória! Por favor, responda antes de continuar.',
+      ),
+    ),
+  );
+  return;
+}
+
+// Validação de e-mail
+if (questaoAtual.tipoQuestao== QuestaoTipo.Email && resposta is String) {
+  if (!isEmailValido(resposta.trim())) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Por favor, insira um e-mail válido.'),
+      ),
+    );
+    return;
+  }
+}
+
 
     _historicoNavegacao.add(_indiceAtual);
 
@@ -119,18 +142,23 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
     setState(() => _isLoading = true);
 
     try {
-      final respostaProvider =
-          Provider.of<RespostaProvider>(context, listen: false);
+      final respostaProvider = Provider.of<RespostaProvider>(
+        context,
+        listen: false,
+      );
       final aplicacaoList = Provider.of<AplicacaoList>(context, listen: false);
 
       aplicacaoList.aplicacaoAtual.respostas = respostaProvider
-          .todasRespostas.entries
+          .todasRespostas
+          .entries
           .map((e) => {'idQuestao': e.key, 'resposta': e.value})
           .toList();
 
       await aplicacaoList.persistirNoFirebase();
 
       if (mounted) {
+        Provider.of<QuestionarioList>(context, listen: false).limparQuestoes();
+
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Questionário finalizado com sucesso!')),
@@ -138,9 +166,9 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro: ${e.toString()}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro: ${e.toString()}')));
       }
     } finally {
       if (mounted) {
@@ -233,19 +261,17 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: Color(
-                              0xFF1B0C2F), // Cor de fundo (ajuste conforme desejar)
+                            0xFF1B0C2F,
+                          ), // Cor de fundo (ajuste conforme desejar)
                           shape: BoxShape.circle,
                         ),
                         padding: EdgeInsets.all(12),
-                        child: Icon(
-                          Icons.chevron_left,
-                          color: Colors.white,
-                        ),
+                        child: Icon(Icons.chevron_left, color: Colors.white),
                       ),
                     ),
                   ),
                 ),
-          
+
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Padding(
@@ -255,20 +281,14 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: Color(
-                              0xFF1B0C2F), // Cor de fundo (ajuste conforme desejar)
+                            0xFF1B0C2F,
+                          ), // Cor de fundo (ajuste conforme desejar)
                           shape: BoxShape.circle,
                         ),
                         padding: EdgeInsets.all(12),
                         child: _indiceAtual == questoes.length - 1
-                            ? Icon(
-                                  Icons.check,
-
-                                color: Colors.white,
-                              )
-                            : Icon(
-                              Icons.chevron_right,
-                                color: Colors.white,
-                              ),
+                            ? Icon(Icons.check, color: Colors.white)
+                            : Icon(Icons.chevron_right, color: Colors.white),
                       ),
                     ),
                   ),
@@ -279,5 +299,11 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
         ],
       ),
     );
+    
   }
+  bool isEmailValido(String email) {
+  final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+  return emailRegex.hasMatch(email);
+}
+
 }

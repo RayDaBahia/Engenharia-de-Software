@@ -112,6 +112,26 @@ class CriargrupoState extends State<Criargrupo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          Padding(
+            padding:   const EdgeInsets.symmetric(horizontal: 8.0),
+            child: ElevatedButton(onPressed: ()=>{
+               if (_formKey.currentState!.validate()) {
+                        grupo == null
+                            ? _criarGrupo()
+                            : _atualizarGrupo(context)
+                      }
+            }
+            , child:  Text(
+                "Finalizar",
+                style: TextStyle(
+                  color: const Color.fromARGB(255, 1, 21, 37),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),),
+          )
+
+        ],
           title: grupo == null
               ? Text('Criar grupo', style: TextStyle(color: Colors.white))
               : Text('Atualizar grupo', style: TextStyle(color: Colors.white)),
@@ -243,32 +263,32 @@ class CriargrupoState extends State<Criargrupo> {
                   ),
                 ),
               ),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      if (_formKey.currentState!.validate()) {
-                        grupo == null
-                            ? _criarGrupo()
-                            : _atualizarGrupo(context);
-                      }
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xFF1B0C2F),
-                        shape: BoxShape.circle,
-                      ),
-                      padding: EdgeInsets.all(12),
-                      child: Icon(
-                        Icons.check,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              // Align(
+              //   alignment: Alignment.bottomRight,
+              //   child: Padding(
+              //     padding: const EdgeInsets.all(16.0),
+              //     child: GestureDetector(
+              //       onTap: () {
+              //         if (_formKey.currentState!.validate()) {
+              //           grupo == null
+              //               ? _criarGrupo()
+              //               : _atualizarGrupo(context);
+              //         }
+              //       },
+              //       child: Container(
+              //         decoration: BoxDecoration(
+              //           color: Color(0xFF1B0C2F),
+              //           shape: BoxShape.circle,
+              //         ),
+              //         padding: EdgeInsets.all(12),
+              //         child: Icon(
+              //           Icons.check,
+              //           color: Colors.white,
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),

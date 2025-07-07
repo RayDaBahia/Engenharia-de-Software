@@ -84,11 +84,13 @@ class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
     final bancoList = Provider.of<BancoList>(context, listen: false);
 
     return Card(
+       color: Colors.white,
       elevation: 5,
       shadowColor: Colors.black,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

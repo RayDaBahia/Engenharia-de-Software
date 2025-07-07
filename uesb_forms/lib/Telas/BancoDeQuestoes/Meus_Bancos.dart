@@ -57,7 +57,7 @@ class _MeusBancosState extends State<MeusBancos> {
       appBar: AppBar(
         title: Text(
           isFormulario ? 'Meus Bancos' : 'Selecione o banco',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
 
         iconTheme: const IconThemeData(color: Colors.white),
@@ -83,7 +83,10 @@ class _MeusBancosState extends State<MeusBancos> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // Campo de busca igual ao QuestionarioLiderPage
+                // Campo de busca igual ao QuestionarioLiderPag
+
+                bancoList.bancosLista.isEmpty?
+                Text(''):
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
