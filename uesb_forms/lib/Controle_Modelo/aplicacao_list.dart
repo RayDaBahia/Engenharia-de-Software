@@ -6,12 +6,13 @@ import 'package:uesb_forms/Modelo/AplicacaoQuestionario.dart';
 import 'package:uesb_forms/Modelo/Banco.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
-import 'package:uesb_forms/Controle_Modelo/export_excel.dart'; // Import condicional
+import 'package:uesb_forms/Controle_Modelo/export_excel.dart';
 import 'dart:typed_data';
 import 'dart:io' as io;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:excel/excel.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class AplicacaoList with ChangeNotifier {
   List<Aplicacaoquestionario> _aplicacoes = [];
@@ -66,6 +67,7 @@ class AplicacaoList with ChangeNotifier {
       excel.delete('Sheet1');
       final sheet = excel['Dados'];
 
+      // Coleta todos os IDs de questões únicas
       final Set<String> idsQuestoes = {};
       for (var aplicacao in _aplicacoes) {
         for (var resposta in aplicacao.respostas) {
@@ -74,6 +76,7 @@ class AplicacaoList with ChangeNotifier {
       }
       final List<String> questoesOrdenadas = idsQuestoes.toList()..sort();
 
+      // Busca os enunciados das questões no Firestore
       final questoesSnapshot = await FirebaseFirestore.instance
           .collection('questionarios')
           .doc(questionario.id)
@@ -85,6 +88,7 @@ class AplicacaoList with ChangeNotifier {
           doc.id: doc['textoQuestao'] ?? doc.id,
       };
 
+      // Cabeçalho da planilha (mantendo ID Aplicação conforme solicitado)
       final cabecalho = [
         'ID Aplicação',
         'ID Entrevistador',
@@ -93,12 +97,13 @@ class AplicacaoList with ChangeNotifier {
       ];
       sheet.appendRow(cabecalho.map((e) => TextCellValue(e)).toList());
 
+      // Preenchimento das linhas com dados
       for (var aplicacao in _aplicacoes) {
         final Map<String, dynamic> mapaRespostas = {
           for (var r in aplicacao.respostas) r['idQuestao']: r['resposta'],
         };
 
-        // Use o método buscarNomeUsuario para obter os nomes
+        // Busca nomes dos usuários (entrevistador e entrevistado)
         final nomeEntrevistador = await buscarNomeUsuario(
           aplicacao.idEntrevistador,
           'usuarios',
@@ -108,18 +113,21 @@ class AplicacaoList with ChangeNotifier {
           'usuarios',
         );
 
+        // Formata os dados para a linha da planilha
         final linha = [
-          aplicacao.idAplicacao,
-          nomeEntrevistador, // agora mostra o nome
-          nomeEntrevistado, // agora mostra o nome
+          aplicacao.idAplicacao, // Mantido conforme solicitado
+          nomeEntrevistador,
+          nomeEntrevistado,
           ...questoesOrdenadas.map((id) {
             final resposta = mapaRespostas[id];
             if (resposta == null) return 'Sem dados';
 
+            // Tratamento especial para campos Timestamp
             if (resposta is Timestamp) {
               return resposta.toDate().toIso8601String();
             }
 
+            // Tratamento para strings que contém Timestamp
             if (resposta is String && resposta.contains('Timestamp')) {
               final regex = RegExp(r'seconds=(\d+),');
               final match = regex.firstMatch(resposta);
@@ -146,18 +154,12 @@ class AplicacaoList with ChangeNotifier {
       if (kIsWeb) {
         await exportarParaExcelWebDummy(fileBytes, fileName);
       } else {
-        // ANDROID / iOS
+        // Tratamento de permissões para Android/iOS
         if (io.Platform.isAndroid || io.Platform.isIOS) {
-          var status = await Permission.storage.request();
-
-          // Se não foi concedido, tente pedir novamente (apenas Android)
-          if (!status.isGranted && io.Platform.isAndroid) {
-            status = await Permission.manageExternalStorage.request();
-          }
-
-          if (!status.isGranted) {
-            // Aqui você pode mostrar um diálogo explicando por que precisa da permissão
-            throw Exception("Permissão negada");
+          // Verifica e solicita permissões de armazenamento
+          bool permissaoConcedida = await _verificarPermissoesArmazenamento();
+          if (!permissaoConcedida) {
+            throw Exception("Permissão de armazenamento negada");
           }
 
           final Uint8List bytes = Uint8List.fromList(fileBytes);
@@ -184,5 +186,27 @@ class AplicacaoList with ChangeNotifier {
       return doc.data()!['nome'] ?? id;
     }
     return id;
+  }
+
+  // Método auxiliar para verificar e solicitar permissões de armazenamento
+  Future<bool> _verificarPermissoesArmazenamento() async {
+    if (!io.Platform.isAndroid) return true;
+
+    // Verifica a versão do Android
+    final androidInfo = await DeviceInfoPlugin().androidInfo;
+    final isAndroid11OrHigher = androidInfo.version.sdkInt >= 30;
+
+    // Tenta primeiro com a permissão padrão de armazenamento
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      status = await Permission.storage.request();
+    }
+
+    // Para Android 11+ tenta a permissão especial se necessário
+    if (isAndroid11OrHigher && !status.isGranted) {
+      status = await Permission.manageExternalStorage.request();
+    }
+
+    return status.isGranted;
   }
 }
