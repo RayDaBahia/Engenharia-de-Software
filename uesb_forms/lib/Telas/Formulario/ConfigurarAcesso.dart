@@ -216,6 +216,7 @@ Future<void> _handlePublishResponse(BuildContext dialogContext, bool publicar) a
                   await Provider.of<QuestionarioList>(context, listen: false)
                       .atualizarQuestionario(questionario!);
 
+                  showSuccessMessage(context, "Questionário criado com sucesso");
                   // Atualiza a tela anterior
                   Navigator.pushReplacementNamed(
                       context, Rotas.MEUS_FORMULARIOS);
@@ -457,6 +458,17 @@ Future<void> _handlePublishResponse(BuildContext dialogContext, bool publicar) a
             ],
           ),
         ),
+      ),
+    );
+  }
+
+    void showSuccessMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating, // Faz ele "flutuar" acima da UI
+        margin: const EdgeInsets.all(16), // Margem nas bordas
+        duration: const Duration(seconds: 3), // Tempo que ele fica visível
       ),
     );
   }

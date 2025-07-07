@@ -21,13 +21,12 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
   bool isAlteracao = false;
 
   @override
-  void initState() {
-    super.initState();
-    _questaoFiltro = TextEditingController();
-    _questaoFiltro.addListener(() {
-      setState(() {}); // Atualiza o estado ao digitar no campo de filtro
-    });
-  }
+@override
+void initState() {
+  super.initState();
+  _questaoFiltro = TextEditingController(); // ✅ INICIALIZA AQUI
+}
+
 
   @override
   void didChangeDependencies() {
@@ -46,8 +45,10 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
 
         if (banco != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            Provider.of<BancoList>(context, listen: false)
-                .buscarQuestoesBancoNoBd(banco!.id);
+            Provider.of<BancoList>(
+              context,
+              listen: false,
+            ).buscarQuestoesBancoNoBd(banco!.id);
           });
         }
       }
@@ -72,19 +73,22 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         actions: [
-           Padding(
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
               onPressed: () async {
-                          Provider.of<QuestionarioList>(context, listen: false)
-                        .adicionarListaQuestoesSelecionadas(
-                            _questoesSelecionadas.toList());
-                    showSuccessMessage(
-                        context, 'Questões selecionadas com sucesso!');
-                    Navigator.pop(context);
+                Provider.of<QuestionarioList>(
+                  context,
+                  listen: false,
+                ).adicionarListaQuestoesSelecionadas(
+                  _questoesSelecionadas.toList(),
+                );
+                showSuccessMessage(
+                  context,
+                  'Questões selecionadas com sucesso!',
+                );
+                Navigator.pop(context);
               },
               child: Text(
                 "Finalizar",
@@ -94,8 +98,7 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
                 ),
               ),
             ),
-          )
-
+          ),
         ],
       ),
       body: Padding(
@@ -106,6 +109,9 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
               padding: const EdgeInsets.all(8.0),
               child: TextField(
                 controller: _questaoFiltro,
+                onChanged: (value) {
+                  setState(() {}); // Atualiza filtro com segurança
+                },
                 decoration: InputDecoration(
                   labelText: 'Pesquisar por nome',
                   prefixIcon: const Icon(Icons.search),

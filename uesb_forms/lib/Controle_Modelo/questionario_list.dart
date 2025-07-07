@@ -89,8 +89,8 @@ class QuestionarioList extends ChangeNotifier {
     for (var questionario in questionariosLider) {
       if (questionario.prazo != null &&
           questionario.prazo!.isBefore(now) &&
-          !questionario.ativo) {
-        // Se o prazo passou e o questionário não está ativo, atualize o status
+          questionario.ativo) {
+        // Se o prazo passou e o questionário  está ativo, atualize o status
         try {
           await _firestore
               .collection('questionarios')
@@ -261,6 +261,8 @@ class QuestionarioList extends ChangeNotifier {
         await docRef
             .doc(questao.id)
             .set(questao.toMap(), SetOptions(merge: true));
+            
+      debugPrint('Questao add com sucesso!');
       } else {
         // Adiciona uma nova questão se não tiver um ID
         final newDoc = await docRef.add(questao.toMap());
@@ -488,8 +490,11 @@ class QuestionarioList extends ChangeNotifier {
         'grupos': questionario.grupos,
       });
 
-      _persistirQuestoes(listaQuestoes, questionario.id);
+    debugPrint('📄 tam questao ${ listaQuestoes.length}');
+  
+     await _persistirQuestoes(listaQuestoes, questionario.id);
 
+      limparQuestoes();
       notifyListeners();
 
       debugPrint('Questionário atualizado com sucesso!');

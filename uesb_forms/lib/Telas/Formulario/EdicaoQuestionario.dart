@@ -81,16 +81,16 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
         .toList();
 
     return Scaffold(
-        resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             _questoesSelecionadas.clear();
-              Provider.of<QuestionarioList>(
-          context,
-          listen: false,
-        ).limparQuestoes();
+            Provider.of<QuestionarioList>(
+              context,
+              listen: false,
+            ).limparQuestoes();
             Navigator.of(context).pop();
           },
         ),
@@ -103,7 +103,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async{
                 if (_nomeController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -136,17 +136,24 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                   questionario!.nome = _nomeController.text;
                   questionario!.descricao = _descricaoController.text;
                   questionario!.meta = int.parse(_metaController.text);
-
                   Provider.of<QuestionarioList>(
                     context,
                     listen: false,
-                  ).atualizarQuestionario(questionario!);
-                          _questoesSelecionadas.clear();
-              Provider.of<QuestionarioList>(
-          context,
-          listen: false,
-        ).limparQuestoes();
-                  Navigator.of(context).pop();
+                  ).listaQuestoes = List.from(
+                    _questoesSelecionadas,
+                  );
+
+                 await Provider.of<QuestionarioList>(
+                      context,
+                      listen: false,
+                    ).atualizarQuestionario(questionario!);
+
+                    _questoesSelecionadas.clear();
+
+          
+                 
+                  showSuccessMessage(context, "Questionário atualizado com sucesso");
+                   Navigator.of(context).pop();
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -171,12 +178,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
           ),
         ],
       ),
-      body: 
-      
-      
-      
-      
-      Padding(
+      body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
@@ -220,7 +222,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                               horizontal: 12,
                               vertical: 12,
                             ),
-                            hintText: 'Adicione uma descrição ao banco',
+                            hintText: 'Adicione uma descrição ao questionário',
                             labelStyle: TextStyle(color: Colors.grey),
                           ),
                           onChanged: (text) {
@@ -246,7 +248,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                                 horizontal: 12,
                                 vertical: 12,
                               ),
-                              labelText: 'Pesquisar questão por ttítulo',
+                              labelText: 'Pesquisar questão por título',
                               prefixIcon: const Icon(Icons.search),
                             ),
                           ),
@@ -261,8 +263,6 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
             Expanded(
               child: _questoesSelecionadas.isEmpty
                   ? const Center(child: Text("Nenhuma questão selecionada"))
-                  : _questoesSelecionadas.isEmpty
-                  ? Text("Nenhuma questão encontrada")
                   : ListView.builder(
                       itemCount: _questoesSelecionadas.length,
                       itemBuilder: (context, index) {
@@ -459,6 +459,17 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
     );
   }
 }
+
+  void showSuccessMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating, // Faz ele "flutuar" acima da UI
+        margin: const EdgeInsets.all(16), // Margem nas bordas
+        duration: const Duration(seconds: 3), // Tempo que ele fica visível
+      ),
+    );
+  }
 
 class CampoTexto extends StatelessWidget {
   final String label;
