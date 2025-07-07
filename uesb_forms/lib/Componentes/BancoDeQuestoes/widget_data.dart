@@ -49,6 +49,7 @@ class _WidgetDataState extends State<WidgetData> {
     final bancoList = Provider.of<BancoList>(context, listen: false);
 
     return Card(
+       color: Colors.white,
         child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(

@@ -110,6 +110,7 @@ class _WidgetCapturaState extends State<WidgetCaptura> {
     return Card(
       elevation: 5,
       shadowColor: Colors.black,
+        color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

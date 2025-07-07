@@ -71,6 +71,32 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
           'Seleção de Questões',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
+        actions: [
+           Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+              ),
+              onPressed: () async {
+                          Provider.of<QuestionarioList>(context, listen: false)
+                        .adicionarListaQuestoesSelecionadas(
+                            _questoesSelecionadas.toList());
+                    showSuccessMessage(
+                        context, 'Questões selecionadas com sucesso!');
+                    Navigator.pop(context);
+              },
+              child: Text(
+                "Finalizar",
+                style: TextStyle(
+                  color: const Color.fromARGB(255, 1, 21, 37),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          )
+
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -133,24 +159,24 @@ class _SelecaoQuestoesBancoState extends State<SelecaoQuestoesBanco> {
                     child: const Text('Voltar',style: TextStyle(fontWeight: FontWeight.bold), ),
                   ),*/
 
-                Center(
-                    child: ElevatedButton(
-                  onPressed: () {
-                    Provider.of<QuestionarioList>(context, listen: false)
-                        .adicionarListaQuestoesSelecionadas(
-                            _questoesSelecionadas.toList());
+                // Center(
+                //     child: ElevatedButton(
+                //   onPressed: () {
+                //     Provider.of<QuestionarioList>(context, listen: false)
+                //         .adicionarListaQuestoesSelecionadas(
+                //             _questoesSelecionadas.toList());
 
-                    showSuccessMessage(
-                        context, 'Questões selecionadas com sucesso!');
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        const Color.fromARGB(255, 45, 12, 68), // Fundo roxo
-                    foregroundColor: Colors.white, // Texto branco
-                  ),
-                  child: const Text('Confirmar'),
-                )),
+                //     showSuccessMessage(
+                //         context, 'Questões selecionadas com sucesso!');
+                //     Navigator.pop(context);
+                //   },
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor:
+                //         const Color.fromARGB(255, 45, 12, 68), // Fundo roxo
+                //     foregroundColor: Colors.white, // Texto branco
+                //   ),
+                //   child: const Text('Confirmar'),
+                // )),
               ],
             ),
             const SizedBox(height: 10),

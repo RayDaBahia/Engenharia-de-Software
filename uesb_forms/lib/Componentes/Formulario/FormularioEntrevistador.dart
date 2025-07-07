@@ -125,11 +125,14 @@ class FormularioEntrevistador extends StatelessWidget {
     String? senha,
   ) async {
     if (senha?.isNotEmpty ?? false) {
+      final TextEditingController senhaController = TextEditingController();
+
       final senhaDigitada = await showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text("Senha requerida"),
+          title: const Text("Senha requerida"),
           content: TextField(
+            controller: senhaController, // Associa o controlador ao TextField
             obscureText: true,
             decoration: const InputDecoration(hintText: "Digite a senha"),
           ),
@@ -140,10 +143,8 @@ class FormularioEntrevistador extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                final controller = (context as Element)
-                    .findAncestorWidgetOfExactType<TextField>()
-                    ?.controller;
-                Navigator.pop(context, controller?.text ?? '');
+                Navigator.pop(
+                    context, senhaController.text); // Retorna a senha digitada
               },
               child: const Text("Confirmar"),
             ),

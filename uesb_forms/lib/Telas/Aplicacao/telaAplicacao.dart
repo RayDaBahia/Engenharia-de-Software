@@ -1,13 +1,13 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uesb_forms/Controle_Modelo/aplicacao_list.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Controle_Modelo/resposta_provider.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
+import 'package:uesb_forms/Modelo/questao_tipo.dart';
 import 'package:uesb_forms/Componentes/Formulario/QuestaoWidgetForm.dart';
 import 'package:uesb_forms/Utils/cloudinary_service.dart';
-import 'dart:typed_data';
-import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
 class TelaAplicacao extends StatefulWidget {
   final String perfilUsuario;
@@ -44,23 +44,14 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
   Future<void> _carregarQuestionario(Questionario questionario) async {
     setState(() => _isLoading = true);
     _questionario = questionario;
-    await Provider.of<QuestionarioList>(
-      context,
-      listen: false,
-    ).buscarQuestoes(questionario.id);
+    await Provider.of<QuestionarioList>(context, listen: false).buscarQuestoes(questionario.id);
     if (mounted) setState(() => _isLoading = false);
   }
 
   void _avancar() {
-    final questionarioList = Provider.of<QuestionarioList>(
-      context,
-      listen: false,
-    );
+    final questionarioList = Provider.of<QuestionarioList>(context, listen: false);
     final questoes = questionarioList.listaQuestoes;
-    final respostaProvider = Provider.of<RespostaProvider>(
-      context,
-      listen: false,
-    );
+    final respostaProvider = Provider.of<RespostaProvider>(context, listen: false);
 
     if (_isLoading || questoes.isEmpty) return;
 
@@ -68,40 +59,39 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
     final resposta = respostaProvider.obterResposta(questaoAtual.id!);
 
     // Verificação de questão obrigatória
-    if (questaoAtual.obrigatoria && resposta == null) {
+    if (questaoAtual.obrigatoria && (resposta == null || (resposta is String && resposta.trim().isEmpty))) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Essa questão é obrigatórioria! Por favor, responda antes de continuar.',
-          ),
-        ),
+        const SnackBar(content: Text('Essa questão é obrigatória! Por favor, responda antes de continuar.')),
       );
       return;
     }
 
+    // Validação de e-mail
+    if (questaoAtual.tipoQuestao == QuestaoTipo.Email && resposta is String) {
+      if (!isEmailValido(resposta.trim())) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Por favor, insira um e-mail válido.')),
+        );
+        return;
+      }
+    }
+
     _historicoNavegacao.add(_indiceAtual);
 
-    // Lógica de navegação dinâmica (usando apenas opcoes)
+    // Lógica de navegação dinâmica
     if (resposta != null && questaoAtual.direcionamento != null) {
       String? respostaParaNavegacao;
-
-      // 1. Se for índice (resposta int) e tiver opcoes
       if (resposta is int && questaoAtual.opcoes != null) {
         if (resposta >= 0 && resposta < questaoAtual.opcoes!.length) {
           respostaParaNavegacao = questaoAtual.opcoes![resposta];
         }
-      }
-      // 2. Se já for texto direto
-      else {
+      } else {
         respostaParaNavegacao = resposta.toString();
       }
 
-      // Navegação dinâmica
-      if (respostaParaNavegacao != null &&
-          questaoAtual.direcionamento!.containsKey(respostaParaNavegacao)) {
+      if (respostaParaNavegacao != null && questaoAtual.direcionamento!.containsKey(respostaParaNavegacao)) {
         final nextId = questaoAtual.direcionamento![respostaParaNavegacao];
         final nextIndex = questoes.indexWhere((q) => q.id == nextId);
-
         if (nextIndex != -1) {
           setState(() => _indiceAtual = nextIndex);
           return;
@@ -109,7 +99,6 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
       }
     }
 
-    // Navegação padrão (próxima questão na lista)
     if (_indiceAtual < questoes.length - 1) {
       setState(() => _indiceAtual++);
     } else {
@@ -130,32 +119,19 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
     setState(() => _isLoading = true);
 
     try {
-      final respostaProvider = Provider.of<RespostaProvider>(
-        context,
-        listen: false,
-      );
+      final respostaProvider = Provider.of<RespostaProvider>(context, listen: false);
       final aplicacaoList = Provider.of<AplicacaoList>(context, listen: false);
-      final questionarioList = Provider.of<QuestionarioList>(
-        context,
-        listen: false,
-      );
+      final questionarioList = Provider.of<QuestionarioList>(context, listen: false);
       final questoes = questionarioList.listaQuestoes;
 
-      // Copia as respostas para modificar localmente
-      final respostasMap = Map<String, dynamic>.from(
-        respostaProvider.todasRespostas,
-      );
-
+      final respostasMap = Map<String, dynamic>.from(respostaProvider.todasRespostas);
       final cloudinary = CloudinaryService();
 
-      // Faz upload das imagens das questões do tipo Captura
       for (final questao in questoes) {
         final resposta = respostasMap[questao.id];
-        if (questao.tipoQuestao == QuestaoTipo.Captura &&
-            resposta is Uint8List) {
+        if (questao.tipoQuestao == QuestaoTipo.Captura && resposta is Uint8List) {
           try {
-            final fileName =
-                'aplicacao_${aplicacaoList.aplicacaoAtual.idAplicacao}_${questao.id}.jpg';
+            final fileName = 'aplicacao_${aplicacaoList.aplicacaoAtual.idAplicacao}_${questao.id}.jpg';
             final result = await cloudinary.uploadImage(
               imageBytes: resposta,
               fileName: fileName,
@@ -164,20 +140,19 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
             if (result != null && result.url != null) {
               respostasMap[questao.id!] = result.url ?? '';
             }
-          } catch (e) {
-            // Se falhar, mantém a resposta como estava (ou pode colocar null)
+          } catch (_) {
+            // Se falhar, mantém a resposta original
           }
         }
       }
 
-      // Salva as respostas finais (com URLs das imagens)
       aplicacaoList.aplicacaoAtual.respostas = respostasMap.entries
-          .map((e) => {'idQuestao': e.key, 'resposta': e.value})
-          .toList();
+          .map((e) => {'idQuestao': e.key, 'resposta': e.value}).toList();
 
       await aplicacaoList.persistirNoFirebase();
 
       if (mounted) {
+        Provider.of<QuestionarioList>(context, listen: false).limparQuestoes();
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Questionário finalizado com sucesso!')),
@@ -185,9 +160,9 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Erro: ${e.toString()}')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro: ${e.toString()}')),
+        );
       }
     } finally {
       if (mounted) {
@@ -252,10 +227,7 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
                 children: [
                   Text(
                     'Questão ${_indiceAtual + 1} de ${questoes.length}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
                   QuestaoWidgetForm(
@@ -271,44 +243,28 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0), // Espaçamento da borda
-                    child: GestureDetector(
-                      onTap: _voltar,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Color(
-                            0xFF1B0C2F,
-                          ), // Cor de fundo (ajuste conforme desejar)
-                          shape: BoxShape.circle,
-                        ),
-                        padding: EdgeInsets.all(12),
-                        child: Icon(Icons.chevron_left, color: Colors.white),
-                      ),
+                GestureDetector(
+                  onTap: _voltar,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1B0C2F),
+                      shape: BoxShape.circle,
                     ),
+                    padding: const EdgeInsets.all(12),
+                    child: const Icon(Icons.chevron_left, color: Colors.white),
                   ),
                 ),
-
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0), // Espaçamento da borda
-                    child: GestureDetector(
-                      onTap: _isLoading ? null : _avancar,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Color(
-                            0xFF1B0C2F,
-                          ), // Cor de fundo (ajuste conforme desejar)
-                          shape: BoxShape.circle,
-                        ),
-                        padding: EdgeInsets.all(12),
-                        child: _indiceAtual == questoes.length - 1
-                            ? Icon(Icons.check, color: Colors.white)
-                            : Icon(Icons.chevron_right, color: Colors.white),
-                      ),
+                GestureDetector(
+                  onTap: _isLoading ? null : _avancar,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1B0C2F),
+                      shape: BoxShape.circle,
+                    ),
+                    padding: const EdgeInsets.all(12),
+                    child: Icon(
+                      _indiceAtual == questoes.length - 1 ? Icons.check : Icons.chevron_right,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -318,5 +274,10 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
         ],
       ),
     );
+  }
+
+  bool isEmailValido(String email) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}\$');
+    return emailRegex.hasMatch(email);
   }
 }

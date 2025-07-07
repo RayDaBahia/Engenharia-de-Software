@@ -137,10 +137,10 @@ class FormularioLider extends StatelessWidget {
                       opcoes.add(const PopupMenuItem(
                           value: 'publicar', child: Text('Publicar')));
                       opcoes.add(const PopupMenuItem(
-                          value: 'editar', child: Text('Editar')));
+                          value: 'editar', child: Text('Editar conteudo')));
                       opcoes.add(const PopupMenuItem(
                           value: 'editar configurações',
-                          child: Text('Editar configurações')));
+                          child: Text('Editar configurações gerais')));
                     }
                     if (questionario.publicado) {
                       if (!questionario.ativo) {
@@ -153,7 +153,7 @@ class FormularioLider extends StatelessWidget {
                               SizedBox(
                                 width: 8,
                               ),
-                              Text('Dados')
+                              Text('Respostas')
                             ],
                           ),
                         ));
@@ -167,7 +167,7 @@ class FormularioLider extends StatelessWidget {
                               SizedBox(
                                 width: 8,
                               ),
-                              Text('Dados no excel')
+                              Text('Respostas')
                             ],
                           ),
                         ));
