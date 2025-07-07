@@ -215,12 +215,18 @@ class Dados extends StatelessWidget {
 
               return LayoutBuilder(
                 builder: (context, constraints) {
+                  final isMobile = constraints.maxWidth < 600;
+                  final double screenHeight = MediaQuery.of(context).size.height;
+                  final double rowHeight = isMobile ? 48 : 56;
+                  final double reservedHeight = isMobile ? 220 : 300;
+                  final int dynamicRowsPerPage = ((screenHeight - reservedHeight) / rowHeight).floor().clamp(3, 50);
+
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         minWidth: constraints.maxWidth,
-                        maxWidth: 2000,
+                        maxWidth: constraints.maxWidth,
                       ),
                       child: SingleChildScrollView(
                         scrollDirection: Axis.vertical,
@@ -232,39 +238,36 @@ class Dados extends StatelessWidget {
                               questionario: questionario,
                               totalAplicacoes: aplicacoes.length,
                             ),
-                            rowsPerPage: 10,
-                            columnSpacing: 24,
-                            horizontalMargin: 20,
-                            headingRowHeight: 96,
-                            dataRowMinHeight: 40,
-                            dataRowMaxHeight: 60,
+                            rowsPerPage: dynamicRowsPerPage,
+                            availableRowsPerPage: [dynamicRowsPerPage],
+                            columnSpacing: isMobile ? 12 : 24,
+                            horizontalMargin: isMobile ? 8 : 20,
+                            headingRowHeight: isMobile ? 56 : 96,
+                            dataRowMinHeight: isMobile ? 32 : 40,
+                            dataRowMaxHeight: isMobile ? 40 : 60,
                             dividerThickness: 1.2,
                             showCheckboxColumn: false,
                             showFirstLastButtons: true,
-                            availableRowsPerPage: const [10, 20, 50],
                             onRowsPerPageChanged: (value) {},
                             columns: cabecalho
                                 .map(
                                   (titulo) => DataColumn(
                                     label: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 12,
-                                        horizontal: 8,
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: isMobile ? 8 : 12,
+                                        horizontal: isMobile ? 4 : 8,
                                       ),
-                                      decoration: BoxDecoration(
-                                        color: const Color.fromARGB(
-                                          255,
-                                          45,
-                                          12,
-                                          68,
-                                        ),
+                                      decoration: const BoxDecoration(
+                                        color: Color.fromARGB(255, 45, 12, 68),
                                       ),
                                       child: Text(
                                         titulo,
-                                        style: theme.textTheme.titleMedium
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
                                             ?.copyWith(
                                               fontWeight: FontWeight.bold,
-                                              color: colorScheme.onPrimary,
+                                              color: Colors.white,
                                             ),
                                         textAlign: TextAlign.center,
                                         overflow: TextOverflow.ellipsis,
@@ -280,7 +283,9 @@ class Dados extends StatelessWidget {
                               enunciados,
                               snapshot2.data!['alternativas']
                                   as Map<String, Map<String, String>>,
-                              theme: theme,
+                              theme: Theme.of(context),
+                              isMobile:
+                                  isMobile, // Adicione este parâmetro no DataSource
                             ),
                           ),
                         ),
@@ -356,6 +361,7 @@ class _DataSource extends DataTableSource {
   final Map<String, String> enunciados;
   final Map<String, Map<String, String>> alternativasPorQuestao;
   final ThemeData theme;
+  final bool isMobile;
 
   _DataSource(
     this.aplicacoes,
@@ -364,6 +370,7 @@ class _DataSource extends DataTableSource {
     this.enunciados,
     this.alternativasPorQuestao, {
     required this.theme,
+    required this.isMobile,
   });
 
   @override
