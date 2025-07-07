@@ -5,6 +5,9 @@ import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Controle_Modelo/resposta_provider.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
 import 'package:uesb_forms/Componentes/Formulario/QuestaoWidgetForm.dart';
+import 'package:uesb_forms/Utils/cloudinary_service.dart';
+import 'dart:typed_data';
+import 'package:uesb_forms/Modelo/questao_tipo.dart';
 
 class TelaAplicacao extends StatefulWidget {
   final String perfilUsuario;
@@ -41,17 +44,23 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
   Future<void> _carregarQuestionario(Questionario questionario) async {
     setState(() => _isLoading = true);
     _questionario = questionario;
-    await Provider.of<QuestionarioList>(context, listen: false)
-        .buscarQuestoes(questionario.id);
+    await Provider.of<QuestionarioList>(
+      context,
+      listen: false,
+    ).buscarQuestoes(questionario.id);
     if (mounted) setState(() => _isLoading = false);
   }
 
   void _avancar() {
-    final questionarioList =
-        Provider.of<QuestionarioList>(context, listen: false);
+    final questionarioList = Provider.of<QuestionarioList>(
+      context,
+      listen: false,
+    );
     final questoes = questionarioList.listaQuestoes;
-    final respostaProvider =
-        Provider.of<RespostaProvider>(context, listen: false);
+    final respostaProvider = Provider.of<RespostaProvider>(
+      context,
+      listen: false,
+    );
 
     if (_isLoading || questoes.isEmpty) return;
 
@@ -62,8 +71,10 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
     if (questaoAtual.obrigatoria && resposta == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text(
-                'Essa questão é obrigatórioria! Por favor, responda antes de continuar.')),
+          content: Text(
+            'Essa questão é obrigatórioria! Por favor, responda antes de continuar.',
+          ),
+        ),
       );
       return;
     }
@@ -119,12 +130,48 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
     setState(() => _isLoading = true);
 
     try {
-      final respostaProvider =
-          Provider.of<RespostaProvider>(context, listen: false);
+      final respostaProvider = Provider.of<RespostaProvider>(
+        context,
+        listen: false,
+      );
       final aplicacaoList = Provider.of<AplicacaoList>(context, listen: false);
+      final questionarioList = Provider.of<QuestionarioList>(
+        context,
+        listen: false,
+      );
+      final questoes = questionarioList.listaQuestoes;
 
-      aplicacaoList.aplicacaoAtual.respostas = respostaProvider
-          .todasRespostas.entries
+      // Copia as respostas para modificar localmente
+      final respostasMap = Map<String, dynamic>.from(
+        respostaProvider.todasRespostas,
+      );
+
+      final cloudinary = CloudinaryService();
+
+      // Faz upload das imagens das questões do tipo Captura
+      for (final questao in questoes) {
+        final resposta = respostasMap[questao.id];
+        if (questao.tipoQuestao == QuestaoTipo.Captura &&
+            resposta is Uint8List) {
+          try {
+            final fileName =
+                'aplicacao_${aplicacaoList.aplicacaoAtual.idAplicacao}_${questao.id}.jpg';
+            final result = await cloudinary.uploadImage(
+              imageBytes: resposta,
+              fileName: fileName,
+              questionId: questao.id!,
+            );
+            if (result != null && result.url != null) {
+              respostasMap[questao.id!] = result.url ?? '';
+            }
+          } catch (e) {
+            // Se falhar, mantém a resposta como estava (ou pode colocar null)
+          }
+        }
+      }
+
+      // Salva as respostas finais (com URLs das imagens)
+      aplicacaoList.aplicacaoAtual.respostas = respostasMap.entries
           .map((e) => {'idQuestao': e.key, 'resposta': e.value})
           .toList();
 
@@ -138,9 +185,9 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro: ${e.toString()}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro: ${e.toString()}')));
       }
     } finally {
       if (mounted) {
@@ -233,19 +280,17 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: Color(
-                              0xFF1B0C2F), // Cor de fundo (ajuste conforme desejar)
+                            0xFF1B0C2F,
+                          ), // Cor de fundo (ajuste conforme desejar)
                           shape: BoxShape.circle,
                         ),
                         padding: EdgeInsets.all(12),
-                        child: Icon(
-                          Icons.chevron_left,
-                          color: Colors.white,
-                        ),
+                        child: Icon(Icons.chevron_left, color: Colors.white),
                       ),
                     ),
                   ),
                 ),
-          
+
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Padding(
@@ -255,20 +300,14 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: Color(
-                              0xFF1B0C2F), // Cor de fundo (ajuste conforme desejar)
+                            0xFF1B0C2F,
+                          ), // Cor de fundo (ajuste conforme desejar)
                           shape: BoxShape.circle,
                         ),
                         padding: EdgeInsets.all(12),
                         child: _indiceAtual == questoes.length - 1
-                            ? Icon(
-                                  Icons.check,
-
-                                color: Colors.white,
-                              )
-                            : Icon(
-                              Icons.chevron_right,
-                                color: Colors.white,
-                              ),
+                            ? Icon(Icons.check, color: Colors.white)
+                            : Icon(Icons.chevron_right, color: Colors.white),
                       ),
                     ),
                   ),
