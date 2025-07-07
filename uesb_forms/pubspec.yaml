@@ -81,6 +81,9 @@ dependencies:
   # Criptografia
   crypto: ^3.0.6
 
+  # Verificação da versão do Android
+  device_info_plus: ^11.5.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
