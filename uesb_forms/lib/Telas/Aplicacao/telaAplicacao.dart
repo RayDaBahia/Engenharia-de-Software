@@ -44,14 +44,23 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
   Future<void> _carregarQuestionario(Questionario questionario) async {
     setState(() => _isLoading = true);
     _questionario = questionario;
-    await Provider.of<QuestionarioList>(context, listen: false).buscarQuestoes(questionario.id);
+    await Provider.of<QuestionarioList>(
+      context,
+      listen: false,
+    ).buscarQuestoes(questionario.id);
     if (mounted) setState(() => _isLoading = false);
   }
 
   void _avancar() {
-    final questionarioList = Provider.of<QuestionarioList>(context, listen: false);
+    final questionarioList = Provider.of<QuestionarioList>(
+      context,
+      listen: false,
+    );
     final questoes = questionarioList.listaQuestoes;
-    final respostaProvider = Provider.of<RespostaProvider>(context, listen: false);
+    final respostaProvider = Provider.of<RespostaProvider>(
+      context,
+      listen: false,
+    );
 
     if (_isLoading || questoes.isEmpty) return;
 
@@ -59,16 +68,32 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
     final resposta = respostaProvider.obterResposta(questaoAtual.id!);
 
     // Verificação de questão obrigatória
-    if (questaoAtual.obrigatoria && (resposta == null || (resposta is String && resposta.trim().isEmpty))) {
+    if (questaoAtual.obrigatoria &&
+        (resposta == null ||
+            (resposta is String && resposta.trim().isEmpty) ||
+            (resposta is List && resposta.isEmpty))) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Essa questão é obrigatória! Por favor, responda antes de continuar.')),
+        const SnackBar(
+          content: Text(
+            'Essa questão é obrigatória! Por favor, responda antes de continuar.',
+          ),
+        ),
       );
       return;
     }
 
-    // Validação de e-mail
+    // Validação de e-mail reforçada
     if (questaoAtual.tipoQuestao == QuestaoTipo.Email && resposta is String) {
-      if (!isEmailValido(resposta.trim())) {
+      final email = resposta.trim();
+
+      if (questaoAtual.obrigatoria && email.isEmpty) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('E-mail é obrigatório!')));
+        return;
+      }
+
+      if (email.isNotEmpty && !isEmailValido(email)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Por favor, insira um e-mail válido.')),
         );
@@ -89,7 +114,8 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
         respostaParaNavegacao = resposta.toString();
       }
 
-      if (respostaParaNavegacao != null && questaoAtual.direcionamento!.containsKey(respostaParaNavegacao)) {
+      if (respostaParaNavegacao != null &&
+          questaoAtual.direcionamento!.containsKey(respostaParaNavegacao)) {
         final nextId = questaoAtual.direcionamento![respostaParaNavegacao];
         final nextIndex = questoes.indexWhere((q) => q.id == nextId);
         if (nextIndex != -1) {
@@ -119,19 +145,29 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
     setState(() => _isLoading = true);
 
     try {
-      final respostaProvider = Provider.of<RespostaProvider>(context, listen: false);
+      final respostaProvider = Provider.of<RespostaProvider>(
+        context,
+        listen: false,
+      );
       final aplicacaoList = Provider.of<AplicacaoList>(context, listen: false);
-      final questionarioList = Provider.of<QuestionarioList>(context, listen: false);
+      final questionarioList = Provider.of<QuestionarioList>(
+        context,
+        listen: false,
+      );
       final questoes = questionarioList.listaQuestoes;
 
-      final respostasMap = Map<String, dynamic>.from(respostaProvider.todasRespostas);
+      final respostasMap = Map<String, dynamic>.from(
+        respostaProvider.todasRespostas,
+      );
       final cloudinary = CloudinaryService();
 
       for (final questao in questoes) {
         final resposta = respostasMap[questao.id];
-        if (questao.tipoQuestao == QuestaoTipo.Captura && resposta is Uint8List) {
+        if (questao.tipoQuestao == QuestaoTipo.Captura &&
+            resposta is Uint8List) {
           try {
-            final fileName = 'aplicacao_${aplicacaoList.aplicacaoAtual.idAplicacao}_${questao.id}.jpg';
+            final fileName =
+                'aplicacao_${aplicacaoList.aplicacaoAtual.idAplicacao}_${questao.id}.jpg';
             final result = await cloudinary.uploadImage(
               imageBytes: resposta,
               fileName: fileName,
@@ -147,7 +183,8 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
       }
 
       aplicacaoList.aplicacaoAtual.respostas = respostasMap.entries
-          .map((e) => {'idQuestao': e.key, 'resposta': e.value}).toList();
+          .map((e) => {'idQuestao': e.key, 'resposta': e.value})
+          .toList();
 
       await aplicacaoList.persistirNoFirebase();
 
@@ -160,9 +197,9 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro: ${e.toString()}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro: ${e.toString()}')));
       }
     } finally {
       if (mounted) {
@@ -227,7 +264,10 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
                 children: [
                   Text(
                     'Questão ${_indiceAtual + 1} de ${questoes.length}',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   QuestaoWidgetForm(
@@ -263,7 +303,9 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
                     ),
                     padding: const EdgeInsets.all(12),
                     child: Icon(
-                      _indiceAtual == questoes.length - 1 ? Icons.check : Icons.chevron_right,
+                      _indiceAtual == questoes.length - 1
+                          ? Icons.check
+                          : Icons.chevron_right,
                       color: Colors.white,
                     ),
                   ),
@@ -277,7 +319,10 @@ class _TelaAplicacaoState extends State<TelaAplicacao> {
   }
 
   bool isEmailValido(String email) {
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}\$');
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$',
+      caseSensitive: false,
+    );
     return emailRegex.hasMatch(email);
   }
 }
