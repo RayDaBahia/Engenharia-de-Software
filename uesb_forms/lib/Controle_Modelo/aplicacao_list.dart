@@ -62,48 +62,60 @@ class AplicacaoList with ChangeNotifier {
     try {
       _aplicacoes = await buscarAplicacoes(questionario.id);
 
-      // ========== [1] BUSCA DADOS DO QUESTIONÁRIO ==========
+      // Busca todas as questões do questionário
       final questoesSnapshot = await FirebaseFirestore.instance
           .collection('questionarios')
           .doc(questionario.id)
           .collection('questoes')
           .get();
 
-      final Map<String, String> idParaEnunciado = {};
-      final Map<String, String> idParaTipo = {};
-      final Map<String, List<String>> idParaAlternativas = {};
+      // Mapeia id da questão para enunciado
+      final Map<String, String> idParaEnunciado = {
+        for (var doc in questoesSnapshot.docs)
+          doc.id: doc['textoQuestao'] ?? doc.id,
+      };
+
+      // Mapeia alternativas a partir da subcoleção 'opcoes' de cada questão
+      final Map<String, Map<String, String>> alternativasPorQuestao = {};
 
       for (var doc in questoesSnapshot.docs) {
-        idParaEnunciado[doc.id] = doc['textoQuestao'] ?? doc.id;
-        idParaTipo[doc.id] = doc['tipo'] ?? 'texto';
-
-        if (doc['tipo'] == 'multiplaEscolha' && doc['alternativas'] != null) {
-          idParaAlternativas[doc.id] = List<String>.from(doc['alternativas']);
+        final opcoes = doc.data()['opcoes'];
+        if (opcoes is List) {
+          alternativasPorQuestao[doc.id] = {
+            // Mapeia tanto o texto quanto o índice como chave
+            for (var i = 0; i < opcoes.length; i++)
+              opcoes[i].toString(): opcoes[i].toString(),
+            for (var i = 0; i < opcoes.length; i++)
+              i.toString(): opcoes[i].toString(),
+          };
+        } else {
+          alternativasPorQuestao[doc.id] = {};
         }
       }
 
-      // ========== [2] PREPARA PLANILHA ==========
+      // Criação do Excel
       final excel = Excel.createExcel();
       excel.delete('Sheet1');
       final sheet = excel['Dados'];
 
-      // Coleta IDs de questões
+      // Descobrir todas as questões que possuem respostas
       final Set<String> idsQuestoes = {};
       for (var aplicacao in _aplicacoes) {
         for (var resposta in aplicacao.respostas) {
           idsQuestoes.add(resposta['idQuestao']);
         }
       }
+
       final List<String> questoesOrdenadas = idsQuestoes.toList()..sort();
 
-      // Cabeçalho MODIFICADO (removidas as colunas solicitadas)
+      // Cabeçalho
       final cabecalho = [
-        'Entrevistador', // Mantido apenas entrevistador
-        ...questoesOrdenadas.map((id) => idParaEnunciado[id] ?? id), // Questões
+        'Entrevistador',
+        ...questoesOrdenadas.map((id) => idParaEnunciado[id] ?? id),
       ];
       sheet.appendRow(cabecalho.map((e) => TextCellValue(e)).toList());
 
-      // ========== [3] PREENCHE DADOS ==========
+      // Linhas de dados
       for (var aplicacao in _aplicacoes) {
         final Map<String, dynamic> mapaRespostas = {
           for (var r in aplicacao.respostas) r['idQuestao']: r['resposta'],
@@ -114,33 +126,54 @@ class AplicacaoList with ChangeNotifier {
           'usuarios',
         );
 
-        // Linha MODIFICADA (removidos os campos solicitados)
         final linha = [
-          nomeEntrevistador, // Mantido apenas entrevistador
+          nomeEntrevistador,
           ...questoesOrdenadas.map((id) {
             final resposta = mapaRespostas[id];
             if (resposta == null) return 'Sem resposta';
 
-            // Trata múltipla escolha
-            if (idParaTipo[id] == 'multiplaEscolha' &&
-                idParaAlternativas.containsKey(id)) {
-              try {
-                final index = int.tryParse(resposta.toString());
-                if (index != null &&
-                    index >= 0 &&
-                    index < idParaAlternativas[id]!.length) {
-                  return idParaAlternativas[id]![index];
-                }
-              } catch (e) {
-                print('Erro ao processar resposta: $e');
-              }
-            }
+            final alternativasDaQuestao = alternativasPorQuestao[id];
 
-            // Trata datas
+            // Timestamp direto do Firestore
             if (resposta is Timestamp) {
               return resposta.toDate().toIso8601String();
             }
 
+            // Timestamp serializado em string
+            if (resposta is String && resposta.contains('Timestamp')) {
+              final regex = RegExp(r'seconds=(\d+),');
+              final match = regex.firstMatch(resposta);
+              if (match != null) {
+                final seconds = int.parse(match.group(1)!);
+                return DateTime.fromMillisecondsSinceEpoch(
+                  seconds * 1000,
+                ).toIso8601String();
+              }
+            }
+
+            // Resposta múltipla (lista de IDs de opções)
+            if (resposta is List && alternativasDaQuestao != null) {
+              return resposta
+                  .map(
+                    (r) => alternativasDaQuestao[r.toString()] ?? r.toString(),
+                  )
+                  .join(', ');
+            }
+
+            // Resposta única (ID, índice ou texto de uma opção)
+            if (resposta is String &&
+                alternativasDaQuestao != null &&
+                alternativasDaQuestao.containsKey(resposta)) {
+              return alternativasDaQuestao[resposta]!;
+            }
+            // Se for índice numérico (int)
+            if (resposta is int &&
+                alternativasDaQuestao != null &&
+                alternativasDaQuestao.containsKey(resposta.toString())) {
+              return alternativasDaQuestao[resposta.toString()]!;
+            }
+
+            // Resposta comum (texto ou número)
             return resposta.toString();
           }),
         ];
@@ -148,7 +181,7 @@ class AplicacaoList with ChangeNotifier {
         sheet.appendRow(linha.map((e) => TextCellValue(e.toString())).toList());
       }
 
-      // ========== [4] SALVA ARQUIVO ==========
+      // Finalização e salvamento
       final fileBytes = excel.encode();
       if (fileBytes == null) throw Exception("Erro ao gerar Excel");
 
@@ -157,13 +190,10 @@ class AplicacaoList with ChangeNotifier {
       if (kIsWeb) {
         await exportarParaExcelWebDummy(fileBytes, fileName);
       } else if (io.Platform.isAndroid || io.Platform.isIOS) {
-        // ========== [5] VERIFICA PERMISSÕES ==========
-        bool permissaoConcedida = await _verificarPermissoesArmazenamento();
-        if (!permissaoConcedida) {
-          throw Exception("Permissão de armazenamento negada");
-        }
+        final permissao = await _verificarPermissoesArmazenamento();
+        if (!permissao) throw Exception("Permissão negada");
 
-        final Uint8List bytes = Uint8List.fromList(fileBytes);
+        final bytes = Uint8List.fromList(fileBytes);
         await FileSaver.instance.saveFile(
           name: fileName,
           bytes: bytes,
@@ -176,16 +206,20 @@ class AplicacaoList with ChangeNotifier {
     }
   }
 
-  // ========== [MÉTODOS AUXILIARES] ==========
+  // Método original de buscarNomeUsuario (mantido exatamente como está)
   Future<String> buscarNomeUsuario(String? id, String colecao) async {
     if (id == null || id.isEmpty) return '';
     final doc = await FirebaseFirestore.instance
         .collection(colecao)
         .doc(id)
         .get();
-    return doc.exists ? (doc.data()?['nome'] ?? id) : id;
+    if (doc.exists && doc.data() != null) {
+      return doc.data()!['nome'] ?? id;
+    }
+    return id;
   }
 
+  // Sistema de permissões completo (como já havíamos desenvolvido)
   Future<bool> _verificarPermissoesArmazenamento() async {
     if (!io.Platform.isAndroid) return true;
 
