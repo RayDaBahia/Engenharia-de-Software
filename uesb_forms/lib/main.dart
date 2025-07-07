@@ -25,13 +25,13 @@ import 'package:uesb_forms/Utils/firebase_options.dart';
 import 'package:uesb_forms/Modelo/questao.dart'; // Importando Questao
 import 'package:uesb_forms/Modelo/questionario.dart'; // Importando Questionario
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('pt_BR', null); // <- IMPORT
   // Inicializando o Firebase
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(const MyApp());
 }
@@ -54,13 +54,12 @@ class MyApp extends StatelessWidget {
           create: (_) => QuestionarioList(null),
           update: (context, authList, previous) => QuestionarioList(authList),
         ),
-        ChangeNotifierProxyProvider<AuthList, GrupoList>(
+          ChangeNotifierProxyProvider<AuthList, GrupoList>(
           create: (_) => GrupoList(null),
           update: (context, authList, previous) => GrupoList(authList),
-        ),
+        )
       ],
       child: MaterialApp(
-        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
@@ -68,8 +67,7 @@ class MyApp extends StatelessWidget {
             iconTheme: IconThemeData(color: Colors.white),
           ),
           colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 18, 2, 47),
-          ),
+              seedColor: const Color.fromARGB(255, 18, 2, 47)),
           useMaterial3: true,
         ),
         routes: {
@@ -80,9 +78,9 @@ class MyApp extends StatelessWidget {
           Rotas.SELECAO_QUESTOES_BANCO: (ctx) => SelecaoQuestoesBanco(),
           Rotas.EDICAO_FORMULARIO_TELA: (ctx) => EdicaoQuestionario(),
           Rotas.CONFIGURAR_ACESSO_FORMS: (ctx) => ConfigurarAcesso(),
-          Rotas.MEUS_GRUPOS: (ctx) => Meusgrupos(),
-          Rotas.CRIAR_GRUPO: (ctx) => Criargrupo(),
-          Rotas.GRUPO: (ctx) => GrupoPage(),
+          Rotas.MEUS_GRUPOS: (ctx)=> Meusgrupos(),
+          Rotas.CRIAR_GRUPO: (ctx)=> Criargrupo(),
+          Rotas.GRUPO: (ctx)=> GrupoPage(),
         },
       ),
     );

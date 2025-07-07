@@ -1,21 +1,21 @@
-import 'dart:typed_data';
-import 'dart:io' as io;
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:uesb_forms/Modelo/AplicacaoQuestionario.dart';
+import 'package:uesb_forms/Modelo/Banco.dart';
+import 'package:uesb_forms/Modelo/Questionario.dart';
+import 'package:uesb_forms/Modelo/questao.dart';
+import 'package:uesb_forms/Controle_Modelo/export_excel.dart'; // Import condicional
+import 'dart:typed_data';
+import 'dart:io' as io;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:excel/excel.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:uesb_forms/Modelo/AplicacaoQuestionario.dart';
-import 'package:uesb_forms/Modelo/Questionario.dart';
-import 'package:uesb_forms/Modelo/questao.dart';
-import 'package:uesb_forms/Controle_Modelo/export_excel.dart';
-
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class AplicacaoList with ChangeNotifier {
   List<Aplicacaoquestionario> _aplicacoes = [];
+  List<Questao> _questoes = [];
   Aplicacaoquestionario aplicacaoAtual = Aplicacaoquestionario(
     idAplicacao: "0",
     idQuestionario: "0",
@@ -62,84 +62,64 @@ class AplicacaoList with ChangeNotifier {
     try {
       _aplicacoes = await buscarAplicacoes(questionario.id);
 
-      // Busca todas as questões do questionário
-      final questoesSnapshot = await FirebaseFirestore.instance
-          .collection('questionarios')
-          .doc(questionario.id)
-          .collection('questoes')
-          .get();
-
-      // Mapeia id da questão para enunciado
-      final Map<String, String> idParaEnunciado = {
-        for (var doc in questoesSnapshot.docs)
-          doc.id: doc['textoQuestao'] ?? doc.id,
-      };
-
-      // Mapeia alternativas a partir da subcoleção 'opcoes' de cada questão
-      final Map<String, Map<String, String>> alternativasPorQuestao = {};
-
-      for (var doc in questoesSnapshot.docs) {
-        final opcoes = doc.data()['opcoes'];
-        if (opcoes is List) {
-          alternativasPorQuestao[doc.id] = {
-            // Mapeia tanto o texto quanto o índice como chave
-            for (var i = 0; i < opcoes.length; i++)
-              opcoes[i].toString(): opcoes[i].toString(),
-            for (var i = 0; i < opcoes.length; i++)
-              i.toString(): opcoes[i].toString(),
-          };
-        } else {
-          alternativasPorQuestao[doc.id] = {};
-        }
-      }
-
-      // Criação do Excel
       final excel = Excel.createExcel();
       excel.delete('Sheet1');
       final sheet = excel['Dados'];
 
-      // Descobrir todas as questões que possuem respostas
       final Set<String> idsQuestoes = {};
       for (var aplicacao in _aplicacoes) {
         for (var resposta in aplicacao.respostas) {
           idsQuestoes.add(resposta['idQuestao']);
         }
       }
-
       final List<String> questoesOrdenadas = idsQuestoes.toList()..sort();
 
-      // Cabeçalho
+      final questoesSnapshot = await FirebaseFirestore.instance
+          .collection('questionarios')
+          .doc(questionario.id)
+          .collection('questoes')
+          .get();
+
+      final Map<String, String> idParaEnunciado = {
+        for (var doc in questoesSnapshot.docs)
+          doc.id: doc['textoQuestao'] ?? doc.id,
+      };
+
       final cabecalho = [
-        'Entrevistador',
+        'ID Aplicação',
+        'ID Entrevistador',
+        'ID Entrevistado',
         ...questoesOrdenadas.map((id) => idParaEnunciado[id] ?? id),
       ];
       sheet.appendRow(cabecalho.map((e) => TextCellValue(e)).toList());
 
-      // Linhas de dados
       for (var aplicacao in _aplicacoes) {
         final Map<String, dynamic> mapaRespostas = {
           for (var r in aplicacao.respostas) r['idQuestao']: r['resposta'],
         };
 
+        // Use o método buscarNomeUsuario para obter os nomes
         final nomeEntrevistador = await buscarNomeUsuario(
           aplicacao.idEntrevistador,
           'usuarios',
         );
+        final nomeEntrevistado = await buscarNomeUsuario(
+          aplicacao.idEntrevistado,
+          'usuarios',
+        );
 
         final linha = [
-          nomeEntrevistador,
+          aplicacao.idAplicacao,
+          nomeEntrevistador, // agora mostra o nome
+          nomeEntrevistado, // agora mostra o nome
           ...questoesOrdenadas.map((id) {
             final resposta = mapaRespostas[id];
-            if (resposta == null) return 'Sem resposta';
+            if (resposta == null) return 'Sem dados';
 
-            final alternativasDaQuestao = alternativasPorQuestao[id];
-
-            // Timestamp direto do Firestore
             if (resposta is Timestamp) {
               return resposta.toDate().toIso8601String();
             }
 
-            // Timestamp serializado em string
             if (resposta is String && resposta.contains('Timestamp')) {
               final regex = RegExp(r'seconds=(\d+),');
               final match = regex.firstMatch(resposta);
@@ -151,29 +131,6 @@ class AplicacaoList with ChangeNotifier {
               }
             }
 
-            // Resposta múltipla (lista de IDs de opções)
-            if (resposta is List && alternativasDaQuestao != null) {
-              return resposta
-                  .map(
-                    (r) => alternativasDaQuestao[r.toString()] ?? r.toString(),
-                  )
-                  .join(', ');
-            }
-
-            // Resposta única (ID, índice ou texto de uma opção)
-            if (resposta is String &&
-                alternativasDaQuestao != null &&
-                alternativasDaQuestao.containsKey(resposta)) {
-              return alternativasDaQuestao[resposta]!;
-            }
-            // Se for índice numérico (int)
-            if (resposta is int &&
-                alternativasDaQuestao != null &&
-                alternativasDaQuestao.containsKey(resposta.toString())) {
-              return alternativasDaQuestao[resposta.toString()]!;
-            }
-
-            // Resposta comum (texto ou número)
             return resposta.toString();
           }),
         ];
@@ -181,7 +138,6 @@ class AplicacaoList with ChangeNotifier {
         sheet.appendRow(linha.map((e) => TextCellValue(e.toString())).toList());
       }
 
-      // Finalização e salvamento
       final fileBytes = excel.encode();
       if (fileBytes == null) throw Exception("Erro ao gerar Excel");
 
@@ -189,16 +145,28 @@ class AplicacaoList with ChangeNotifier {
 
       if (kIsWeb) {
         await exportarParaExcelWebDummy(fileBytes, fileName);
-      } else if (io.Platform.isAndroid || io.Platform.isIOS) {
-        final permissao = await _verificarPermissoesArmazenamento();
-        if (!permissao) throw Exception("Permissão negada");
+      } else {
+        // ANDROID / iOS
+        if (io.Platform.isAndroid || io.Platform.isIOS) {
+          var status = await Permission.storage.request();
 
-        final bytes = Uint8List.fromList(fileBytes);
-        await FileSaver.instance.saveFile(
-          name: fileName,
-          bytes: bytes,
-          ext: "xlsx",
-        );
+          // Se não foi concedido, tente pedir novamente (apenas Android)
+          if (!status.isGranted && io.Platform.isAndroid) {
+            status = await Permission.manageExternalStorage.request();
+          }
+
+          if (!status.isGranted) {
+            // Aqui você pode mostrar um diálogo explicando por que precisa da permissão
+            throw Exception("Permissão negada");
+          }
+
+          final Uint8List bytes = Uint8List.fromList(fileBytes);
+          await FileSaver.instance.saveFile(
+            name: fileName,
+            bytes: bytes,
+            ext: "xlsx",
+          );
+        }
       }
     } catch (e) {
       print("Erro na exportação: $e");
@@ -206,7 +174,6 @@ class AplicacaoList with ChangeNotifier {
     }
   }
 
-  // Método original de buscarNomeUsuario (mantido exatamente como está)
   Future<String> buscarNomeUsuario(String? id, String colecao) async {
     if (id == null || id.isEmpty) return '';
     final doc = await FirebaseFirestore.instance
@@ -217,59 +184,5 @@ class AplicacaoList with ChangeNotifier {
       return doc.data()!['nome'] ?? id;
     }
     return id;
-  }
-
-  // Sistema de permissões completo (como já havíamos desenvolvido)
-  Future<bool> _verificarPermissoesArmazenamento() async {
-    if (!io.Platform.isAndroid) return true;
-
-    // 1. Verifica versão do Android
-    final androidInfo = await DeviceInfoPlugin().androidInfo;
-    final isAndroid11OrHigher = androidInfo.version.sdkInt >= 30;
-
-    // 2. Tenta com WRITE_EXTERNAL_STORAGE primeiro
-    var status = await Permission.storage.status;
-    if (!status.isGranted) {
-      status = await Permission.storage.request();
-
-      // Se negado, mostra diálogo explicativo
-      if (!status.isGranted) {
-        bool? deveContinuar = await showDialog<bool>(
-          context: navigatorKey.currentContext!,
-          builder: (context) => AlertDialog(
-            title: Text("Permissão necessária"),
-            content: Text(
-              "Para salvar o arquivo, precisamos acessar o armazenamento. "
-              "Isso não afeta seus arquivos pessoais.",
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: Text("Cancelar"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: Text("Permitir"),
-              ),
-            ],
-          ),
-        );
-        if (deveContinuar != true) return false;
-        status = await Permission.storage.request();
-      }
-    }
-
-    // 3. Para Android 11+, tenta MANAGE_EXTERNAL_STORAGE
-    if (isAndroid11OrHigher && !status.isGranted) {
-      status = await Permission.manageExternalStorage.request();
-    }
-
-    // 4. Se ainda negado, abre configurações
-    if (!status.isGranted) {
-      await openAppSettings();
-      return false;
-    }
-
-    return true;
   }
 }

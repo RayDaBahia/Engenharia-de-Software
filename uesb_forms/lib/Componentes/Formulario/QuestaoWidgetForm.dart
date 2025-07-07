@@ -6,9 +6,9 @@ import 'package:uesb_forms/Componentes/Formulario/widget.MultiplasLinhas_Form.da
 import 'package:uesb_forms/Componentes/Formulario/widget.RespostaNumerica_Form.dart';
 import 'package:uesb_forms/Componentes/Formulario/widget.mE_obj_Form.dart';
 import 'package:uesb_forms/Componentes/Formulario/widgete.Ranking_Form.dart';
-import 'package:uesb_forms/Componentes/Formulario/widget.Captura_Form.dart';
 import 'package:uesb_forms/Modelo/questao.dart';
 import 'package:uesb_forms/Modelo/questao_tipo.dart';
+
 
 class QuestaoWidgetForm extends StatelessWidget {
   final Questao questao;
@@ -22,11 +22,15 @@ class QuestaoWidgetForm extends StatelessWidget {
       // Agrupando os cases para tipos de questão com o mesmo comportamento
       case QuestaoTipo.MultiPlaEscolha:
       case QuestaoTipo.Objetiva:
-        return WidgetMeObjForm(questao: questao);
+        return WidgetMeObjForm(
+          questao: questao,
+        );
 
       case QuestaoTipo.LinhaUnica:
       case QuestaoTipo.Email:
-        return WidgetLinhaUnicaOremailForm(questao: questao);
+        return WidgetLinhaUnicaOremailForm(
+          questao: questao,
+        );
 
       case QuestaoTipo.Numerica:
         return WidgetRespostaNumericaForm(questao: questao);
@@ -42,9 +46,6 @@ class QuestaoWidgetForm extends StatelessWidget {
 
       case QuestaoTipo.MultiplasLinhas:
         return WidgetMultiplaslinhasForm(questao: questao);
-
-      case QuestaoTipo.Captura:
-        return WidgetCapturaForm(questao: questao);
 
       default:
         return const Text('Tipo de questão não suportado');

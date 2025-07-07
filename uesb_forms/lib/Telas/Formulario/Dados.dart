@@ -169,34 +169,7 @@ class Dados extends StatelessWidget {
               final enunciados = await buscarEnunciadosQuestoes(
                 questionario.id,
               );
-
-              // NOVO: buscar alternativas das questões
-              final questoesSnapshot = await FirebaseFirestore.instance
-                  .collection('questionarios')
-                  .doc(questionario.id)
-                  .collection('questoes')
-                  .get();
-
-              final alternativasPorQuestao = <String, Map<String, String>>{};
-              for (var doc in questoesSnapshot.docs) {
-                final opcoes = doc.data()['opcoes'];
-                if (opcoes is List) {
-                  alternativasPorQuestao[doc.id] = {
-                    for (var i = 0; i < opcoes.length; i++)
-                      opcoes[i].toString(): opcoes[i].toString(),
-                    for (var i = 0; i < opcoes.length; i++)
-                      i.toString(): opcoes[i].toString(),
-                  };
-                } else {
-                  alternativasPorQuestao[doc.id] = {};
-                }
-              }
-
-              return {
-                'nomes': nomes,
-                'enunciados': enunciados,
-                'alternativas': alternativasPorQuestao,
-              };
+              return {'nomes': nomes, 'enunciados': enunciados};
             }(),
             builder: (context, snapshot2) {
               if (!snapshot2.hasData) {
@@ -207,9 +180,9 @@ class Dados extends StatelessWidget {
                   snapshot2.data!['enunciados'] as Map<String, String>;
 
               final cabecalho = [
-                //'ID Aplicação', // Removido
+                'ID Aplicação',
                 'Entrevistador',
-                // 'Entrevistado', // Removido
+                'Entrevistado',
                 ...questoesOrdenadas.map((id) => enunciados[id] ?? id),
               ];
 
@@ -278,8 +251,6 @@ class Dados extends StatelessWidget {
                               questoesOrdenadas,
                               nomes,
                               enunciados,
-                              snapshot2.data!['alternativas']
-                                  as Map<String, Map<String, String>>,
                               theme: theme,
                             ),
                           ),
@@ -354,15 +325,13 @@ class _DataSource extends DataTableSource {
   final List<String> questoesOrdenadas;
   final Map<String, String> nomes;
   final Map<String, String> enunciados;
-  final Map<String, Map<String, String>> alternativasPorQuestao;
   final ThemeData theme;
 
   _DataSource(
     this.aplicacoes,
     this.questoesOrdenadas,
     this.nomes,
-    this.enunciados,
-    this.alternativasPorQuestao, {
+    this.enunciados, {
     required this.theme,
   });
 
@@ -376,10 +345,7 @@ class _DataSource extends DataTableSource {
       for (var r in aplicacao.respostas) r['idQuestao']: r['resposta'],
     };
 
-    String formatarResposta(
-      dynamic resposta,
-      Map<String, String>? alternativas,
-    ) {
+    String formatarResposta(dynamic resposta) {
       if (resposta == null) return 'Sem dados';
 
       if (resposta is Timestamp) {
@@ -400,43 +366,19 @@ class _DataSource extends DataTableSource {
         }
       }
 
-      // Resposta múltipla (lista de opções)
-      if (resposta is List && alternativas != null) {
-        return resposta
-            .map(
-              (r) =>
-                  alternativas[r.toString()] ?? alternativas[r] ?? r.toString(),
-            )
-            .join(', ');
+      try {
+        final data = DateTime.parse(raw);
+        return data.toIso8601String();
+      } catch (_) {
+        return raw;
       }
-
-      // Resposta única (ID, índice ou texto de uma opção)
-      if (alternativas != null) {
-        if (resposta is String && alternativas.containsKey(resposta)) {
-          return alternativas[resposta]!.replaceAll(
-            RegExp(r'^\d+ - '),
-            '',
-          ); // Remove o prefixo "ID - " se existir
-        }
-        if (resposta is int && alternativas.containsKey(resposta.toString())) {
-          return alternativas[resposta.toString()]!.replaceAll(
-            RegExp(r'^\d+ - '),
-            '',
-          ); // Remove o prefixo "ID - " se existir
-        }
-      }
-
-      // Resposta comum (texto ou número)
-      return resposta.toString();
     }
 
     final dadosLinha = [
-      // aplicacao.idAplicacao, // Removido
+      aplicacao.idAplicacao,
       nomes[aplicacao.idEntrevistador] ?? aplicacao.idEntrevistador ?? '',
-      // nomes[aplicacao.idEntrevistado] ?? aplicacao.idEntrevistado ?? '', // Removido
-      ...questoesOrdenadas.map(
-        (id) => formatarResposta(mapaRespostas[id], alternativasPorQuestao[id]),
-      ),
+      nomes[aplicacao.idEntrevistado] ?? aplicacao.idEntrevistado ?? '',
+      ...questoesOrdenadas.map((id) => formatarResposta(mapaRespostas[id])),
     ];
 
     return DataRow(
