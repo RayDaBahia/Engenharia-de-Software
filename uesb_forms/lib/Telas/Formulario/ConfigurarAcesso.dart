@@ -128,6 +128,7 @@ Future<void> _handlePublishResponse(BuildContext dialogContext, bool publicar) a
       debugPrint('Antes do finalizar ok');
     await _FinalizarQuestionario();
     debugPrint('tudo certo ao finalizar');
+    
   } finally {
     if (mounted) {
       Navigator.of(context, rootNavigator: true).pop(); // Fecha o loading
@@ -216,7 +217,7 @@ Future<void> _handlePublishResponse(BuildContext dialogContext, bool publicar) a
                   await Provider.of<QuestionarioList>(context, listen: false)
                       .atualizarQuestionario(questionario!);
 
-                  showSuccessMessage(context, "Questionário criado com sucesso");
+                  showSuccessMessage(context, "Questionário atualizado com sucesso");
                   // Atualiza a tela anterior
                   Navigator.pushReplacementNamed(
                       context, Rotas.MEUS_FORMULARIOS);
@@ -514,6 +515,8 @@ Future<void> _handlePublishResponse(BuildContext dialogContext, bool publicar) a
 
 // Verifique se o questionário foi realmente salvo
 Future<void> _FinalizarQuestionario() async {
+  debugPrint('Novo prazo selecionado: $_prazoSelecionado');
+
   final user = FirebaseAuth.instance.currentUser;
   if (user == null) {
     print('Usuário não está autenticado. Cancelando salvamento.');
@@ -532,6 +535,9 @@ Future<void> _FinalizarQuestionario() async {
       publicado: dadosQuestionario['publicado'],
       gruposIds: dadosQuestionario['grupos'],
     );
+      if (mounted) {
+  showSuccessMessage(context, 'Questionário criado com sucesso');
+}
     print('Questionário salvo com sucesso.');
   } catch (e, stacktrace) {
     print('Erro ao salvar questionário: $e');

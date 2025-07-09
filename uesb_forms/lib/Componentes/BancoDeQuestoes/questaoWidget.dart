@@ -41,19 +41,19 @@ class QuestaoWidget extends StatelessWidget {
         );
 
       case QuestaoTipo.Numerica:
-        return WidgetRespostaNumerica(questao: questao);
+        return WidgetRespostaNumerica(questao: questao, bancoId: bancoId,);
 
       case QuestaoTipo.Data:
-        return WidgetData(questao: questao);
+        return WidgetData(questao: questao, idBanco: bancoId,);
 
       case QuestaoTipo.ListaSuspensa:
-        return WidgetListaSuspensa(questao: questao);
+        return WidgetListaSuspensa(questao: questao, bancoId: bancoId,);
 
       case QuestaoTipo.Ranking:
-        return WidgetRanking(questao: questao);
+        return WidgetRanking(questao: questao, bancoId: bancoId,);
 
       case QuestaoTipo.MultiplasLinhas:
-        return WidgetMultiplaslinhas(questao: questao);
+        return WidgetMultiplaslinhas(questao: questao, idBanco: bancoId,);
 
       default:
         return const Text('Tipo de questão não suportado');

@@ -21,6 +21,7 @@ class Questionario {
   int _meta;
   String? _liderNome;
   DateTime _dataCriacao;
+  bool _encerrado;
 
   Questionario({
     String id = '',
@@ -41,24 +42,26 @@ class Questionario {
     int meta = 0,
     String? liderNome,
     DateTime? dataCriacao,
-  })  : _id = id,
-        _nome = nome,
-        _tipoAplicacao = tipoAplicacao,
-        _descricao = descricao,
-        _publicado = publicado,
-        _visivel = visivel,
-        _ativo = ativo,
-        _prazo = prazo,
-        _dataPublicacao = dataPublicacao,
-        _entrevistadores = entrevistadores,
-        _grupos = grupos, // << ADICIONADO
-        _link = link,
-        _aplicado = aplicado,
-        _liderId = liderId,
-        _senha = senha,
-        _meta = meta,
-        _liderNome = liderNome,
-        _dataCriacao = dataCriacao ?? DateTime.now();
+    bool encerrado = false,
+  }) : _id = id,
+       _nome = nome,
+       _tipoAplicacao = tipoAplicacao,
+       _descricao = descricao,
+       _publicado = publicado,
+       _visivel = visivel,
+       _ativo = ativo,
+       _prazo = prazo,
+       _dataPublicacao = dataPublicacao,
+       _entrevistadores = entrevistadores,
+       _grupos = grupos, // << ADICIONADO
+       _link = link,
+       _aplicado = aplicado,
+       _liderId = liderId,
+       _senha = senha,
+       _meta = meta,
+       _liderNome = liderNome,
+       _dataCriacao = dataCriacao ?? DateTime.now(),
+       _encerrado = encerrado;
 
   Questionario copyWith({
     String? id,
@@ -79,6 +82,7 @@ class Questionario {
     int? meta,
     String? liderNome,
     DateTime? dataCriacao,
+    bool? encerrado,
   }) {
     return Questionario(
       id: id ?? _id,
@@ -99,6 +103,7 @@ class Questionario {
       meta: meta ?? _meta,
       liderNome: liderNome ?? _liderNome,
       dataCriacao: dataCriacao ?? _dataCriacao,
+      encerrado: encerrado ?? _encerrado,
     );
   }
 
@@ -121,6 +126,7 @@ class Questionario {
   int get meta => _meta;
   String? get liderNome => _liderNome;
   DateTime get dataCriacao => _dataCriacao;
+  bool get encerrado => _encerrado;
 
   // Setters
   set id(String value) => _id = value;
@@ -141,6 +147,7 @@ class Questionario {
   set meta(int value) => _meta = value;
   set liderNome(String? value) => _liderNome = value;
   set dataCriacao(DateTime value) => _dataCriacao = value;
+  set encerrado(bool value) => _encerrado = value;
 
   Map<String, dynamic> toMap() {
     return {
@@ -162,6 +169,7 @@ class Questionario {
       'meta': _meta,
       'liderNome': _liderNome,
       'dataCriacao': _dataCriacao.toIso8601String(),
+      'encerrado': _encerrado,
     };
   }
 
@@ -176,13 +184,13 @@ class Questionario {
       ativo: map['ativo'] ?? false,
       prazo: map['prazo'] != null
           ? (map['prazo'] is Timestamp
-              ? map['prazo'].toDate()
-              : DateTime.parse(map['prazo']))
+                ? map['prazo'].toDate()
+                : DateTime.parse(map['prazo']))
           : null,
       dataPublicacao: map['dataPublicacao'] != null
           ? (map['dataPublicacao'] is Timestamp
-              ? map['dataPublicacao'].toDate()
-              : DateTime.parse(map['dataPublicacao']))
+                ? map['dataPublicacao'].toDate()
+                : DateTime.parse(map['dataPublicacao']))
           : null,
       entrevistadores: List<String>.from(map['entrevistadores'] ?? []),
       grupos: List<String>.from(map['grupos'] ?? []), // << ADICIONADO
@@ -194,9 +202,10 @@ class Questionario {
       liderNome: map['liderNome'],
       dataCriacao: map['dataCriacao'] != null
           ? (map['dataCriacao'] is Timestamp
-              ? map['dataCriacao'].toDate()
-              : DateTime.parse(map['dataCriacao']))
+                ? map['dataCriacao'].toDate()
+                : DateTime.parse(map['dataCriacao']))
           : DateTime.now(),
+      encerrado: map['encerrado'] ?? false,
     );
   }
 }

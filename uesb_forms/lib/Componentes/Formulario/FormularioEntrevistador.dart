@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:uesb_forms/Controle_Modelo/questionario_list.dart';
 import 'package:uesb_forms/Modelo/Questionario.dart';
 
-class FormularioEntrevistador extends StatelessWidget {
+class FormularioEntrevistador extends StatefulWidget {
   final Questionario questionario;
   final VoidCallback? onAplicar;
   final VoidCallback? onTestar;
@@ -17,10 +17,48 @@ class FormularioEntrevistador extends StatelessWidget {
   });
 
   @override
+  State<FormularioEntrevistador> createState() => _FormularioEntrevistadorState();
+}
+
+class _FormularioEntrevistadorState extends State<FormularioEntrevistador> {
+
+
+  @override
+    void initState() {
+    super.initState();
+
+    // Chama a verificação ao iniciar
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _verificarEncerramento();
+    });
+  }
+    Future<void> _verificarEncerramento() async {
+    final provider = Provider.of<QuestionarioList>(context, listen: false);
+    final atualizado = await provider.verificaEncerramento(widget.questionario);
+    if (atualizado) {
+      debugPrint(
+        '✅ Questionário ${widget.questionario.nome} foi encerrado (prazo ou meta atingida).',
+      );
+    } else {
+      debugPrint(
+        '🕒 Questionário ${widget.questionario.nome} ainda está ativo.',
+      );
+    }
+
+    if (atualizado && mounted) {
+      setState(() {}); // Atualiza a UI se houve mudança de status
+    }
+  }
+  @override
   Widget build(BuildContext context) {
-    final dataPublicacao = questionario.dataPublicacao != null
-        ? DateFormat('dd/MM/yyyy').format(questionario.dataPublicacao!)
+    final dataPublicacao = widget.questionario.dataPublicacao != null
+        ? DateFormat('dd/MM/yyyy').format(widget.questionario.dataPublicacao!)
         : "Não publicado";
+
+    final prazo = widget.questionario.prazo != null
+        ? DateFormat('dd/MM/yyyy').format(widget.questionario.prazo!)
+        : "Indefinido";
+    
 
     return Card(
       elevation: 4,
@@ -39,19 +77,18 @@ class FormularioEntrevistador extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       Color.fromARGB(255, 0, 0, 0),
-                      Color.fromARGB(255, 103, 52, 139)
+                      Color.fromARGB(255, 103, 52, 139),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                 ),
               ),
-              if (questionario.senha != null && questionario.senha!.isNotEmpty)
-                const Positioned(
-                  right: 10,
-                  top: 10, // Ajuste para alinhar verticalmente
-                  child: Icon(Icons.lock, color: Colors.white, size: 30),
-                ),
+              Positioned(
+                right: 10,
+                bottom: 5,
+                child: getStatusIcon(widget.questionario),
+              ),
             ],
           ),
           // Corpo do card
@@ -61,7 +98,7 @@ class FormularioEntrevistador extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  questionario.nome,
+                  widget.questionario.nome,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -69,7 +106,7 @@ class FormularioEntrevistador extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  "Líder: ${questionario.liderNome}",
+                  "Líder: ${widget.questionario.liderNome}",
                   style: const TextStyle(fontSize: 14, color: Colors.grey),
                 ),
                 const SizedBox(height: 6),
@@ -78,33 +115,43 @@ class FormularioEntrevistador extends StatelessWidget {
                   style: const TextStyle(fontSize: 14, color: Colors.black),
                 ),
                 const SizedBox(height: 12),
+                Text(
+                  "Prazo: $prazo",
+                  style: const TextStyle(fontSize: 14, color: Colors.black),
+                ),
                 // Botões principais (sempre visíveis se publicado)
-                if (questionario.publicado)
+                if (widget.questionario.publicado)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      if (questionario.ativo)
+                      if (widget.questionario.ativo)
                         ElevatedButton(
                           onPressed: () => _handleAcao(
                             context,
-                            onAplicar,
+                            widget.onAplicar,
                             "Aplicar",
-                            questionario.senha,
+                            widget.questionario.senha,
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 45, 12, 68),
+                            backgroundColor: const Color.fromARGB(
+                              255,
+                              45,
+                              12,
+                              68,
+                            ),
                           ),
-                          child: const Text('Aplicar',
-                              style: TextStyle(color: Colors.white)),
+                          child: const Text(
+                            'Aplicar',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       const SizedBox(width: 8),
                       OutlinedButton(
                         onPressed: () => _handleAcao(
                           context,
-                          onTestar,
+                          widget.onTestar,
                           "Testar",
-                          questionario.senha,
+                          widget.questionario.senha,
                         ),
                         child: const Text('Testar'),
                       ),
@@ -115,6 +162,68 @@ class FormularioEntrevistador extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget getStatusIcon(Questionario questionario) {
+    final agora = DateTime.now();
+
+    if (!questionario.publicado) {
+      return const Row(
+        children: [
+          Icon(Icons.hourglass_empty, color: Colors.grey, size: 20),
+          SizedBox(width: 5),
+          Text("Não publicado", style: TextStyle(color: Colors.white)),
+        ],
+      );
+    }
+
+    if (questionario.encerrado) {
+      return const Row(
+        children: [
+          Icon(Icons.check, color: Colors.red, size: 20),
+          SizedBox(width: 5),
+          Text("Encerrado", style: TextStyle(color: Colors.white)),
+        ],
+      );
+    }
+
+    if (!questionario.ativo) {
+      return const Row(
+        children: [
+          Icon(Icons.visibility_off, color: Colors.orange, size: 20),
+          SizedBox(width: 5),
+          Text("Inativo", style: TextStyle(color: Colors.white)),
+        ],
+      );
+    }
+  if (questionario.senha?.isNotEmpty ?? false) {
+  return const Row(
+    children: [
+      Icon(Icons.lock, color: Colors.orange, size: 20),
+      SizedBox(width: 5),
+      Text("Bloqueado", style: TextStyle(color: Colors.white)),
+    ],
+  );
+}
+
+    if ( questionario.ativo) {
+      return const Row(
+        children: [
+          Icon(Icons.visibility, color: Colors.green, size: 20),
+          SizedBox(width: 5),
+          Text("Ativo", style: TextStyle(color: Colors.white)),
+        ],
+      );
+    }
+
+    // ✅ Fallback obrigatório
+    return const Row(
+      children: [
+        Icon(Icons.help_outline, color: Colors.white, size: 20),
+        SizedBox(width: 5),
+        Text("Desconhecido", style: TextStyle(color: Colors.white)),
+      ],
     );
   }
 
@@ -144,7 +253,9 @@ class FormularioEntrevistador extends StatelessWidget {
             TextButton(
               onPressed: () {
                 Navigator.pop(
-                    context, senhaController.text); // Retorna a senha digitada
+                  context,
+                  senhaController.text,
+                ); // Retorna a senha digitada
               },
               child: const Text("Confirmar"),
             ),
@@ -155,9 +266,9 @@ class FormularioEntrevistador extends StatelessWidget {
       if (senhaDigitada == senha) {
         callback?.call();
       } else if (senhaDigitada != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Senha incorreta!")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Senha incorreta!")));
       }
     } else {
       callback?.call();

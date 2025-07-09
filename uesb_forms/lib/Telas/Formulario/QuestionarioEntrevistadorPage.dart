@@ -97,15 +97,18 @@ class _QuestionariosEntrevistadorPageState
           questionario.nome.toLowerCase().contains(_searchQuery.toLowerCase());
       switch (_filtroSelecionado) {
         case "Inativos":
-          return !questionario.ativo && matchesSearch;
-        case "Ativos":
-          return questionario.ativo && matchesSearch;
-        case "Encerrados":
           return !questionario.ativo && questionario.publicado && matchesSearch;
+        case "Ativos":
+          return questionario.ativo &&  questionario.publicado && matchesSearch;
+        case "Encerrados":
+          return questionario.encerrado && questionario.publicado && matchesSearch;
         case "Bloqueados":
-          return (questionario.senha?.isNotEmpty ?? false) && matchesSearch;
-        default:
-          return matchesSearch;
+          return (questionario.senha?.isNotEmpty ?? false) && matchesSearch && questionario.publicado;
+        case "Todos":
+          return questionario.publicado;
+       default:
+  return questionario.publicado && matchesSearch;
+
       }
     }).toList();
 

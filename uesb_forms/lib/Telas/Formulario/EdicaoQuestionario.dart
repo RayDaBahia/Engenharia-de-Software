@@ -103,7 +103,7 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: ElevatedButton(
-              onPressed: () async{
+              onPressed: () async {
                 if (_nomeController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -143,17 +143,18 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                     _questoesSelecionadas,
                   );
 
-                 await Provider.of<QuestionarioList>(
-                      context,
-                      listen: false,
-                    ).atualizarQuestionario(questionario!);
+                  await Provider.of<QuestionarioList>(
+                    context,
+                    listen: false,
+                  ).atualizarQuestionario(questionario!);
 
-                    _questoesSelecionadas.clear();
+                  _questoesSelecionadas.clear();
 
-          
-                 
-                  showSuccessMessage(context, "Questionário atualizado com sucesso");
-                   Navigator.of(context).pop();
+                  showSuccessMessage(
+                    context,
+                    "Questionário atualizado com sucesso",
+                  );
+                  Navigator.of(context).pop();
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -296,125 +297,122 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
                                       Icons.delete,
                                       color: Colors.red,
                                     ),
+                                    onPressed: questionario == null
+                                        ? () async {
+                                            setState(() {
+                                              Provider.of<QuestionarioList>(
+                                                context,
+                                                listen: false,
+                                              ).excluirQuestaoSelecionada(
+                                                index,
+                                              );
+                                            });
+
+                                            if (context.mounted) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Questão excluída com sucesso',
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          }
+                                        : () async {
+                                            setState(() {
+                                              Provider.of<QuestionarioList>(
+                                                context,
+                                                listen: false,
+                                              ).excluirQuestaoSelecionada(
+                                                index,
+                                                questionario!.id,
+                                              );
+                                            });
+
+                                            if (context.mounted) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Questão excluída com sucesso',
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                  ),
+
+                                  // Para cima
+                                  IconButton(
+                                    tooltip:
+                                        "Permite levar a questão para posição acima",
+                                    icon: const Icon(
+                                      Icons.arrow_upward,
+                                      color: Colors.blue,
+                                    ),
+                                    // Botão "Para Cima" (↑)
                                     onPressed: () async {
-                                      final confirm = await showDialog<bool>(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: const Text(
-                                              'Confirmar Exclusão',
-                                            ),
-                                            content: const Text(
-                                              'Tem certeza de que deseja excluir esta questão do questionário?',
-                                            ),
-                                            actions: <Widget>[
-                                              TextButton(
-                                                child: const Text('Cancelar'),
-                                                onPressed: () => Navigator.of(
-                                                  context,
-                                                ).pop(false),
-                                              ),
-                                              TextButton(
-                                                child: const Text('Excluir'),
-                                                onPressed: () => Navigator.of(
-                                                  context,
-                                                ).pop(true),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-
-                                      if (confirm == true) {
-                                        setState(() {
-                                          Provider.of<QuestionarioList>(
-                                            context,
-                                            listen: false,
-                                          ).excluirQuestaoSelecionada(
-                                            index,
+                                      if (index > 0) {
+                                        final provider =
+                                            Provider.of<QuestionarioList>(
+                                              context,
+                                              listen: false,
+                                            );
+                                        provider.moverQuestaoAcima(
+                                          index,
+                                        ); // Método novo no Provider
+                                        if (questionario != null) {
+                                          await provider.salvarOrdemQuestoes(
                                             questionario!.id,
-                                          );
-                                        });
-
-                                        if (context.mounted) {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'Questão excluída com sucesso',
-                                              ),
-                                            ),
                                           );
                                         }
                                       }
                                     },
                                   ),
-                                  // Para cima
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.arrow_upward,
-                                      color: Colors.blue,
-                                    ),
-                                    onPressed: () async {
-                                      if (index > 0) {
-                                        setState(() {
-                                          final questao = _questoesSelecionadas
-                                              .removeAt(index);
-                                          _questoesSelecionadas.insert(
-                                            index - 1,
-                                            questao,
-                                          );
-                                        });
-                                        await Provider.of<QuestionarioList>(
-                                          context,
-                                          listen: false,
-                                        ).salvarOrdemQuestoes(questionario!.id);
-                                      }
-                                    },
-                                  ),
                                   // Para baixo
                                   IconButton(
+                                    tooltip:
+                                        "Permite levar a questão para posição abaixo",
                                     icon: const Icon(
                                       Icons.arrow_downward,
                                       color: Colors.blue,
                                     ),
+                                    // Botão "Para Baixo" (↓)
                                     onPressed: () async {
                                       if (index <
                                           _questoesSelecionadas.length - 1) {
-                                        setState(() {
-                                          final questao = _questoesSelecionadas
-                                              .removeAt(index);
-                                          _questoesSelecionadas.insert(
-                                            index + 1,
-                                            questao,
+                                        final provider =
+                                            Provider.of<QuestionarioList>(
+                                              context,
+                                              listen: false,
+                                            );
+                                        provider.moverQuestaoAbaixo(
+                                          index,
+                                        ); // Método novo no Provider
+                                        if (questionario != null) {
+                                          await provider.salvarOrdemQuestoes(
+                                            questionario!.id,
                                           );
-                                        });
-                                        await Provider.of<QuestionarioList>(
-                                          context,
-                                          listen: false,
-                                        ).salvarOrdemQuestoes(questionario!.id);
+                                        }
                                       }
                                     },
                                   ),
 
-                                  if ([
-                                        QuestaoTipo.MultiPlaEscolha,
-                                        QuestaoTipo.Objetiva,
-                                        QuestaoTipo.ListaSuspensa,
-                                        QuestaoTipo.Ranking,
-                                        QuestaoTipo.Numerica,
-                                      ]
+                                  if ([QuestaoTipo.Objetiva]
                                       .map((e) => e.toString())
                                       .contains(
                                         questao.tipoQuestao.toString(),
                                       )) ...[
                                     IconButton(
                                       icon: const Icon(
-                                        Icons.visibility,
-                                        color: Colors.green,
+                                        Icons.sync,
+                                        color: Color.fromARGB(255, 42, 0, 57),
                                       ),
-                                      tooltip: "Dinamizar alternativas",
+                                      tooltip:
+                                          "Permite definir a próxima pergunta com base na alternativa",
                                       onPressed: () {
                                         Navigator.push(
                                           context,
@@ -460,16 +458,16 @@ class _EdicaoQuestionarioState extends State<EdicaoQuestionario> {
   }
 }
 
-  void showSuccessMessage(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating, // Faz ele "flutuar" acima da UI
-        margin: const EdgeInsets.all(16), // Margem nas bordas
-        duration: const Duration(seconds: 3), // Tempo que ele fica visível
-      ),
-    );
-  }
+void showSuccessMessage(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      behavior: SnackBarBehavior.floating, // Faz ele "flutuar" acima da UI
+      margin: const EdgeInsets.all(16), // Margem nas bordas
+      duration: const Duration(seconds: 3), // Tempo que ele fica visível
+    ),
+  );
+}
 
 class CampoTexto extends StatelessWidget {
   final String label;

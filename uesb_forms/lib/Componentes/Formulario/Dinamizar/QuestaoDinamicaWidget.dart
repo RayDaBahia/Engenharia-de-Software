@@ -17,14 +17,13 @@ class QuestaoDinamicaWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (questao.tipoQuestao) {
       // Agrupando os cases para tipos de questão com o mesmo comportamento
-      case QuestaoTipo.MultiPlaEscolha:
+   
       case QuestaoTipo.Objetiva:
         return WidgetMeObjDinamica(
           questao: questao,
         );
 
-      case QuestaoTipo.Numerica:
-        return WidgetRespostaNumericaForm(questao: questao);
+   
 
       default:
         return const Text('Tipo de questão não suportado');

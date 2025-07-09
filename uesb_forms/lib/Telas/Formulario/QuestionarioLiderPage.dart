@@ -86,9 +86,11 @@ class _QuestionariosLiderPageState extends State<QuestionariosLiderPage> {
         case "Não Visível":
           return !questionario.visivel && matchesSearch;
         case "Encerrado":
-          return !questionario.ativo && questionario.publicado && matchesSearch;
+          return  questionario.encerrado && matchesSearch;
         case "Não Publicado":
           return !questionario.publicado && matchesSearch;
+            case "Bloqueados":
+          return (questionario.senha?.isNotEmpty ?? false) && matchesSearch;
         default:
           return matchesSearch;
       }
@@ -124,11 +126,13 @@ class _QuestionariosLiderPageState extends State<QuestionariosLiderPage> {
                           "Visível Ativo", Icons.visibility, "Visível Ativo"),
                       _CategoriaChip("Visível Inativo", Icons.visibility_off,
                           "Visível Inativo"),
+                   _CategoriaChip("Bloqueados", Icons.lock, "Bloqueados"),
                       _CategoriaChip(
                           "Não Visível", Icons.remove_red_eye, "Não Visível"),
                       _CategoriaChip("Encerrado", Icons.check, "Encerrado"),
                       _CategoriaChip("Não Publicado", Icons.hourglass_empty,
                           "Não Publicado"),
+
                     ],
                   ),
                 ),
@@ -175,8 +179,12 @@ class _QuestionariosLiderPageState extends State<QuestionariosLiderPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 40.0),
       child: ElevatedButton(
-        onPressed: () =>
-            Navigator.of(context).pushNamed(Rotas.EDICAO_FORMULARIO_TELA),
+        onPressed: (){
+            Provider.of<QuestionarioList>(context, listen: false).limparTudo();
+              Navigator.of(context).pushNamed(Rotas.EDICAO_FORMULARIO_TELA);
+        },
+        
+        
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color.fromARGB(255, 45, 12, 68),
           shape: const CircleBorder(),

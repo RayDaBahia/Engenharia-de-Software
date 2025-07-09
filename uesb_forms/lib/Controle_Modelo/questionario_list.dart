@@ -13,6 +13,7 @@ class QuestionarioList extends ChangeNotifier {
 
   List<Questionario> questionariosEntrevistador = [];
   List<Questionario> questionariosLider = [];
+  List<Questionario> questionariosDeGrupos = [];
   List<Questao> listaQuestoes = [];
   List<Grupo> grupos = [];
   String? meta;
@@ -41,6 +42,11 @@ class QuestionarioList extends ChangeNotifier {
         final data = doc.data() as Map<String, dynamic>;
         return Questionario.fromMap(data, doc.id);
       }).toList();
+          // Aqui chama a verificação de encerramento para cada questionário
+
+    await Future.wait( questionariosGrupo.map((q) => verificaEncerramento(q)));
+      questionariosDeGrupos=questionariosGrupo;
+      notifyListeners();
 
       debugPrint(
           'Questionários encontrados para o grupo $grupoId: ${questionariosGrupo.length}');
@@ -48,79 +54,108 @@ class QuestionarioList extends ChangeNotifier {
       debugPrint('Erro ao buscar questionários por grupo: $e');
     }
 
-    return questionariosGrupo;
+    return questionariosDeGrupos;
   }
 
-  void excluirQuestaoSelecionada(int index, String questionarioId) async {
-    if (index >= 0 && index < listaQuestoes.length) {
-      String? questaoId = listaQuestoes[index].id; // Pegando o ID da questão
-      listaQuestoes.removeAt(index);
-      notifyListeners();
-      debugPrint(
-          'Questão removida localmente. Restantes: ${listaQuestoes.length}');
+  void excluirQuestaoSelecionada(int index, [String? questionarioId]) async {
+  if (index >= 0 && index < listaQuestoes.length) {
+    String? questaoId = listaQuestoes[index].id; // Pegando o ID da questão
+    listaQuestoes.removeAt(index);
+    notifyListeners();
+    debugPrint(
+        'Questão removida localmente. Restantes: ${listaQuestoes.length}');
 
-      if (questaoId != null) {
-        try {
-          await FirebaseFirestore.instance
-              .collection('questionarios')
-              .doc(questionarioId)
-              .collection('questoes')
-              .doc(questaoId)
-              .delete();
-          debugPrint('Questão excluída do Firestore com sucesso.');
-        } catch (e) {
-          debugPrint('Erro ao excluir questão do Firestore: $e');
-        }
+    if (questaoId != null && questionarioId != null) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('questionarios')
+            .doc(questionarioId)
+            .collection('questoes')
+            .doc(questaoId)
+            .delete();
+        debugPrint('Questão excluída do Firestore com sucesso.');
+      } catch (e) {
+        debugPrint('Erro ao excluir questão do Firestore: $e');
       }
-    } else {
-      debugPrint('Erro: Índice fora do alcance.');
+    }
+  } else {
+    debugPrint('Erro: Índice fora do alcance.');
+  }
+}
+void _iniciarVerificacaoDePrazo() {
+  _timer = Timer.periodic(Duration(minutes: 10), (timer) async {
+    // Une todas as listas de questionarios relevantes:
+    final todosQuestionarios = {
+      ...questionariosLider,
+      ...questionariosEntrevistador,
+      ...questionariosDeGrupos,
+      // Se tiver outros, adicione aqui, como por exemplo:
+      // ...questionariosDeGrupos,
+    }.toList();
+
+    await _verificarEAtualizarPrazo(todosQuestionarios);
+  });
+}
+
+Future<void> _verificarEAtualizarPrazo(List<Questionario> questionarios) async {
+  final now = DateTime.now();
+
+  for (var questionario in questionarios) {
+    if (questionario.prazo != null &&
+        questionario.prazo!.isBefore(now) &&
+        questionario.ativo) {
+      try {
+        await _firestore
+            .collection('questionarios')
+            .doc(questionario.id)
+            .update({
+          'ativo': false,
+        });
+
+        questionario.ativo = false;
+
+        notifyListeners();
+        debugPrint('Questionário ${questionario.id} atualizado para inativo.');
+      } catch (e) {
+        debugPrint('Erro ao atualizar status do questionário: $e');
+      }
     }
   }
+}
 
-  void _iniciarVerificacaoDePrazo() {
-    _timer = Timer.periodic(Duration(minutes: 10), (timer) {
-      _verificarEAtualizarPrazo();
+
+Future<bool> verificaEncerramento(Questionario questionario) async {
+  final agora = DateTime.now();
+
+  final prazoPassado = questionario.prazo != null && questionario.prazo!.isBefore(agora);
+
+  // Busca total de aplicações no Firestore
+  final snapshot = await _firestore
+      .collection('aplicacoes')
+      
+        .where("idQuestionario", isEqualTo: questionario.id)
+      .get();
+
+  final totalAplicacoes = snapshot.docs.length;
+  final metaAtingida = questionario.meta > 0 && totalAplicacoes >= questionario.meta;
+
+  final encerrado = prazoPassado || metaAtingida;
+
+  if (encerrado && !questionario.encerrado) {
+    // Atualiza as flags localmente
+    questionario.encerrado = true;
+    questionario.ativo = false;
+
+    // Atualiza o Firestore
+    await _firestore.collection('questionarios').doc(questionario.id).update({
+      'encerrado': true,
+      'ativo': false,
     });
   }
 
-  Future<void> _verificarEAtualizarPrazo() async {
-    final now = DateTime.now();
+  return encerrado;
+}
 
-    for (var questionario in questionariosLider) {
-      if (questionario.prazo != null &&
-          questionario.prazo!.isBefore(now) &&
-          questionario.ativo) {
-        // Se o prazo passou e o questionário  está ativo, atualize o status
-        try {
-          await _firestore
-              .collection('questionarios')
-              .doc(questionario.id)
-              .update({
-            'ativo': false, // Define como inativo quando o prazo passou
-          });
-
-          // Atualize a lista localmente
-          questionario.ativo = false;
-
-          notifyListeners();
-          debugPrint(
-              'Questionário ${questionario.id} atualizado para inativo.');
-        } catch (e) {
-          debugPrint('Erro ao atualizar status do questionário: $e');
-        }
-      }
-    }
-  }
-
-  void adicionarGrupo(Grupo novoGrupo) {
-    final id = novoGrupo.id ?? '';
-    final idsExistentes = grupos.map((g) => g.id ?? '').toSet();
-
-    if (!idsExistentes.contains(id)) {
-      grupos.add(novoGrupo);
-      notifyListeners();
-    }
-  }
 
   void removerGrupoDaLista(String grupoId) {
     final tamanhoAntes = grupos.length;
@@ -329,6 +364,7 @@ class QuestionarioList extends ChangeNotifier {
         final data = doc.data() as Map<String, dynamic>;
         return Questionario.fromMap(data, doc.id);
       }).toList();
+          await Future.wait( questionariosLider.map((q) => verificaEncerramento(q)));
 
       debugPrint('Questionários carregados: ${questionariosLider.length}');
 
@@ -354,7 +390,7 @@ class QuestionarioList extends ChangeNotifier {
         final data = doc.data() as Map<String, dynamic>;
         return Questionario.fromMap(data, doc.id);
       }).toList();
-
+    await Future.wait( questionariosEntrevistador.map((q) => verificaEncerramento(q)));
       debugPrint(
           'Questionários do entrevistador carregados: ${questionariosEntrevistador.length}');
       notifyListeners();
@@ -447,6 +483,26 @@ class QuestionarioList extends ChangeNotifier {
     }
   }
 
+  void moverQuestaoAcima(int index) {
+  if (index <= 0) return;
+  
+  final questao = listaQuestoes[index];
+  listaQuestoes.removeAt(index);
+  listaQuestoes.insert(index - 1, questao);
+  
+  notifyListeners(); // Importante!
+}
+
+void moverQuestaoAbaixo(int index) {
+  if (index >= listaQuestoes.length - 1) return;
+  
+  final questao = listaQuestoes[index];
+  listaQuestoes.removeAt(index);
+  listaQuestoes.insert(index + 1, questao);
+  
+  notifyListeners(); // Importante!
+}
+
   Future<void> salvarOrdemQuestoes(String questionarioId) async {
     final batch = _firestore.batch();
 
@@ -494,7 +550,8 @@ class QuestionarioList extends ChangeNotifier {
   
      await _persistirQuestoes(listaQuestoes, questionario.id);
 
-      limparQuestoes();
+     limparTudo();
+
       notifyListeners();
 
       debugPrint('Questionário atualizado com sucesso!');

@@ -51,6 +51,7 @@ class AplicacaoList with ChangeNotifier {
     final snapshot = await FirebaseFirestore.instance
         .collection("aplicacoes")
         .where("idQuestionario", isEqualTo: idQuestionario)
+
         .get();
 
     return snapshot.docs.map((doc) {
@@ -58,65 +59,101 @@ class AplicacaoList with ChangeNotifier {
     }).toList();
   }
 
-  Future<void> exportarParaExcelWeb(Questionario questionario) async {
-    try {
-      _aplicacoes = await buscarAplicacoes(questionario.id);
+Future<void> exportarParaExcelWeb(Questionario questionario) async {
+  try {
+    _aplicacoes = await buscarAplicacoes(questionario.id);
 
-      // Busca todas as questões do questionário
-      final questoesSnapshot = await FirebaseFirestore.instance
-          .collection('questionarios')
-          .doc(questionario.id)
-          .collection('questoes')
-          .get();
+    // Busca todas as questões do questionário
+    final questoesSnapshot = await FirebaseFirestore.instance
+        .collection('questionarios')
+        .doc(questionario.id)
+        .collection('questoes')
+        .get();
 
-      // Mapeia id da questão para enunciado
-      final Map<String, String> idParaEnunciado = {
-        for (var doc in questoesSnapshot.docs)
-          doc.id: doc['textoQuestao'] ?? doc.id,
-      };
+    // Mapeia id da questão para enunciado
+    final Map<String, String> idParaEnunciado = {
+      for (var doc in questoesSnapshot.docs)
+        doc.id: doc.data()['textoQuestao'] ?? doc.id,
+    };
 
-      // Mapeia alternativas a partir da subcoleção 'opcoes' de cada questão
-      final Map<String, Map<String, String>> alternativasPorQuestao = {};
+    // Mapeia alternativas a partir da subcoleção 'opcoes' de cada questão
+    final Map<String, Map<String, String>> alternativasPorQuestao = {};
 
-      for (var doc in questoesSnapshot.docs) {
-        final opcoes = doc.data()['opcoes'];
-        if (opcoes is List) {
-          alternativasPorQuestao[doc.id] = {
-            // Mapeia tanto o texto quanto o índice como chave
-            for (var i = 0; i < opcoes.length; i++)
-              opcoes[i].toString(): opcoes[i].toString(),
-            for (var i = 0; i < opcoes.length; i++)
-              i.toString(): opcoes[i].toString(),
-          };
-        } else {
-          alternativasPorQuestao[doc.id] = {};
+    for (var doc in questoesSnapshot.docs) {
+      final opcoes = doc.data()['opcoes'];
+      if (opcoes is List) {
+        alternativasPorQuestao[doc.id] = {
+          for (var i = 0; i < opcoes.length; i++) opcoes[i].toString(): opcoes[i].toString(),
+          for (var i = 0; i < opcoes.length; i++) i.toString(): opcoes[i].toString(),
+        };
+      } else {
+        alternativasPorQuestao[doc.id] = {};
+      }
+    }
+
+    // Função local para formatar resposta com segurança
+    String formatarResposta(dynamic resposta, Map<String, String>? alternativas) {
+      if (resposta == null) return 'Sem resposta';
+
+      if (resposta is Timestamp) {
+        return resposta.toDate().toIso8601String();
+      }
+
+      if (resposta is String && resposta.contains('Timestamp')) {
+        final regex = RegExp(r'seconds=(\d+),');
+        final match = regex.firstMatch(resposta);
+        if (match != null && match.group(1) != null) {
+          final seconds = int.tryParse(match.group(1)!);
+          if (seconds != null) {
+            return DateTime.fromMillisecondsSinceEpoch(seconds * 1000).toIso8601String();
+          }
+        }
+        return resposta;
+      }
+
+      if (resposta is List && alternativas != null) {
+        return resposta
+            .map((r) => alternativas[r.toString()] ?? r.toString())
+            .join(', ');
+      }
+
+      if (alternativas != null) {
+        if (resposta is String && alternativas.containsKey(resposta)) {
+          return alternativas[resposta]!;
+        }
+        if (resposta is int && alternativas.containsKey(resposta.toString())) {
+          return alternativas[resposta.toString()]!;
         }
       }
 
-      // Criação do Excel
-      final excel = Excel.createExcel();
-      excel.delete('Sheet1');
-      final sheet = excel['Dados'];
+      return resposta.toString();
+    }
 
-      // Descobrir todas as questões que possuem respostas
-      final Set<String> idsQuestoes = {};
-      for (var aplicacao in _aplicacoes) {
-        for (var resposta in aplicacao.respostas) {
-          idsQuestoes.add(resposta['idQuestao']);
-        }
+    // Criação do Excel
+    final excel = Excel.createExcel();
+    excel.delete('Sheet1');
+    final sheet = excel['Dados'];
+
+    // Descobrir todas as questões que possuem respostas
+    final Set<String> idsQuestoes = {};
+    for (var aplicacao in _aplicacoes) {
+      for (var resposta in aplicacao.respostas) {
+        idsQuestoes.add(resposta['idQuestao']);
       }
+    }
 
-      final List<String> questoesOrdenadas = idsQuestoes.toList()..sort();
+    final List<String> questoesOrdenadas = idsQuestoes.toList()..sort();
 
-      // Cabeçalho
-      final cabecalho = [
-        'Entrevistador',
-        ...questoesOrdenadas.map((id) => idParaEnunciado[id] ?? id),
-      ];
-      sheet.appendRow(cabecalho.map((e) => TextCellValue(e)).toList());
+    // Cabeçalho
+    final cabecalho = [
+      'Entrevistador',
+      ...questoesOrdenadas.map((id) => idParaEnunciado[id] ?? id),
+    ];
+    sheet.appendRow(cabecalho.map((e) => TextCellValue(e)).toList());
 
-      // Linhas de dados
-      for (var aplicacao in _aplicacoes) {
+    // Linhas de dados
+    for (var aplicacao in _aplicacoes) {
+      try {
         final Map<String, dynamic> mapaRespostas = {
           for (var r in aplicacao.respostas) r['idQuestao']: r['resposta'],
         };
@@ -126,85 +163,52 @@ class AplicacaoList with ChangeNotifier {
           'usuarios',
         );
 
-        final linha = [
-          nomeEntrevistador,
-          ...questoesOrdenadas.map((id) {
-            final resposta = mapaRespostas[id];
-            if (resposta == null) return 'Sem resposta';
+        final linha = <String>[];
+        linha.add(nomeEntrevistador);
 
-            final alternativasDaQuestao = alternativasPorQuestao[id];
+        for (var id in questoesOrdenadas) {
+          final resposta = mapaRespostas[id];
+          final alternativasDaQuestao = alternativasPorQuestao[id];
+          linha.add(formatarResposta(resposta, alternativasDaQuestao));
+        }
 
-            // Timestamp direto do Firestore
-            if (resposta is Timestamp) {
-              return resposta.toDate().toIso8601String();
-            }
-
-            // Timestamp serializado em string
-            if (resposta is String && resposta.contains('Timestamp')) {
-              final regex = RegExp(r'seconds=(\d+),');
-              final match = regex.firstMatch(resposta);
-              if (match != null) {
-                final seconds = int.parse(match.group(1)!);
-                return DateTime.fromMillisecondsSinceEpoch(
-                  seconds * 1000,
-                ).toIso8601String();
-              }
-            }
-
-            // Resposta múltipla (lista de IDs de opções)
-            if (resposta is List && alternativasDaQuestao != null) {
-              return resposta
-                  .map(
-                    (r) => alternativasDaQuestao[r.toString()] ?? r.toString(),
-                  )
-                  .join(', ');
-            }
-
-            // Resposta única (ID, índice ou texto de uma opção)
-            if (resposta is String &&
-                alternativasDaQuestao != null &&
-                alternativasDaQuestao.containsKey(resposta)) {
-              return alternativasDaQuestao[resposta]!;
-            }
-            // Se for índice numérico (int)
-            if (resposta is int &&
-                alternativasDaQuestao != null &&
-                alternativasDaQuestao.containsKey(resposta.toString())) {
-              return alternativasDaQuestao[resposta.toString()]!;
-            }
-
-            // Resposta comum (texto ou número)
-            return resposta.toString();
-          }),
-        ];
-
-        sheet.appendRow(linha.map((e) => TextCellValue(e.toString())).toList());
+        sheet.appendRow(linha.map((e) => TextCellValue(e)).toList());
+      } catch (e, st) {
+        print('Erro ao formatar linha da aplicação ${aplicacao.idAplicacao}: $e');
+        print(st);
+        // Continua exportando as outras linhas, adiciona uma linha com erro
+        sheet.appendRow([
+          TextCellValue('Erro na aplicação ${aplicacao.idAplicacao}'),
+        ]);
       }
-
-      // Finalização e salvamento
-      final fileBytes = excel.encode();
-      if (fileBytes == null) throw Exception("Erro ao gerar Excel");
-
-      final fileName = "aplicacoes_${questionario.nome}.xlsx";
-
-      if (kIsWeb) {
-        await exportarParaExcelWebDummy(fileBytes, fileName);
-      } else if (io.Platform.isAndroid || io.Platform.isIOS) {
-        final permissao = await _verificarPermissoesArmazenamento();
-        if (!permissao) throw Exception("Permissão negada");
-
-        final bytes = Uint8List.fromList(fileBytes);
-        await FileSaver.instance.saveFile(
-          name: fileName,
-          bytes: bytes,
-          ext: "xlsx",
-        );
-      }
-    } catch (e) {
-      print("Erro na exportação: $e");
-      rethrow;
     }
+
+    // Finalização e salvamento
+    final fileBytes = excel.encode();
+    if (fileBytes == null) throw Exception("Erro ao gerar Excel");
+
+    final fileName = "aplicacoes_${questionario.nome}.xlsx";
+
+    if (kIsWeb) {
+      await exportarParaExcelWebDummy(fileBytes, fileName);
+    } else if (io.Platform.isAndroid || io.Platform.isIOS) {
+      final permissao = await _verificarPermissoesArmazenamento();
+      if (!permissao) throw Exception("Permissão negada");
+
+      final bytes = Uint8List.fromList(fileBytes);
+      await FileSaver.instance.saveFile(
+        name: fileName,
+        bytes: bytes,
+        ext: "xlsx",
+      );
+    }
+  } catch (e, st) {
+    print("Erro na exportação: $e");
+    print(st);
+    rethrow;
   }
+}
+
 
   // Método original de buscarNomeUsuario (mantido exatamente como está)
   Future<String> buscarNomeUsuario(String? id, String colecao) async {

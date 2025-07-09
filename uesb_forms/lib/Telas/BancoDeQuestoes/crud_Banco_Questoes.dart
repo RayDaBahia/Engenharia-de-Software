@@ -45,10 +45,6 @@ class _CrudBancoQuestoesState extends State<CrudBancoQuestoes> {
     _nomeBancoController = TextEditingController();
     _questaoFiltro = TextEditingController();
 
-    // Adicione um listener ao controlador de filtro
-    _questaoFiltro.addListener(() {
-      setState(() {}); // Atualiza a UI quando o filtro muda
-    });
   }
 
   @override

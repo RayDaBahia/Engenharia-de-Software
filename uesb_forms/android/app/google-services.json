@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "92855436550-kp0q3014mf6vnqe087rtfno3q1e42s6f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.uesb_forms",
+            "certificate_hash": "e9ce942f654e00cd5c05fbdfb5fcbb1b67f063ea"
+          }
+        },
+        {
           "client_id": "92855436550-2unp3fm8mo04k6125a3ojnv6212nubgt.apps.googleusercontent.com",
           "client_type": 3
         }

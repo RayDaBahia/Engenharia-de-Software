@@ -66,7 +66,7 @@ class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
             child: CircularProgressIndicator(
               value: loadingProgress.expectedTotalBytes != null
                   ? loadingProgress.cumulativeBytesLoaded /
-                      loadingProgress.expectedTotalBytes!
+                        loadingProgress.expectedTotalBytes!
                   : null,
             ),
           );
@@ -81,24 +81,32 @@ class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
 
   @override
   Widget build(BuildContext context) {
-    final bancoList = Provider.of<BancoList>(context, listen: false);
-
     return Card(
-       color: Colors.white,
+      color: Colors.white,
       elevation: 5,
       shadowColor: Colors.black,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 if (!widget.isFormulario) ...[
                   IconButton(
-                    onPressed: () {
-                      bancoList.removerQuestao(widget.idBanco, widget.questao);
+                    onPressed: () async {
+                      await Provider.of<BancoList>(
+                        context,
+                        listen: false,
+                      ).removerQuestao(widget.idBanco, widget.questao);
+
+                     if (mounted) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Questão excluída com sucesso!')),
+    );
+  });
+}
                     },
                     icon: const Icon(Icons.delete),
                   ),
@@ -129,13 +137,17 @@ class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
             TextField(
               controller: controlePergunta,
               decoration: InputDecoration(
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 labelText: 'Digite a pergunta',
               ),
               onChanged: (value) {
                 widget.questao.textoQuestao = value;
-                bancoList.adicionarQuestaoNaLista(widget.questao);
+                Provider.of<BancoList>(
+                  context,
+                  listen: false,
+                ).adicionarQuestaoNaLista(widget.questao);
               },
               readOnly: widget.isFormulario, // Só edita se não for formulário
             ),
@@ -143,8 +155,9 @@ class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
             TextField(
               controller: controleResposta,
               decoration: InputDecoration(
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 labelText: widget.questao.tipoQuestao == QuestaoTipo.LinhaUnica
                     ? 'Resposta'
                     : 'Digite seu e-mail',
@@ -153,6 +166,17 @@ class _WidgetLinhaUnicaOremailState extends State<WidgetLinhaUnicaOremail> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void showSuccessMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating, // Faz ele "flutuar" acima da UI
+        margin: const EdgeInsets.all(16), // Margem nas bordas
+        duration: const Duration(seconds: 3), // Tempo que ele fica visível
       ),
     );
   }

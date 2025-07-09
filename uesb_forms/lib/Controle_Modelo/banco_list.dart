@@ -313,30 +313,45 @@ class BancoList with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> removerQuestao(String? bancoId, Questao questao) async {
-    final user = _authList?.usuario;
-    if (user != null) {
-      if (bancoId != null) {
-        // ADICIONADO: Remover imagem do Cloudinary se existir
-        if (questao.imagemUrl != null) {
-          await _deletarImagemSeExistir(questao.imagemUrl);
-        }
+ Future<void> removerQuestao(String? bancoId, Questao questao) async {
+  final user = _authList?.usuario;
 
-        final questaoRef = _firestore
-            .collection('usuarios')
-            .doc(user.id)
-            .collection('bancos')
-            .doc(bancoId)
-            .collection('questoes')
-            .doc(questao.id);
+  // 🔹 1. Remove da lista local (sempre faz isso)
+  questoesLista.removeWhere((q) => q.id == questao.id);
+  notifyListeners();
 
-        await questaoRef.delete();
-      }
+  // 🔹 2. Se bancoId é nulo, não acessa Firestore
+  if (bancoId == null || bancoId.isEmpty) {
+    print('[removerQuestao] Questão removida apenas localmente (bancoId nulo)');
+    return;
+  }
+
+  // 🔹 3. Se bancoId existe, remove no Firestore também
+  if (user == null) {
+    print('[removerQuestao] Usuário não autenticado.');
+    return;
+  }
+
+  try {
+    if (questao.imagemUrl != null) {
+      await _deletarImagemSeExistir(questao.imagemUrl);
     }
 
-    questoesLista.removeWhere((q) => q.id == questao.id);
-    notifyListeners();
+    final questaoRef = _firestore
+        .collection('usuarios')
+        .doc(user.id)
+        .collection('bancos')
+        .doc(bancoId)
+        .collection('questoes')
+        .doc(questao.id);
+
+    await questaoRef.delete();
+
+    print('[removerQuestao] Questão removida do Firestore.');
+  } catch (e) {
+    print('[removerQuestao] Erro ao remover do Firestore: $e');
   }
+}
 
   // Método para filtrar questões
   List<Questao> filtrarQuestoes(String texto) {

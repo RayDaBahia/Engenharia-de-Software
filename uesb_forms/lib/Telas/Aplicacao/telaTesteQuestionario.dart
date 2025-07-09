@@ -201,33 +201,41 @@ class _TelaTesteQuestionarioState extends State<TelaTesteQuestionario> {
               ),
             ),
           ),
-             Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0), // Espaçamento da borda
-                    child: GestureDetector(
-                      onTap: _isLoading ? null : _avancar,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Color(
-                              0xFF1B0C2F), // Cor de fundo (ajuste conforme desejar)
-                          shape: BoxShape.circle,
-                        ),
-                        padding: EdgeInsets.all(12),
-                        child: _indiceAtual == questoes.length - 1
-                            ? Icon(
-                                  Icons.check,
-
-                                color: Colors.white,
-                              )
-                            : Icon(
-                              Icons.chevron_right,
-                                color: Colors.white,
-                              ),
-                      ),
+               Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: _voltar,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1B0C2F),
+                      shape: BoxShape.circle,
+                    ),
+                    padding: const EdgeInsets.all(12),
+                    child: const Icon(Icons.chevron_left, color: Colors.white),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: _isLoading ? null : _avancar,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1B0C2F),
+                      shape: BoxShape.circle,
+                    ),
+                    padding: const EdgeInsets.all(12),
+                    child: Icon(
+                      _indiceAtual == questoes.length - 1
+                          ? Icons.check
+                          : Icons.chevron_right,
+                      color: Colors.white,
                     ),
                   ),
                 ),
+              ],
+            ),
+          ),
         ],
       ),
     );

@@ -28,8 +28,9 @@ class _WidgetCapturaState extends State<WidgetCaptura> {
   @override
   void initState() {
     super.initState();
-    _perguntaController =
-        TextEditingController(text: widget.questao.textoQuestao);
+    _perguntaController = TextEditingController(
+      text: widget.questao.textoQuestao,
+    );
     widget.questao.tipoQuestao = QuestaoTipo.Captura;
   }
 
@@ -89,7 +90,7 @@ class _WidgetCapturaState extends State<WidgetCaptura> {
               child: CircularProgressIndicator(
                 value: loadingProgress.expectedTotalBytes != null
                     ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes!
+                          loadingProgress.expectedTotalBytes!
                     : null,
               ),
             );
@@ -110,7 +111,7 @@ class _WidgetCapturaState extends State<WidgetCaptura> {
     return Card(
       elevation: 5,
       shadowColor: Colors.black,
-        color: Colors.white,
+      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -120,8 +121,19 @@ class _WidgetCapturaState extends State<WidgetCaptura> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
-                    onPressed: () {
-                      bancoList.removerQuestao(widget.bancoId, widget.questao);
+                    onPressed: () async {
+                      await Provider.of<BancoList>(
+                        context,
+                        listen: false,
+                      ).removerQuestao(widget.bancoId, widget.questao);
+
+                    if (mounted) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Questão excluída com sucesso!')),
+    );
+  });
+}
                     },
                     icon: const Icon(Icons.delete),
                   ),
@@ -148,8 +160,9 @@ class _WidgetCapturaState extends State<WidgetCaptura> {
             TextField(
               controller: _perguntaController,
               decoration: InputDecoration(
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 labelText: 'Digite a pergunta',
               ),
               onChanged: (value) {
@@ -165,6 +178,17 @@ class _WidgetCapturaState extends State<WidgetCaptura> {
             _buildImageResponseArea(),
           ],
         ),
+      ),
+    );
+  }
+
+  void showSuccessMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating, // Faz ele "flutuar" acima da UI
+        margin: const EdgeInsets.all(16), // Margem nas bordas
+        duration: const Duration(seconds: 3), // Tempo que ele fica visível
       ),
     );
   }

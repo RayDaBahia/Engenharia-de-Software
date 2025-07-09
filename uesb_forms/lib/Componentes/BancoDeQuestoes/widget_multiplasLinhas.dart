@@ -104,9 +104,17 @@ class _WidgetMultiplaslinhasState extends State<WidgetMultiplaslinhas> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
-                    onPressed: () {
-                      bancoList.removerQuestao(widget.idBanco, widget.questao);
-                    },
+                  onPressed:() async {
+                      await Provider.of<BancoList>(context, listen: false)
+                            .removerQuestao(widget.idBanco, widget.questao);
+                  
+          if (mounted) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Questão excluída com sucesso!')),
+    );
+  });
+};},
                     icon: const Icon(Icons.delete),
                   ),
                   IconButton(
@@ -165,8 +173,19 @@ class _WidgetMultiplaslinhasState extends State<WidgetMultiplaslinhas> {
         ),
       ),
     );
+    
   }
 
+  void showSuccessMessage(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      behavior: SnackBarBehavior.floating, // Faz ele "flutuar" acima da UI
+      margin: const EdgeInsets.all(16), // Margem nas bordas
+      duration: const Duration(seconds: 3), // Tempo que ele fica visível
+    ),
+  );
+}
   @override
   void dispose() {
     controlePergunta.dispose();
